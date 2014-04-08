@@ -1,0 +1,23 @@
+Package: compcodeR
+Type: Package
+Title: RNAseq data simulation, differential expression analysis and
+        performance comparison of differential expression methods
+Version: 0.99.3
+Author: Charlotte Soneson
+Maintainer: Charlotte Soneson <Charlotte.Soneson@isb-sib.ch>
+Description: This package provides extensive functionality for
+        comparing results obtained by different methods for
+        differential expression analysis of RNAseq data. It also
+        contains functions for simulating count data and interfaces to
+        several packages for performing the differential expression
+        analysis.
+Depends: R (>= 3.0.2), sm
+Imports: tcltk, knitr (>= 1.2), markdown, ROCR, lattice (>= 0.16),
+        gplots, gtools, gdata, caTools, grid, KernSmooth, MASS,
+        ggplot2, stringr, modeest, edgeR, limma, vioplot, methods
+Suggests: BiocStyle, EBSeq, DESeq, DESeq2 (>= 1.1.31), baySeq (>=
+        1.16.0), genefilter, NOISeq, DSS, TCC, samr, NBPSeq, HTSDiff
+Enhances: rpanel
+License: GPL (>= 2)
+VignetteBuilder: knitr
+biocViews: RNASeq, DifferentialExpression

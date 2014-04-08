@@ -1,0 +1,20 @@
+\name{listcreateRmd}
+\alias{listcreateRmd}
+\title{List available *.createRmd functions}
+\usage{
+listcreateRmd()
+}
+\description{
+Print a list of all \code{*.createRmd} functions that are
+available in the search path. These functions can be used
+together with the \code{\link{runDiffExp}} function to
+perform differential expression analysis. Consult the help
+pages for the respective functions for more information.
+}
+\examples{
+listcreateRmd()
+}
+\author{
+Charlotte Soneson
+}
+

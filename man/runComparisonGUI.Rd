@@ -1,0 +1,84 @@
+\name{runComparisonGUI}
+\alias{runComparisonGUI}
+\title{A GUI to the main function for running the performance comparison between differential expression methods.}
+\usage{
+runComparisonGUI(input.directories, output.directory, recursive,
+  out.width = NULL, upper.limits = NULL, lower.limits = NULL)
+}
+\arguments{
+  \item{input.directories}{A list of directories containing
+  the result files (\code{*.rds}). All results in the
+  provided directories will be available for inclusion in
+  the comparison, and the selection is performed through a
+  graphical user interface. All result objects saved in the
+  files should be of the \code{compData} class, although
+  list objects created by earlier versions of
+  \code{compcodeR} are supported.}
+
+  \item{output.directory}{The directory where the results
+  should be written. The subdirectory structure will be
+  created automatically. If the directory already exists,
+  it will be overwritten.}
+
+  \item{recursive}{A logical parameter indicating whether
+  or not the search should be extended recursively to
+  subfolders of the \code{input.directories}.}
+
+  \item{out.width}{The width of the figures in the final
+  report. Will be passed on to \code{knitr} when the HTML
+  is generated. Can be for example "800px" (see
+  \code{knitr} documentation for more information)}
+
+  \item{upper.limits,lower.limits}{Lists that can be used
+  to manually set upper and lower limits for boxplots of
+  fdr, tpr, auc, fracsign and typeIerror.}
+}
+\value{
+The function will create a comparison report, named
+\strong{compcodeR_report<timestamp>.html}, in the
+\code{output.directory}. It will also create subfolders
+named \code{compcodeR_code} and \code{compcodeR_figure},
+where the code used to perform the differential expression
+analysis and the figures contained in the report,
+respectively, will be saved. Note that if these directories
+already exist they will be overwritten.
+}
+\description{
+This function provides a GUI to the main function for
+performing comparisons among differential expression
+methods and generating a report in HTML format
+(\code{\link{runComparison}}). It is assumed that all
+differential expression results have been generated in
+advance (using e.g. the function \code{\link{runDiffExp}})
+and that the result \code{compData} object for each data
+set and each differential expression method is saved
+separately in files with the extension \code{.rds}. The
+function opens a graphical user interface where the user
+can set parameter values and choose the files to be used as
+the basis of the comparison. It is, however, possible to
+circumvent the GUI and call the comparison function
+\code{\link{runComparison}} directly.
+}
+\details{
+This function requires that the \code{rpanel} package is
+installed. If this package can not be installed, please use
+the \code{\link{runComparison}} function directly.
+}
+\examples{
+\dontrun{
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500,
+                                    samples.per.cond = 5, n.diffexp = 1250,
+                                    output.file = "mydata.rds")
+runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = ".",
+           norm.method = "TMM")
+runDiffExp(data.file = "mydata.rds", result.extent = "ttest",
+           Rmdfunction = "ttest.createRmd", output.directory = ".",
+           norm.method = "TMM")
+runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
+}
+}
+\author{
+Charlotte Soneson
+}
+

@@ -1,0 +1,16 @@
+0.99.3:	- Bug fixes
+
+0.99.2:	- Extended the examples
+	- Bug fixes
+
+0.99.1: - inclusion of an additional comparison metric, relating the gene score to the signal strength for genes expressed in only one condition
+	- improved documentation of the compData class
+
+0.99.0:	- identical to 0.2.0, renamed for Bioconductor submission
+
+0.2.0: 	- introduction of a new S4 class (compData) and associated functions
+	- more examples, checks and error messages
+	- more options for providing user-specified values in the data simulation 
+	- changed the range of the color palette in the Spearman correlation plots to [-1,1]
+
+0.1.0: 	- first version
