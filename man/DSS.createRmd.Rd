@@ -1,0 +1,62 @@
+\name{DSS.createRmd}
+\alias{DSS.createRmd}
+\title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with DSS}
+\usage{
+DSS.createRmd(data.path, result.path, codefile, norm.method, disp.trend)
+}
+\arguments{
+  \item{data.path}{The path to a .rds file containing the
+  \code{compData} object that will be used for the
+  differential expression analysis.}
+
+  \item{result.path}{The path to the file where the result
+  object will be saved.}
+
+  \item{codefile}{The path to the file where the code will
+  be written.}
+
+  \item{norm.method}{The between-sample normalization
+  method used to compensate for varying library sizes and
+  composition in the differential expression analysis.
+  Possible values are \code{"quantile"}, \code{"total"} and
+  \code{"median"}.}
+
+  \item{disp.trend}{A logical parameter indicating whether
+  or not to include a trend in the dispersion estimation.}
+}
+\description{
+A function to generate code that can be run to perform
+differential expression analysis of RNAseq data (comparing
+two conditions) using the DSS package. The code is written
+to a \code{.Rmd} file. This function is generally not
+called by the user, the main interface for performing
+differential expression analysis is the
+\code{\link{runDiffExp}} function.
+}
+\details{
+For more information about the methods and the
+interpretation of the parameters, see the \code{DSS}
+package and the corresponding publications.
+}
+\examples{
+try(
+if (require(DSS)) {
+tmpdir <- normalizePath(tempdir(), winslash = "/")
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
+                                    output.file = file.path(tmpdir, "mydata.rds"))
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DSS",
+           Rmdfunction = "DSS.createRmd",
+           output.directory = tmpdir, norm.method = "quantile",
+           disp.trend = TRUE)
+})
+}
+\author{
+Charlotte Soneson
+}
+\references{
+Wu H, Wang C and Wu Z (2013): A new shrinkage estimator for
+dispersion improves differential expression detection in
+RNA-seq data. Biostatistics 14(2), 232-243
+}
+

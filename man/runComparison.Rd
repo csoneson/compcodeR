@@ -1,0 +1,170 @@
+\name{runComparison}
+\alias{runComparison}
+\title{Run the performance comparison between differential expression methods.}
+\usage{
+runComparison(file.table, parameters, output.directory, check.table = TRUE,
+  out.width = NULL)
+}
+\arguments{
+  \item{file.table}{A data frame with at least a column
+  \code{input.files}, potentially also columns named
+  \code{datasets}, \code{nbr.samples}, \code{repl} and
+  \code{de.methods}.}
+
+  \item{parameters}{A list containing parameters for the
+  comparison study. The following entries are supported,
+  and used by different comparison methods: \itemize{ \item
+  \code{incl.nbr.samples} An array with sample sizes
+  (number of samples per condition) to consider in the
+  comparison. If set to \code{NULL}, all sample sizes will
+  be included. \item \code{incl.dataset} A dataset name
+  (corresponding to the \code{dataset} slot of the results
+  or data objects), indicating the dataset that will be
+  used for the comparison. Only one dataset can be chosen.
+  \item \code{incl.replicates} An array with replicate
+  numbers to consider in the comparison. If set to
+  \code{NULL}, all replicates will be included. \item
+  \code{incl.de.methods} An array with differential
+  expression methods to be compared. If set to \code{NULL},
+  all differential expression methods will be included.
+  \item \code{fdr.threshold} The adjusted p-value threshold
+  for FDR calculations. Default 0.05. \item
+  \code{tpr.threshold} The adjusted p-value threshold for
+  TPR calculations. Default 0.05. \item
+  \code{typeI.threshold} The nominal p-value threshold for
+  type I error calculations. Default 0.05. \item
+  \code{fdc.maxvar} The maximal number of variables to
+  include in false discovery curve plots. Default 1500.
+  \item \code{overlap.threshold} The adjusted p-value for
+  overlap analysis. Default 0.05. \item
+  \code{fracsign.threshold} The adjusted p-value for
+  calculation of the fraction of genes called significant.
+  Default 0.05. \item \code{ma.threshold} The adjusted
+  p-value threshold for coloring genes in MA plots. Default
+  0.05. \item \code{signal.measure} Either \code{'mean'} or
+  \code{'snr'}, determining how to define the signal
+  strength for a gene which is expressed in only one
+  condition. \item \code{upper.limits,lower.limits} Lists
+  that can be used to manually set the upper and lower plot
+  limits for boxplots of fdr, tpr, auc, fracsign and
+  typeIerror. \item \code{comparisons} Array containing the
+  comparison methods to be applied. The entries must be
+  chosen among the following abbreviations: \itemize{ \item
+  \code{"auc"} - Compute the area under the ROC curve \item
+  \code{"tpr"} - Compute the true positive rate at a given
+  adjusted p-value threshold (\code{tpr.threshold}) \item
+  \code{"fdr"} - Compute the false discovery rate at a
+  given adjusted p-value threshold (\code{fdr.threshold})
+  \item \code{"fdrvsexpr"} - Compute the false discovery
+  rate as a function of the expression level. \item
+  \code{"typeIerror"} - Compute the type I error rate at a
+  given nominal p-value threshold (\code{typeI.threshold})
+  \item \code{"fracsign"} - Compute the fraction of genes
+  called significant at a given adjusted p-value threshold
+  (\code{fracsign.threshold}) \item \code{"maplot"} -
+  Construct MA plots, depicting the average expression
+  level and the log fold change for the genes and
+  indicating the genes called differential expressed at a
+  given adjusted p-value threshold (\code{ma.threshold})
+  \item \code{"fdcurvesall"} - Construct false discovery
+  curves for each of the included replicates \item
+  \code{"fdcurvesone"} - Construct false discovery curves
+  for a single replicate only \item \code{"rocall"} -
+  Construct ROC curves for each of the included replicates
+  \item \code{"rocone"} - Construct ROC curves for a single
+  replicate only \item \code{"overlap"} - Compute the
+  overlap between collections of genes called
+  differentially expressed by the different methods at a
+  given adjusted p-value threshold
+  (\code{overlap.threshold}) \item \code{"sorensen"} -
+  Compute the Sorensen index, quantifying the overlap
+  between collections of genes called differentially
+  expressed by the different methods, at a given adjusted
+  p-value threshold (\code{overlap.threshold}) \item
+  \code{"correlation"} - Compute the Spearman correlation
+  between gene scores assigned by different methods \item
+  \code{"scorevsoutlier"} - Visualize the distribution of
+  the gene scores as a function of the number of outlier
+  counts introduced for the genes \item
+  \code{"scorevsexpr"} - Visualize the gene scores as a
+  function of the average expression level of the genes
+  \item \code{"scorevssignal"} - Visualize the gene score
+  as a function of the 'signal strength' (see the
+  \code{signal.measure} parameter above) for genes that are
+  expressed in only one condition } }}
+
+  \item{output.directory}{The directory where the results
+  should be written. The subdirectory structure will be
+  created automatically. If the directory already exists,
+  it will be overwritten.}
+
+  \item{check.table}{Logical, should the input table be
+  checked for consistency. Default \code{TRUE}.}
+
+  \item{out.width}{The width of the figures in the final
+  report. Will be passed on to \code{knitr} when the HTML
+  is generated.}
+}
+\value{
+The function will create a comparison report, named
+\strong{compcodeR_report<timestamp>.html}, in the
+\code{output.directory}. It will also create subfolders
+named \code{compcodeR_code} and \code{compcodeR_figure},
+where the code used to perform the differential expression
+analysis and the figures contained in the report,
+respectively, will be stored. Note that if these
+directories already exists, they will be overwritten.
+}
+\description{
+The main function for performing comparisons among
+differential expression methods and generating a report in
+HTML format. It is assumed that all differential expression
+results have been generated in advance (using e.g. the
+function \code{\link{runDiffExp}}) and that the result
+\code{compData} object for each data set and each
+differential expression method is saved separately in files
+with the extension \code{.rds}. Note that the function can
+also be called via the \code{\link{runComparisonGUI}}
+function, which lets the user set parameters and select
+input files using a graphical user interface.
+}
+\details{
+The input to \code{\link{runComparison}} is a data frame
+with at least a column named \code{input.files}, containing
+paths to \code{.rds} files containing result objects (of
+the class \code{compData}), such as those generated by
+\code{\link{runDiffExp}}. Other columns that can be
+included in the data frame are \code{datasets},
+\code{nbr.samples}, \code{repl} and \code{de.methods}. They
+have to match the information contained in the
+corresponding result objects. If these columns are not
+present, they will be added to the data frame
+automatically.
+}
+\examples{
+tmpdir <- normalizePath(tempdir(), winslash = "/")
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
+                                    output.file = file.path(tmpdir, "mydata.rds"))
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
+           norm.method = "TMM")
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
+           norm.method = "TMM",
+           trend.method = "movingave", disp.type = "tagwise")
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
+                         stringsAsFactors = FALSE)
+parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "mydata",
+                   incl.de.methods = NULL,
+                   fdr.threshold = 0.05, tpr.threshold = 0.05, typeI.threshold = 0.05,
+                   ma.threshold = 0.05, fdc.maxvar = 1500, overlap.threshold = 0.05,
+                   fracsign.threshold = 0.05,
+                   comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
+runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
+}
+\author{
+Charlotte Soneson
+}
+

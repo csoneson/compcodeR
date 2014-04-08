@@ -1,0 +1,75 @@
+\name{edgeR.GLM.createRmd}
+\alias{edgeR.GLM.createRmd}
+\title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with the edgeR GLM approach}
+\usage{
+edgeR.GLM.createRmd(data.path, result.path, codefile, norm.method, disp.type,
+  disp.method, trended)
+}
+\arguments{
+  \item{data.path}{The path to a .rds file containing the
+  \code{compData} object that will be used for the
+  differential expression analysis.}
+
+  \item{result.path}{The path to the file where the result
+  object will be saved.}
+
+  \item{codefile}{The path to the file where the code will
+  be written.}
+
+  \item{norm.method}{The between-sample normalization
+  method used to compensate for varying library sizes and
+  composition in the differential expression analysis.
+  Possible values are \code{"TMM"}, \code{"RLE"},
+  \code{"upperquartile"} and \code{"none"}.}
+
+  \item{disp.type}{The type of dispersion estimate used.
+  Possible values are \code{"common"}, \code{"trended"} and
+  \code{"tagwise"}.}
+
+  \item{disp.method}{The method used to estimate the
+  dispersion. Possible values are \code{"CoxReid"},
+  \code{"Pearson"} and \code{"deviance"}.}
+
+  \item{trended}{Logical parameter indicating whether or
+  not a trended dispersion estimate should be used.}
+}
+\value{
+The function generates a \code{.Rmd} file containing the
+code for performing the differential expression analysis.
+This file can be executed using e.g. the \code{knitr}
+package.
+}
+\description{
+A function to generate code that can be run to perform
+differential expression analysis of RNAseq data (comparing
+two conditions) using the GLM functionality from the edgeR
+package. The code is written to a \code{.Rmd} file. This
+function is generally not called by the user, the main
+interface for performing differential expression analysis
+is the \code{\link{runDiffExp}} function.
+}
+\details{
+For more information about the methods and the
+interpretation of the parameters, see the \code{edgeR}
+package and the corresponding publications.
+}
+\examples{
+tmpdir <- normalizePath(tempdir(), winslash = "/")
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
+                                    output.file = file.path(tmpdir, "mydata.rds"))
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.GLM",
+           Rmdfunction = "edgeR.GLM.createRmd",
+           output.directory = tmpdir, norm.method = "TMM",
+           disp.type = "tagwise", disp.method = "CoxReid",
+           trended = TRUE)
+}
+\author{
+Charlotte Soneson
+}
+\references{
+Robinson MD, McCarthy DJ and Smyth GK (2010): edgeR: a
+Bioconductor package for differential expression analysis
+of digital gene expression data. Bioinformatics 26, 139-140
+}
+

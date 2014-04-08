@@ -1,0 +1,42 @@
+\name{generateCodeHTMLs}
+\alias{generateCodeHTMLs}
+\title{Generate HTML file(s) containing code used to run differential expression analysis.}
+\usage{
+generateCodeHTMLs(input.files, output.directory)
+}
+\arguments{
+  \item{input.files}{A vector with paths to one or several
+  \code{.rds} files containing \code{compData} objects with
+  the results from differential expression analysis. One
+  code HTML file is generated for each file in the vector.}
+
+  \item{output.directory}{The path to the directory where
+  the code HTML files will be saved.}
+}
+\description{
+A function to extract the code used to generate
+differential expression results from saved \code{compData}
+result objects (typically obtained by
+\code{\link{runDiffExp}}), and to write the code to HTML
+files. This requires that the code was saved as a character
+string in R markdown format in the \code{code} slot of the
+result object, which is done automatically by
+\code{\link{runDiffExp}}. If the differential expression
+analysis was performed with functions outside
+\code{compcodeR}, the code has to be added manually to the
+result object.
+}
+\examples{
+tmpdir <- normalizePath(tempdir(), winslash = "/")
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
+                                    output.file = file.path(tmpdir, "mydata.rds"))
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
+           norm.method = "TMM")
+generateCodeHTMLs(file.path(tmpdir, "mydata_voom.limma.rds"), tmpdir)
+}
+\author{
+Charlotte Soneson
+}
+

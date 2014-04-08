@@ -1,0 +1,68 @@
+\name{checkTableConsistency}
+\alias{checkTableConsistency}
+\title{Check consistency of input table to \code{\link{runComparison}}}
+\usage{
+checkTableConsistency(file.table)
+}
+\arguments{
+  \item{file.table}{A data frame with columns named
+  \code{input.files} and (optionally) \code{datasets},
+  \code{nbr.samples}, \code{repl}, \code{de.methods}.}
+}
+\value{
+Returns a consistent file table defining the result files
+that will be used as the basis for a method comparison.
+}
+\description{
+Check that the \code{dataset}, \code{nbr.samples},
+\code{repl} and \code{de.methods} columns of a data frame
+are consistent with the information provided in the input
+files (given in the \code{input.files} column of the data
+frame). If there are inconsistencies or missing information
+in any of the columns, replace the given information with
+the information in the input files.
+}
+\examples{
+tmpdir <- normalizePath(tempdir(), winslash = "/")
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
+                                    output.file = file.path(tmpdir, "mydata.rds"))
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
+           norm.method = "TMM")
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
+           norm.method = "TMM",
+           trend.method = "movingave", disp.type = "tagwise")
+
+## A correct table
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
+                         datasets = c("mydata", "mydata"),
+                         nbr.samples = c(5, 5),
+                         repl = c(1, 1),
+                         stringsAsFactors = FALSE)
+new.table <- checkTableConsistency(file.table)
+new.table
+
+## An incorrect table
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
+                         datasets = c("mydata", "mydata"),
+                         nbr.samples = c(5, 3),
+                         repl = c(2, 1),
+                         stringsAsFactors = FALSE)
+new.table <- checkTableConsistency(file.table)
+new.table
+
+## A table with missing information
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
+                         stringsAsFactors = FALSE)
+new.table <- checkTableConsistency(file.table)
+new.table
+}
+\author{
+Charlotte Soneson
+}
+
