@@ -54,7 +54,7 @@ EBSeq.createRmd <- function(data.path, result.path, codefile,
   if (norm.method == "median") {
     writeLines("sizes <- MedianNorm(count.matrix(cdata))", codefile)
   } else if (norm.method == "quantile") {
-    writeLines("sizes <- QuantileNorm(count.matrix(cdata))", codefile)
+    writeLines("sizes <- QuantileNorm(count.matrix(cdata), .75)", codefile)
   }
   writeLines(c("EBSeq.test <- EBTest(Data = count.matrix(cdata), Conditions = factor(sample.annotations(cdata)$condition), sizeFactors = sizes, maxround = 10)", 
                "EBSeq.ppmat <- GetPPMat(EBSeq.test)", 
