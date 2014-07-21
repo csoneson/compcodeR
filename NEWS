@@ -1,3 +1,5 @@
+1.1.2: - Added reference information for TCC (thanks to Koji Kadota)
+
 1.1.1: - Bug fix in EBSeq quantile normalization (thanks to Rory Kirchner)
 
 0.99.3:	- Bug fixes
