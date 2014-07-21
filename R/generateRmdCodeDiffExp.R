@@ -1302,7 +1302,7 @@ DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.tr
 #' @references 
 #' Kadota K, Nishiyama T, and Shimizu K. A normalization strategy for comparing tag count data. Algorithms Mol Biol. 7:5, 2012.
 #' 
-#' Sun J, Nishiyama T, Shimizu K, and Kadota K. TCC: an R package for comparing tag count data with robust normalization strategies.
+#' Sun J, Nishiyama T, Shimizu K, and Kadota K. TCC: an R package for comparing tag count data with robust normalization strategies. BMC Bioinformatics 14:219, 2013.
 #' @examples
 #' try(
 #' if (require(TCC)) {
