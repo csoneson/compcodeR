@@ -1,3 +1,5 @@
+1.1.4: - Added MCC (Matthew's correlation coefficient) as evaluation measure
+
 1.1.3: - Fixed summarizeSyntheticDataSet to work also for non-simulated data
 
 1.1.2: - Added reference information for TCC (thanks to Koji Kadota)
