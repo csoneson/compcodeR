@@ -15,7 +15,7 @@ runComparisonGUI(input.directories, output.directory, recursive,
 
 \item{out.width}{The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated. Can be for example "800px" (see \code{knitr} documentation for more information)}
 
-\item{upper.limits,lower.limits}{Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, fracsign and typeIerror.}
+\item{upper.limits,lower.limits}{Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.}
 }
 \value{
 The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.

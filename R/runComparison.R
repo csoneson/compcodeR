@@ -66,7 +66,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   
   writeLines("Parameter values:", resultfile)
   writeLines(c("```{r parametervalues, echo = FALSE}",
-               "print(data.frame(value = unlist(setup.parameters[c('fdr.threshold', 'tpr.threshold', 'typeI.threshold', 'ma.threshold', 'fdc.maxvar', 'overlap.threshold', 'fracsign.threshold', 'signal.measure')])))",
+               "print(data.frame(value = unlist(setup.parameters[c('fdr.threshold', 'tpr.threshold', 'typeI.threshold', 'mcc.threshold', 'ma.threshold', 'fdc.maxvar', 'overlap.threshold', 'fracsign.threshold', 'signal.measure')])))",
                "```"), resultfile)
   
   writeLines("---", resultfile, sep = "\n\n")
@@ -86,6 +86,8 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("- [ROC curves, single replicate](#rocone)\n", resultfile)
   if ('auc' %in% setup.parameters$comparisons)
     writeLines("- [Area under the ROC curve](#auc)\n", resultfile)
+  if ('mcc' %in% setup.parameters$comparisons)
+    writeLines("- [Matthew's correlation coefficient](#mcc)\n", resultfile)
   if ('fdcurvesall' %in% setup.parameters$comparisons)
     writeLines("- [False discovery curves, all replicates](#fdcurvesall)\n", resultfile)
   if ('fdcurvesone' %in% setup.parameters$comparisons)
@@ -152,7 +154,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     }
   }
   
-  if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign') %in% setup.parameters$comparisons)) {
+  if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'mcc') %in% setup.parameters$comparisons)) {
     writeLines(c(paste("```{r tabl, eval = TRUE, include = TRUE}"),
                  "res.table = createResultTable(setup.parameters)"), resultfile)
     if (any(!is.na(setup.parameters$incl.nbr.samples))) {
@@ -168,6 +170,16 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines(c(paste("```{r auc, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height = ",
                        length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'auc')",
+                 "```", "---"), resultfile)
+  }
+  
+  if ('mcc' %in% setup.parameters$comparisons) {
+    writeLines("<a name='mcc'></a>", resultfile)
+    writeLines("## Matthew's correlation coefficient [(Contents)](#contents)", resultfile)
+    writeLines("Matthew's correlation coefficient is a measure summarizing the performance of a binary classifier, by combining the number of observed true positives, true negatives, false positives and false negatives into a single value. The correlation coefficient takes values between -1 and 1, where 1 corresponds to perfect classification and -1 corresponds to complete disagreement between the classification and the true labels. A value of 0 corresponds to random assignment. \n", resultfile)
+    writeLines(c(paste("```{r mcc, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height = ",
+                       length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
+                 "plotResultTable(setup.parameters, res.table, 'mcc')",
                  "```", "---"), resultfile)
   }
   
@@ -412,7 +424,7 @@ checkClass <- function(object, objname, trueclass) {
 #' @param output.directory The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.
 #' @param recursive A logical parameter indicating whether or not the search should be extended recursively to subfolders of the \code{input.directories}. 
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated. Can be for example "800px" (see \code{knitr} documentation for more information)
-#' @param upper.limits,lower.limits Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, fracsign and typeIerror.
+#' @param upper.limits,lower.limits Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.
 #' @return
 #' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.
 #' @export
@@ -495,6 +507,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
                                       incl.dataset = avail.datasets[1],
                                       fdr.threshold = 0.05,
                                       tpr.threshold = 0.05,
+                                      mcc.threshold = 0.05,
                                       typeI.threshold = 0.05,
                                       fdc.maxvar = 1500,
                                       overlap.threshold = 0.05,
@@ -567,7 +580,7 @@ createSelectionPanel = function(panel) {
   comparisons <- c("AUC", "ROC, one replicate", "ROC, all replicates",
                    "Type I error", "FDR", 
                    "FDR vs average expression level",
-                   "TPR",
+                   "TPR", "MCC", 
                    "False discovery curves, one replicate",
                    "False discovery curves, all replicates",
                    "Fraction significant", "Overlap, one replicate",
@@ -596,6 +609,7 @@ createSelectionPanel = function(panel) {
                                    incl.dataset = panel$incl.dataset,
                                    fdr.threshold = panel$fdr.threshold,
                                    tpr.threshold = panel$tpr.threshold,
+                                   mcc.threshold = panel$mcc.threshold,
                                    typeI.threshold = panel$typeI.threshold,
                                    fdc.maxvar = panel$fdc.maxvar,
                                    ma.threshold = panel$ma.threshold,
@@ -677,6 +691,17 @@ createSelectionPanel = function(panel) {
                          action = I,
                          labels = "Adjusted p-value threshold for TPR",
                          initval = main.panel$tpr.threshold,
+                         title = "",
+                         pos = list("row" = 4, "column" = 1))
+  
+  ## Create a text field for entering the adjusted p-value threshold
+  ## used for the MCC analysis
+  text.mcc.threshold <- 
+    rpanel::rp.textentry(main.panel,
+                         variable = "mcc.threshold",
+                         action = I,
+                         labels = "Adjusted p-value threshold for MCC",
+                         initval = main.panel$mcc.threshold,
                          title = "",
                          pos = list("row" = 4, "column" = 1))
   
@@ -798,6 +823,7 @@ performComparison <- function(panel) {
                        incl.de.methods = names(which(panel$incl.de.methods == TRUE)),
                        fdr.threshold = as.numeric(panel$fdr.threshold),
                        tpr.threshold = as.numeric(panel$tpr.threshold),
+                       mcc.threshold = as.numeric(panel$mcc.threshold),
                        typeI.threshold = as.numeric(panel$typeI.threshold),
                        ma.threshold = as.numeric(panel$ma.threshold), 
                        fdc.maxvar = as.numeric(panel$fdc.maxvar),
@@ -819,6 +845,7 @@ performComparison <- function(panel) {
   ## Check ranges etc for thresholds
   parameters$fdr.threshold <- checkRange(parameters$fdr.threshold, "fdr.treshold", 0, 1)
   parameters$tpr.threshold <- checkRange(parameters$tpr.threshold, "tpr.threshold", 0, 1)
+  parameters$mcc.threshold <- checkRange(parameters$mcc.threshold, "mcc.threshold", 0, 1)
   parameters$typeI.threshold <- checkRange(parameters$typeI.threshold, "typeI.threshold", 0, 1)
   parameters$ma.threshold <- checkRange(parameters$ma.threshold, "ma.threshold", 0, 1)
   parameters$overlap.threshold <- checkRange(parameters$overlap.threshold, "overlap.threshold", 0, 1)
@@ -856,16 +883,18 @@ performComparison <- function(panel) {
 #' \item \code{incl.de.methods} An array with differential expression methods to be compared. If set to \code{NULL}, all differential expression methods will be included.
 #' \item \code{fdr.threshold} The adjusted p-value threshold for FDR calculations. Default 0.05.
 #' \item \code{tpr.threshold} The adjusted p-value threshold for TPR calculations. Default 0.05.
+#' \item \code{mcc.threshold} The adjusted p-value threshold for MCC calculations. Default 0.05.
 #' \item \code{typeI.threshold} The nominal p-value threshold for type I error calculations. Default 0.05.
 #' \item \code{fdc.maxvar} The maximal number of variables to include in false discovery curve plots. Default 1500.
 #' \item \code{overlap.threshold} The adjusted p-value for overlap analysis. Default 0.05.
 #' \item \code{fracsign.threshold} The adjusted p-value for calculation of the fraction of genes called significant. Default 0.05.
 #' \item \code{ma.threshold} The adjusted p-value threshold for coloring genes in MA plots. Default 0.05.
 #' \item \code{signal.measure} Either \code{'mean'} or \code{'snr'}, determining how to define the signal strength for a gene which is expressed in only one condition.
-#' \item \code{upper.limits,lower.limits} Lists that can be used to manually set the upper and lower plot limits for boxplots of fdr, tpr, auc, fracsign and typeIerror.
+#' \item \code{upper.limits,lower.limits} Lists that can be used to manually set the upper and lower plot limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.
 #' \item \code{comparisons} Array containing the comparison methods to be applied. The entries must be chosen among the following abbreviations:
 #' \itemize{
 #' \item \code{"auc"} - Compute the area under the ROC curve
+#' \item \code{"mcc"} - Compute Matthew's correlation coefficient
 #' \item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold}) 
 #' \item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold}) 
 #' \item \code{"fdrvsexpr"} - Compute the false discovery rate as a function of the expression level.
@@ -910,7 +939,7 @@ performComparison <- function(panel) {
 #'                    incl.de.methods = NULL, 
 #'                    fdr.threshold = 0.05, tpr.threshold = 0.05, typeI.threshold = 0.05,
 #'                    ma.threshold = 0.05, fdc.maxvar = 1500, overlap.threshold = 0.05,
-#'                    fracsign.threshold = 0.05, 
+#'                    fracsign.threshold = 0.05, mcc.threshold = 0.05, 
 #'                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
 #' runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
 runComparison <- function(file.table, 
@@ -930,6 +959,7 @@ runComparison <- function(file.table,
   ## Set default values if not given
   if (is.null(parameters$fdr.threshold)) parameters$fdr.threshold <- 0.05
   if (is.null(parameters$tpr.threshold)) parameters$tpr.threshold <- 0.05
+  if (is.null(parameters$mcc.threshold)) parameters$mcc.threshold <- 0.05
   if (is.null(parameters$typeI.threshold)) parameters$typeI.threshold <- 0.05
   if (is.null(parameters$ma.threshold)) parameters$ma.threshold <- 0.05
   if (is.null(parameters$fdc.maxvar)) parameters$fdc.maxvar <- 1500
@@ -937,7 +967,7 @@ runComparison <- function(file.table,
   if (is.null(parameters$overlap.threshold)) parameters$overlap.threshold <- 0.05
   if (is.null(parameters$fracsign.threshold)) parameters$fracsign.threshold <- 0.05
   if (is.null(parameters$comparisons)) parameters$comparisons <- 
-    c("auc", "fdr", "tpr", 
+    c("auc", "fdr", "tpr", "mcc", 
       "maplot", "correlation", 
       "typeIerror", "fracsign", 
       "fdcurvesall", "fdcurvesone", 
@@ -1720,7 +1750,21 @@ computeFDR <- function(adjpvalues, trueDElabels, signthreshold) {
 computeTPR <- function(adjpvalues, trueDElabels, signthreshold) {
   length(intersect(which(adjpvalues < signthreshold),
                    which(trueDElabels == 1)))/length(which(trueDElabels == 1))
-  
+}
+
+computeMCC <- function(adjpvalues, trueDElabels, signthreshold) {
+  tp <- length(intersect(which(adjpvalues < signthreshold),
+                          which(trueDElabels == 1)))
+  fp <- length(intersect(which(adjpvalues < signthreshold),
+                          which(trueDElabels == 0)))
+  tn <- length(intersect(which(adjpvalues >= signthreshold),
+                          which(trueDElabels == 0)))
+  fn <- length(intersect(which(adjpvalues >= signthreshold),
+                          which(trueDElabels == 1)))
+  n <- tp + fp + tn + fn
+  s <- (tp + fn)/n
+  p <- (tp + fp)/n
+  (tp/n - s*p)/sqrt(p*s*(1 - s)*(1 - p))
 }
 
 computeTypeIerror <- function(pvalues, trueDElabels, signthreshold) {
@@ -1901,7 +1945,7 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 
 # Construct a result table with selected performance measures for later plotting
 # 
-# Construct a result table containing one or several of the type I error, the fraction of significant genes, the false discovery rate (FDR), the true positive rate (TPR) and the area under the ROC curve (AUC). This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
+# Construct a result table containing one or several of the type I error, the fraction of significant genes, the false discovery rate (FDR), the true positive rate (TPR), Matthew's correlation coefficient (MCC), and the area under the ROC curve (AUC). This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
 # 
 # The result table returned from this function may contain "missing" lines, for example, there may be some differential expression methods that have not been applied to all data sets. This can be fixed by passing the result table through the \code{\link{padResultTable}} function, which will fill in all such missing lines with NA values.
 # 
@@ -1914,6 +1958,7 @@ createResultTable <- function(setup.parameters) {
   if ('fdr' %in% setup.parameters$comparisons) {fdr.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('tpr' %in% setup.parameters$comparisons) {tpr.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('auc' %in% setup.parameters$comparisons) {auc.vec <- rep(NA, nrow(setup.parameters$file.info))}
+  if ('mcc' %in% setup.parameters$comparisons) {mcc.vec <- rep(NA, nrow(setup.parameters$file.info))}
   
   for (i in 1:nrow(setup.parameters$file.info)) {
     X <- readRDS(as.character(setup.parameters$file.info$input.files[i]))
@@ -1930,6 +1975,20 @@ createResultTable <- function(setup.parameters) {
         auc.vec[i] <- unlist(performance(the.prediction, measure = 'auc')@y.values)
       }
       
+      if ('mcc' %in% setup.parameters$comparisons) {
+        if ('FDR' %in% colnames(result.table(X))) {
+          mcc.vec[i] <- computeMCC(result.table(X)$FDR,
+                                   variable.annotations(X)$differential.expression,
+                                   setup.parameters$mcc.threshold)
+        } else {
+          if ('adjpvalue' %in% colnames(result.table(X))) {
+            mcc.vec[i] <- computeMCC(result.table(X)$adjpvalue,
+                                     variable.annotations(X)$differential.expression,
+                                     setup.parameters$mcc.threshold)
+          }
+        }
+      }
+      
       if ('fdr' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
           fdr.vec[i] <- computeFDR(result.table(X)$FDR, 
@@ -1943,6 +2002,7 @@ createResultTable <- function(setup.parameters) {
           }
         }
       }
+      
       if ('tpr' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
           tpr.vec[i] <- computeTPR(result.table(X)$FDR, 
@@ -1957,6 +2017,7 @@ createResultTable <- function(setup.parameters) {
         }
       }
     }
+    
     if ('fracsign' %in% setup.parameters$comparisons) {
       if ('FDR' %in% colnames(result.table(X))) {
         fsn.vec[i] <- length(which(result.table(X)$FDR < 
@@ -1975,11 +2036,11 @@ createResultTable <- function(setup.parameters) {
   if ('fdr' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'fdr' = fdr.vec)}
   if ('tpr' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'tpr' = tpr.vec)}
   if ('auc' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'auc' = auc.vec)}
+  if ('mcc' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'mcc' = mcc.vec)}
   result.table <- data.frame(cbind(setup.parameters$file.info[, c('nbr.samples', 
                                                                   'repl', 
                                                                   'de.methods')],
                                    temp.results))
-  
   result.table
 }
 
@@ -2038,7 +2099,7 @@ padResultTable <- function(result.table) {
 # 
 # @param setup.parameters List of parameters (internal).
 # @param result.table R result table
-# @param the.asp The measure that should be plotted. Possible values are \code{"auc"} (the area under the ROC curve), \code{"fdr"} (the false discovery rate), \code{"tpr"} (the true positive rate), \code{"typeIerror"} and \code{"fracsign"} (the fraction of genes considered significant).
+# @param the.asp The measure that should be plotted. Possible values are \code{"auc"} (the area under the ROC curve), \code{"fdr"} (the false discovery rate), \code{"tpr"} (the true positive rate), \code{"typeIerror"}, \code{"mcc"} (Matthew's correlation coefficient) and \code{"fracsign"} (the fraction of genes considered significant).
 # @author Charlotte Soneson
 plotResultTable <- function(setup.parameters, result.table, the.asp) {
   the.result <- result.table[[the.asp]]
@@ -2068,6 +2129,12 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
     the.threshold <- NA
     the.xmin <- setup.parameters$lower.limits$tpr
     the.xmax <- setup.parameters$upper.limits$tpr
+  }
+  if (the.asp == 'mcc') {
+    the.xlab <- 'MCC'
+    the.threshold <- NA
+    the.xmin <- setup.parameters$lower.limits$mcc
+    the.xmax <- setup.parameters$upper.limits$mcc
   }
   if (the.asp == 'auc') {
     the.xlab <- 'AUC'
@@ -2349,7 +2416,7 @@ computeSorensen <- function(x, y) {
 # @author Charlotte Soneson
 shorten.method.names <- function(input.methods) {
   transform.table <- list('AUC' = 'auc', 'TPR' = 'tpr', 'FDR' = 'fdr', 
-                          'Type I error' = 'typeIerror',
+                          'Type I error' = 'typeIerror', 'MCC' = 'mcc', 
                           'Fraction significant' = 'fracsign', 'MA plot' = 'maplot',
                           'False discovery curves, all replicates' = 'fdcurvesall',
                           'False discovery curves, one replicate' = 'fdcurvesone',
