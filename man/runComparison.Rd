@@ -17,16 +17,18 @@ runComparison(file.table, parameters, output.directory, check.table = TRUE,
 \item \code{incl.de.methods} An array with differential expression methods to be compared. If set to \code{NULL}, all differential expression methods will be included.
 \item \code{fdr.threshold} The adjusted p-value threshold for FDR calculations. Default 0.05.
 \item \code{tpr.threshold} The adjusted p-value threshold for TPR calculations. Default 0.05.
+\item \code{mcc.threshold} The adjusted p-value threshold for MCC calculations. Default 0.05.
 \item \code{typeI.threshold} The nominal p-value threshold for type I error calculations. Default 0.05.
 \item \code{fdc.maxvar} The maximal number of variables to include in false discovery curve plots. Default 1500.
 \item \code{overlap.threshold} The adjusted p-value for overlap analysis. Default 0.05.
 \item \code{fracsign.threshold} The adjusted p-value for calculation of the fraction of genes called significant. Default 0.05.
 \item \code{ma.threshold} The adjusted p-value threshold for coloring genes in MA plots. Default 0.05.
 \item \code{signal.measure} Either \code{'mean'} or \code{'snr'}, determining how to define the signal strength for a gene which is expressed in only one condition.
-\item \code{upper.limits,lower.limits} Lists that can be used to manually set the upper and lower plot limits for boxplots of fdr, tpr, auc, fracsign and typeIerror.
+\item \code{upper.limits,lower.limits} Lists that can be used to manually set the upper and lower plot limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.
 \item \code{comparisons} Array containing the comparison methods to be applied. The entries must be chosen among the following abbreviations:
 \itemize{
 \item \code{"auc"} - Compute the area under the ROC curve
+\item \code{"mcc"} - Compute Matthew's correlation coefficient
 \item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold})
 \item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold})
 \item \code{"fdrvsexpr"} - Compute the false discovery rate as a function of the expression level.
@@ -80,7 +82,7 @@ parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "my
                    incl.de.methods = NULL,
                    fdr.threshold = 0.05, tpr.threshold = 0.05, typeI.threshold = 0.05,
                    ma.threshold = 0.05, fdc.maxvar = 1500, overlap.threshold = 0.05,
-                   fracsign.threshold = 0.05,
+                   fracsign.threshold = 0.05, mcc.threshold = 0.05,
                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
 runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
 }
