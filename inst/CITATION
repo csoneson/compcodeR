@@ -1,0 +1,9 @@
+citEntry(entry = "article",
+	title = "compcodeR - an R package for benchmarking differential expression methods for RNA-seq data",
+	author = "Charlotte Soneson",
+	year = 2014,
+	journal = "Bioinformatics",
+	volume = "30",
+	number = "17",
+	pages = "2517-2518",
+	textVersion = "Charlotte Soneson (2014): compcodeR - an R package for benchmarking differential expression methods for RNA-seq data. Bioinformatics 30(17):2517-2518")
