@@ -2,7 +2,7 @@ Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-Version: 1.3.0
+Version: 1.3.1
 Author: Charlotte Soneson
 Maintainer: Charlotte Soneson <Charlotte.Soneson@isb-sib.ch>
 Description: This package provides extensive functionality for
@@ -42,12 +42,11 @@ Suggests:
     baySeq (>= 1.16.0),
     genefilter,
     NOISeq,
-    DSS,
     TCC,
     samr,
     NBPSeq,
     HTSDiff
-Enhances: rpanel
+Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
 biocViews: RNASeq, DifferentialExpression
