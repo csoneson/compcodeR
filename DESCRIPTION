@@ -42,12 +42,11 @@ Suggests:
     baySeq (>= 1.16.0),
     genefilter,
     NOISeq,
-    DSS,
     TCC,
     samr,
     NBPSeq,
     HTSDiff
-Enhances: rpanel
+Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
 biocViews: RNASeq, DifferentialExpression
