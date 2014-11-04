@@ -117,7 +117,8 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     phi.estimates <- mu.phi.estimates$pickrell.cheung.phi
     
     ### Sample a mu and a phi for each gene in condition S1
-    to.include <- sample(1:length(mu.estimates), n.vars)
+    to.include <- sample(1:length(mu.estimates), n.vars, 
+                         replace = ifelse(n.vars > length(mu.estimates), TRUE, FALSE))
     truedispersions.S1 <- phi.estimates[to.include]
     truemeans.S1 <- mu.estimates[to.include]
   } 
