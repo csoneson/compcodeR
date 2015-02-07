@@ -64,10 +64,6 @@ checkClass <- function(object, objname, trueclass) {
 #'            output.directory = ".", norm.method = "TMM", 
 #'            disp.type = "tagwise", disp.method = "CoxReid", 
 #'            trended = TRUE)
-#' runDiffExp(data.file = "mydata.rds", result.extent = "HTSDiff", 
-#'            Rmdfunction = "HTSDiff.createRmd",
-#'            output.directory = ".", norm.method = "TMM", DEclusters = 4, 
-#'            epsilon  = 0.8)
 #' runDiffExp(data.file = "mydata.rds", result.extent = "logcpm.limma", 
 #'            Rmdfunction = "logcpm.limma.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
