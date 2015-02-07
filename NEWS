@@ -1,3 +1,5 @@
+1.3.3: - Removed support for HTSDiff since it has been removed from CRAN
+
 1.3.2: - Fixed a bug that prevented data sets with more than 17,343 genes to be simulated (thanks to Simon Greenaway)
 
 1.3.1: - Updated vignette
