@@ -2,7 +2,7 @@ Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-Version: 1.5.2
+Version: 1.5.3
 Author: Charlotte Soneson
 Maintainer: Charlotte Soneson <Charlotte.Soneson@isb-sib.ch>
 Description: This package provides extensive functionality for
@@ -39,7 +39,7 @@ Suggests:
     EBSeq,
     DESeq,
     DESeq2 (>= 1.1.31),
-    baySeq (>= 1.16.0),
+    baySeq (>= 2.2.0),
     genefilter,
     NOISeq,
     TCC,

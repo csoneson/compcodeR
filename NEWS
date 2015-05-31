@@ -1,3 +1,5 @@
+1.5.3: - Updated baySeq code to match package version 2.2.0
+
 1.5.2: - Updated NBPseq code to match package version 0.3.0
 
 1.5.1: - Added the number of significant genes, then number of true positives, true negatives, false positives and false negatives as evaluation criteria. 
