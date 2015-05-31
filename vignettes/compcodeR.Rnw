@@ -372,8 +372,8 @@ This choice plots the false discovery curves, depicting the number of false disc
 \captionof{figure}{}\label{fig:fdc}%
 \end{center}
 
-\subsection{Fraction significant}
-We can also compute the fraction of the genes that are called significant at a given adjusted p-value/FDR threshold for each method and sample size separately, and represent the estimates in boxplots, where each box summarizes the results for one method across all replicates of a data set. This requires that the \Robject{adjpvalue} or \Robject{FDR} column is present in the \Robject{result.table} of the included result objects (see the description of the result object above). An example is given in Figure~\ref{fig:fracsign}. Since this plot does not incorporate information about the number of the identity of the truly differentially expressed genes, we can not conclude whether a large or small fraction of significant genes is preferable. Thus, the plot is merely an indication of which methods are more liberal (giving more significantly differentially expressed genes) and which are more conservative.
+\subsection{Fraction/number of significant genes}
+We can also compute the fraction and/or number of the genes that are called significant at a given adjusted p-value/FDR threshold for each method and sample size separately, and represent the estimates in boxplots, where each box summarizes the results for one method across all replicates of a data set. This requires that the \Robject{adjpvalue} or \Robject{FDR} column is present in the \Robject{result.table} of the included result objects (see the description of the result object above). An example is given in Figure~\ref{fig:fracsign}. Since this plot does not incorporate information about the number of the identity of the truly differentially expressed genes, we can not conclude whether a large or small fraction of significant genes is preferable. Thus, the plot is merely an indication of which methods are more liberal (giving more significantly differentially expressed genes) and which are more conservative.
 
 \begin{center}
 \resizebox{150mm}{!}{\includegraphics{compcodeR_figure/fracsign.png}}%

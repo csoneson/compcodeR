@@ -102,6 +102,8 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("- [Score distribution vs number of outliers, single replicate](#scorevsoutlier)\n", resultfile)
   if ('fracsign' %in% setup.parameters$comparisons)
     writeLines("- [Fraction significant genes](#fracsign)\n", resultfile)
+  if ('nbrsign' %in% setup.parameters$comparisons)
+    writeLines("- [Number of significant genes](#nbrsign)\n", resultfile)
   if ('typeIerror' %in% setup.parameters$comparisons)
     writeLines("- [Type I error](#typeIerror)\n", resultfile)
   if ('fdr' %in% setup.parameters$comparisons)
@@ -154,7 +156,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     }
   }
   
-  if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'mcc') %in% setup.parameters$comparisons)) {
+  if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'nbrsign', 'mcc') %in% setup.parameters$comparisons)) {
     writeLines(c(paste("```{r tabl, eval = TRUE, include = TRUE}"),
                  "res.table = createResultTable(setup.parameters)"), resultfile)
     if (any(!is.na(setup.parameters$incl.nbr.samples))) {
@@ -299,6 +301,16 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                  "```", "---"), resultfile)
   }
   
+  if ('nbrsign' %in% setup.parameters$comparisons) {
+    writeLines("<a name='nbrsign'></a>", resultfile)
+    writeLines("## Number of significant genes [(Contents)](#contents)", resultfile)
+    writeLines(paste("The figures below indicate the number of genes in the data set that are called significant at an adjusted p-value threshold of ", setup.parameters$fracsign.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
+                     sep = ''), resultfile)
+    writeLines(c(paste("```{r nbrsign, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
+                 "plotResultTable(setup.parameters, res.table, 'nbrsign')",
+                 "```", "---"), resultfile)
+  }
+  
   if ('typeIerror' %in% setup.parameters$comparisons) {
     writeLines("<a name='typeIerror'></a>", resultfile)
     writeLines("## Type I error [(Contents)](#contents)", resultfile)
@@ -424,7 +436,7 @@ checkClass <- function(object, objname, trueclass) {
 #' @param output.directory The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.
 #' @param recursive A logical parameter indicating whether or not the search should be extended recursively to subfolders of the \code{input.directories}. 
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated. Can be for example "800px" (see \code{knitr} documentation for more information)
-#' @param upper.limits,lower.limits Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.
+#' @param upper.limits,lower.limits Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign, nbrsign and typeIerror.
 #' @return
 #' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.
 #' @export
@@ -580,7 +592,7 @@ createSelectionPanel = function(panel) {
   comparisons <- c("AUC", "ROC, one replicate", "ROC, all replicates",
                    "Type I error", "FDR", 
                    "FDR vs average expression level",
-                   "TPR", "MCC", 
+                   "TPR", "MCC", "Number significant", 
                    "False discovery curves, one replicate",
                    "False discovery curves, all replicates",
                    "Fraction significant", "Overlap, one replicate",
@@ -887,7 +899,7 @@ performComparison <- function(panel) {
 #' \item \code{typeI.threshold} The nominal p-value threshold for type I error calculations. Default 0.05.
 #' \item \code{fdc.maxvar} The maximal number of variables to include in false discovery curve plots. Default 1500.
 #' \item \code{overlap.threshold} The adjusted p-value for overlap analysis. Default 0.05.
-#' \item \code{fracsign.threshold} The adjusted p-value for calculation of the fraction of genes called significant. Default 0.05.
+#' \item \code{fracsign.threshold} The adjusted p-value for calculation of the fraction/number of genes called significant. Default 0.05.
 #' \item \code{ma.threshold} The adjusted p-value threshold for coloring genes in MA plots. Default 0.05.
 #' \item \code{signal.measure} Either \code{'mean'} or \code{'snr'}, determining how to define the signal strength for a gene which is expressed in only one condition.
 #' \item \code{upper.limits,lower.limits} Lists that can be used to manually set the upper and lower plot limits for boxplots of fdr, tpr, auc, mcc, fracsign and typeIerror.
@@ -900,6 +912,7 @@ performComparison <- function(panel) {
 #' \item \code{"fdrvsexpr"} - Compute the false discovery rate as a function of the expression level.
 #' \item \code{"typeIerror"} - Compute the type I error rate at a given nominal p-value threshold (\code{typeI.threshold}) 
 #' \item \code{"fracsign"} - Compute the fraction of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold})
+#' \item \code{"nbrsign} - Compute the number of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold})
 #' \item \code{"maplot"} - Construct MA plots, depicting the average expression level and the log fold change for the genes and indicating the genes called differential expressed at a given adjusted p-value threshold (\code{ma.threshold})
 #' \item \code{"fdcurvesall"} - Construct false discovery curves for each of the included replicates
 #' \item \code{"fdcurvesone"} - Construct false discovery curves for a single replicate only
@@ -969,7 +982,7 @@ runComparison <- function(file.table,
   if (is.null(parameters$comparisons)) parameters$comparisons <- 
     c("auc", "fdr", "tpr", "mcc", 
       "maplot", "correlation", 
-      "typeIerror", "fracsign", 
+      "typeIerror", "fracsign", "nbrsign", 
       "fdcurvesall", "fdcurvesone", 
       "rocall", "rocone", "overlap", 
       "scorevsexpr", "sorensen", 
@@ -1955,6 +1968,7 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 createResultTable <- function(setup.parameters) {
   if ('typeIerror' %in% setup.parameters$comparisons) {tIe.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('fracsign' %in% setup.parameters$comparisons) {fsn.vec <- rep(NA, nrow(setup.parameters$file.info))}
+  if ('nbrsign' %in% setup.parameters$comparisons) {nsn.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('fdr' %in% setup.parameters$comparisons) {fdr.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('tpr' %in% setup.parameters$comparisons) {tpr.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('auc' %in% setup.parameters$comparisons) {auc.vec <- rep(NA, nrow(setup.parameters$file.info))}
@@ -2029,10 +2043,23 @@ createResultTable <- function(setup.parameters) {
         }
       }
     }
+    
+    if ('nbrsign' %in% setup.parameters$comparisons) {
+      if ('FDR' %in% colnames(result.table(X))) {
+        nsn.vec[i] <- length(which(result.table(X)$FDR < 
+                                     setup.parameters$fracsign.threshold))
+      } else {
+        if ('adjpvalue' %in% colnames(result.table(X))) {
+          nsn.vec[i] <- length(which(result.table(X)$adjpvalue <
+                                       setup.parameters$fracsign.threshold))
+        }
+      }
+    }
   }
   temp.results <- NULL
   if ('typeIerror' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'typeIerror' = tIe.vec)}
   if ('fracsign' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'fracsign' = fsn.vec)}
+  if ('nbrsign' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'nbrsign' = nsn.vec)}
   if ('fdr' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'fdr' = fdr.vec)}
   if ('tpr' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'tpr' = tpr.vec)}
   if ('auc' %in% setup.parameters$comparisons) {temp.results <- cbind(temp.results, 'auc' = auc.vec)}
@@ -2099,7 +2126,7 @@ padResultTable <- function(result.table) {
 # 
 # @param setup.parameters List of parameters (internal).
 # @param result.table R result table
-# @param the.asp The measure that should be plotted. Possible values are \code{"auc"} (the area under the ROC curve), \code{"fdr"} (the false discovery rate), \code{"tpr"} (the true positive rate), \code{"typeIerror"}, \code{"mcc"} (Matthew's correlation coefficient) and \code{"fracsign"} (the fraction of genes considered significant).
+# @param the.asp The measure that should be plotted. Possible values are \code{"auc"} (the area under the ROC curve), \code{"fdr"} (the false discovery rate), \code{"tpr"} (the true positive rate), \code{"typeIerror"}, \code{"mcc"} (Matthew's correlation coefficient), \code{"nbrsign"} (the number of genes considered significant) and \code{"fracsign"} (the fraction of genes considered significant).
 # @author Charlotte Soneson
 plotResultTable <- function(setup.parameters, result.table, the.asp) {
   the.result <- result.table[[the.asp]]
@@ -2147,6 +2174,12 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
     the.threshold <- NA
     the.xmin <- setup.parameters$lower.limits$fracsign
     the.xmax <- setup.parameters$upper.limits$fracsign
+  }
+  if (the.asp == "nbrsign") {
+    the.xlab = "Number significant"
+    the.threshold <- NA
+    the.xmin <- setup.parameters$lower.limits$nbrsign
+    the.xmax <- setup.parameters$upper.limits$nbrsign
   }
   xmax <- ifelse(is.null(the.xmax), xmax.def, the.xmax)
   xmin <- ifelse(is.null(the.xmin), xmin.def, the.xmin)
@@ -2417,6 +2450,7 @@ computeSorensen <- function(x, y) {
 shorten.method.names <- function(input.methods) {
   transform.table <- list('AUC' = 'auc', 'TPR' = 'tpr', 'FDR' = 'fdr', 
                           'Type I error' = 'typeIerror', 'MCC' = 'mcc', 
+                          'Number significant' = 'nbrsign', 
                           'Fraction significant' = 'fracsign', 'MA plot' = 'maplot',
                           'False discovery curves, all replicates' = 'fdcurvesall',
                           'False discovery curves, one replicate' = 'fdcurvesone',
