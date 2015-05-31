@@ -1194,7 +1194,7 @@ NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp
   writeLines(c("is.valid <- check_compData(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData object.')",
                paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''), 
-               paste("NBPSeq.test <- NBPSeq::nbp.test(count.matrix(cdata), grp.ids = sample.annotations(cdata)$condition, grp1 = levels(factor(sample.annotations(cdata)$condition))[1], grp2 = levels(factor(sample.annotations(cdata)$condition))[2], norm.factors = nf, method.disp = '", disp.method, "', print.level = 5)", sep = ''), 
+               paste("NBPSeq.test <- NBPSeq::nbp.test(count.matrix(cdata), grp.ids = sample.annotations(cdata)$condition, grp1 = levels(factor(sample.annotations(cdata)$condition))[1], grp2 = levels(factor(sample.annotations(cdata)$condition))[2], norm.factors = nf, model.disp = '", disp.method, "', print.level = 5)", sep = ''), 
                "NBPSeq.pvalues <- NBPSeq.test$p.values",
                "NBPSeq.adjpvalues <- NBPSeq.test$q.values", 
                "NBPSeq.pvalues[which(is.na(NBPSeq.pvalues))] <- 1", 
