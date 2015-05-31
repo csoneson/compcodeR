@@ -33,7 +33,7 @@ checkClass <- function(object, objname, trueclass) {
 #' runDiffExp(data.file = "mydata.rds", result.extent = "baySeq", 
 #'            Rmdfunction = "baySeq.createRmd",
 #'            output.directory = ".", norm.method = "edgeR", 
-#'            distr.choice = "NB", equaldisp = TRUE)
+#'            equaldisp = TRUE)
 #' runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.GLM", 
 #'            Rmdfunction = "DESeq.GLM.createRmd",
 #'            output.directory = ".", sharing.mode = "maximum", 
