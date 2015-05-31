@@ -1056,6 +1056,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "require(NOISeq)", 
                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
   if (is.list(cdata)) {
+    cdata <- convertListTocompData(cdata)
     writeLines("cdata <- convertListTocompData(cdata)", codefile)
   }
   writeLines(c("is.valid <- check_compData(cdata)",
@@ -1068,7 +1069,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "NOISeq.prob <- NOISeq.test[[1]]$prob",
                "NOISeq.statistic <- NOISeq.test[[1]]$theta", 
                "NOISeq.score <- NOISeq.prob", 
-               "result.table <- data.frame('probabilities' = NOISeq.prob, 'statistic' = NOISeq.statistic, 'score' = NOISeq.score)",
+               "result.table <- data.frame('probabilities' = NOISeq.prob, 'statistic' = NOISeq.statistic, 'score' = NOISeq.score, 'FDR' = 1 - NOISeq.prob)",
                "rownames(result.table) <- rownames(count.matrix(cdata))", 
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('NOISeq,', packageVersion('NOISeq'), ';', 'edgeR,', packageVersion('edgeR'))", 
