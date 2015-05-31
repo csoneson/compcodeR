@@ -133,6 +133,7 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction, output.directory =
   
   ## Add the code to the result object
   temp.file <- readRDS(result.file)
+  if (is.list(temp.file)) temp.file <- convertListTocompData(temp.file)
   code(temp.file) <- readLines(str_replace(code.file, ".Rmd", ".md"))
   saveRDS(temp.file, file = result.file)
 
