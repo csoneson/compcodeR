@@ -1765,7 +1765,7 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
                                     length(zerocounts$zero1) + length(zerocounts$zero2)))
         }
       }
-      if (length(tmpx) != 0) {
+      if ((length(tmpx) != 0) && (!(all(is.na(tmpy))))) {
         plot(tmpx, tmpy, xlab = setup.parameters$signal.measure, 
              ylab = "Score", cex = 1, pch = 20, col = plotcol, 
              main = setup.parameters$incl.de.methods[k])
