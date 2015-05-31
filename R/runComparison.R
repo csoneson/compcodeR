@@ -1935,9 +1935,10 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
       }
     }
     #}
-    obs.fdr.total$method <- factor(obs.fdr.total$method, 
-                                   levels = setup.parameters$incl.de.methods)
-    if (doplot) {
+    if (doplot && is.data.frame(obs.fdr.total)) {
+      obs.fdr.total$method <- factor(obs.fdr.total$method, 
+                                     levels = setup.parameters$incl.de.methods)
+      
       suppressWarnings({
         print(ggplot(obs.fdr.total, aes_string(x = "bin", y = "fdr", fill = "method")) + 
                 geom_boxplot(outlier.size = 0) +
@@ -1957,7 +1958,7 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
       })
       
     } else {
-      cat ("No truly differentially expressed genes found. ")
+      cat ("No truly differentially expressed genes found, or no differentially expressed genes found by any method. ")
     }
   }
 }
@@ -2333,6 +2334,11 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
                         levels = paste(sort(as.numeric(unique(result.table$nbr.samples)), 
                                             decreasing = FALSE), "samples per condition"))
       result.table$nbr.samples.2 <- f2.temp
+      ## The ggplot command below will throw an error: 
+      ## Error in `$<-.data.frame`(`*tmp*`, "weight", value = 1) : 
+      ## replacement has 1 row, data has 0
+      ## if one facet is completely empty (all methods). It arises since all points of
+      ## the facet are outside of the plotting range. It can be ignored.
       suppressWarnings({
         print(ggplot(result.table, aes_string(x = "de.methods", y = the.asp, 
                                               fill = "de.methods")) + 
