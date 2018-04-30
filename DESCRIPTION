@@ -2,7 +2,7 @@ Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-Version: 1.15.0
+Version: 1.16.0
 Author: Charlotte Soneson
 Maintainer: Charlotte Soneson <charlottesoneson@gmail.com>
 Description: This package provides extensive functionality for
