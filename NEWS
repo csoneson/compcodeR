@@ -1,3 +1,5 @@
+1.17.1: - Removed support for SAMseq since samr has been removed from CRAN
+
 1.5.3: - Updated baySeq code to match package version 2.2.0
 
 1.5.2: - Updated NBPseq code to match package version 0.3.0
