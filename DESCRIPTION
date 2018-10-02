@@ -43,10 +43,6 @@ Suggests:
     genefilter,
     NOISeq,
     TCC,
-<<<<<<< HEAD
-    samr,
-=======
->>>>>>> upstream/master
     NBPSeq (>= 0.3.0)
 Enhances: rpanel, DSS
 License: GPL (>= 2)
