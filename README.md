@@ -5,13 +5,12 @@
 The release version of **compcodeR** can be installed via [Bioconductor](http://www.bioconductor.org/packages/release/bioc/html/compcodeR.html):
 
 ```
-source("http://bioconductor.org/biocLite.R")
-biocLite("compcodeR")
+install.packages("BiocManager")
+BiocManager::install("compcodeR")
 ```
 
-The most recent (development) version can also be installed from GitHub directly, using the devtools package:
+The most recent (development) version can also be installed from GitHub directly:
 
 ```
-library(devtools)
-devtools::install_github("csoneson/compcodeR")
+BiocManager::install("csoneson/compcodeR")
 ```

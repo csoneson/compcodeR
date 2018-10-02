@@ -74,9 +74,6 @@ checkClass <- function(object, objname, trueclass) {
 #' runDiffExp(data.file = "mydata.rds", result.extent = "NOISeq", 
 #'            Rmdfunction = "NOISeq.prenorm.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "SAMseq", 
-#'            Rmdfunction = "SAMseq.createRmd",
-#'            output.directory = ".")
 #' runDiffExp(data.file = "mydata.rds", result.extent = "sqrtcpm.limma", 
 #'            Rmdfunction = "sqrtcpm.limma.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
