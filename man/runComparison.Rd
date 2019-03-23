@@ -4,8 +4,8 @@
 \alias{runComparison}
 \title{Run the performance comparison between differential expression methods.}
 \usage{
-runComparison(file.table, parameters, output.directory, check.table = TRUE,
-  out.width = NULL)
+runComparison(file.table, parameters, output.directory,
+  check.table = TRUE, out.width = NULL)
 }
 \arguments{
 \item{file.table}{A data frame with at least a column \code{input.files}, potentially also columns named \code{datasets}, \code{nbr.samples}, \code{repl} and \code{de.methods}.}

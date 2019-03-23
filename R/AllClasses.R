@@ -44,9 +44,9 @@ check_compData <- function(object) {
         return("count.matrix and variable.annotations do not contain the same number of rows.")
       } else {
         if (length(rownames(count.matrix(object))) != 0 && 
-              length(rownames(variable.annotations(object))) != 0 && 
-              rownames(count.matrix(object)) != 
-              rownames(variable.annotations(object))) {
+            length(rownames(variable.annotations(object))) != 0 && 
+            any(rownames(count.matrix(object)) != 
+                rownames(variable.annotations(object)))) {
           return("The rownames of count.matrix and variable.annotations are not the same.")
         }
       } 
@@ -58,8 +58,9 @@ check_compData <- function(object) {
         return("The number of columns of count.matrix is different from the number of rows of sample.annotations.")
       } else {
         if (length(colnames(count.matrix(object))) != 0 && 
-              length(rownames(sample.annotations(object))) != 0 && 
-              colnames(count.matrix(object)) != rownames(sample.annotations(object))) {
+            length(rownames(sample.annotations(object))) != 0 && 
+            any(colnames(count.matrix(object)) != 
+                rownames(sample.annotations(object)))) {
           return("The colnames of count.matrix are different from the rownames of sample.annotations.")
         }
       } 

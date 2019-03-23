@@ -5,8 +5,8 @@
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with DESeq2}
 \usage{
 DESeq2.createRmd(data.path, result.path, codefile, fit.type, test,
-  beta.prior = TRUE, independent.filtering = TRUE, cooks.cutoff = TRUE,
-  impute.outliers = TRUE)
+  beta.prior = TRUE, independent.filtering = TRUE,
+  cooks.cutoff = TRUE, impute.outliers = TRUE)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}

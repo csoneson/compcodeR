@@ -4,8 +4,8 @@
 \alias{edgeR.GLM.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with the edgeR GLM approach}
 \usage{
-edgeR.GLM.createRmd(data.path, result.path, codefile, norm.method, disp.type,
-  disp.method, trended)
+edgeR.GLM.createRmd(data.path, result.path, codefile, norm.method,
+  disp.type, disp.method, trended)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
