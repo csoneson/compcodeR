@@ -1058,6 +1058,9 @@ runComparison <- function(file.table,
   if (check.table) {
     file.table <- checkTableConsistency(file.table)
   }
+  if (nrow(file.table) == 0) {
+    stop("No methods left to compare after checking object validity!")
+  }
   if (is.null(parameters$incl.dataset)) {
     parameters$incl.dataset <- unique(file.table$datasets)
   }
@@ -1081,6 +1084,9 @@ runComparison <- function(file.table,
   ## First select the ones from the right dataset (this is a required parameter)
   idx.keep <- which(file.table$datasets %in% parameters$incl.dataset)
   file.table <- file.table[idx.keep, ]
+  if (nrow(file.table) == 0) {
+    stop("No methods left to compare after matching with datasets to include!")
+  }
   
   ## If any of the files have information about nbr.samples, keep only the files
   ## with nbr.samples in accordance with the selected nbr.samples. Otherwise, 
@@ -1096,6 +1102,9 @@ runComparison <- function(file.table,
     }
   }
   file.table <- file.table[idx.keep, ]
+  if (nrow(file.table) == 0) {
+    stop("No methods left to compare after matching with nbr.samples to include!")
+  }
   
   ## If any of the files have information about replicate, keep only the files
   ## with replicate in accordance with the selected replicate. Otherwise, 
@@ -1111,6 +1120,9 @@ runComparison <- function(file.table,
     }
   }
   file.table <- file.table[idx.keep, ]
+  if (nrow(file.table) == 0) {
+    stop("No methods left to compare after matching with replicates to include!")
+  }
   
   if (is.null(parameters$incl.de.methods) || all(is.na(parameters$incl.de.methods))) {
     ## If no selection of de.methods, keep all
@@ -1119,6 +1131,9 @@ runComparison <- function(file.table,
     idx.keep <- which(file.table$de.methods %in% parameters$incl.de.methods)
   }
   file.table <- file.table[idx.keep, ]
+  if (nrow(file.table) == 0) {
+    stop("No methods left to compare after matching with DE methods to include!")
+  }
   
   parameters$file.info <- file.table
   parameters$file.info[is.na(parameters$file.info)] <- NA_real_
@@ -1187,7 +1202,7 @@ runComparison <- function(file.table,
 # @author Charlotte Soneson
 checkCompatibility <- function(file.info.table){
   ## First check that all files have the same data set name
-  if (length(unique(file.info.table$datasets)) != 1) {
+  if (length(unique(file.info.table$datasets[!is.na(file.info.table$datasets)])) != 1) {
     stop("All data sets must have the same name (the 'dataset' entry).")
   }
   
