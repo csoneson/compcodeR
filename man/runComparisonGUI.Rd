@@ -4,8 +4,14 @@
 \alias{runComparisonGUI}
 \title{A GUI to the main function for running the performance comparison between differential expression methods.}
 \usage{
-runComparisonGUI(input.directories, output.directory, recursive,
-  out.width = NULL, upper.limits = NULL, lower.limits = NULL)
+runComparisonGUI(
+  input.directories,
+  output.directory,
+  recursive,
+  out.width = NULL,
+  upper.limits = NULL,
+  lower.limits = NULL
+)
 }
 \arguments{
 \item{input.directories}{A list of directories containing the result files (\code{*.rds}). All results in the provided directories will be available for inclusion in the comparison, and the selection is performed through a graphical user interface. All result objects saved in the files should be of the \code{compData} class, although list objects created by earlier versions of \code{compcodeR} are supported.}

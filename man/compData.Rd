@@ -4,10 +4,18 @@
 \alias{compData}
 \title{Create a \code{compData} object}
 \usage{
-compData(count.matrix, sample.annotations, info.parameters,
-  variable.annotations = data.frame(), filtering = "no info",
-  analysis.date = "", package.version = "", method.names = list(),
-  code = "", result.table = data.frame())
+compData(
+  count.matrix,
+  sample.annotations,
+  info.parameters,
+  variable.annotations = data.frame(),
+  filtering = "no info",
+  analysis.date = "",
+  package.version = "",
+  method.names = list(),
+  code = "",
+  result.table = data.frame()
+)
 }
 \arguments{
 \item{count.matrix}{A count matrix, with genes as rows and observations as columns.}

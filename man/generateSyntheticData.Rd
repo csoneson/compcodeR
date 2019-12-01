@@ -4,14 +4,29 @@
 \alias{generateSyntheticData}
 \title{Generate synthetic count data sets}
 \usage{
-generateSyntheticData(dataset, n.vars, samples.per.cond, n.diffexp,
-  repl.id = 1, seqdepth = 1e+07, minfact = 0.7, maxfact = 1.4,
-  relmeans = "auto", dispersions = "auto", fraction.upregulated = 1,
-  between.group.diffdisp = FALSE, filter.threshold.total = 1,
-  filter.threshold.mediancpm = 0, fraction.non.overdispersed = 0,
-  random.outlier.high.prob = 0, random.outlier.low.prob = 0,
-  single.outlier.high.prob = 0, single.outlier.low.prob = 0,
-  effect.size = 1.5, output.file = NULL)
+generateSyntheticData(
+  dataset,
+  n.vars,
+  samples.per.cond,
+  n.diffexp,
+  repl.id = 1,
+  seqdepth = 1e+07,
+  minfact = 0.7,
+  maxfact = 1.4,
+  relmeans = "auto",
+  dispersions = "auto",
+  fraction.upregulated = 1,
+  between.group.diffdisp = FALSE,
+  filter.threshold.total = 1,
+  filter.threshold.mediancpm = 0,
+  fraction.non.overdispersed = 0,
+  random.outlier.high.prob = 0,
+  random.outlier.low.prob = 0,
+  single.outlier.high.prob = 0,
+  single.outlier.low.prob = 0,
+  effect.size = 1.5,
+  output.file = NULL
+)
 }
 \arguments{
 \item{dataset}{A name or identifier for the data set/simulation settings.}
@@ -65,7 +80,7 @@ In the comparison function, only results obtained for data sets with the same va
 
 For more detailed information regarding the different types of outliers, see Soneson and Delorenzi (2013).
 
-Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013).
+Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013). 
 
 To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
 }

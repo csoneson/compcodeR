@@ -4,8 +4,7 @@
 \alias{NBPSeq.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with NBPSeq}
 \usage{
-NBPSeq.createRmd(data.path, result.path, codefile, norm.method,
-  disp.method)
+NBPSeq.createRmd(data.path, result.path, codefile, norm.method, disp.method)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}

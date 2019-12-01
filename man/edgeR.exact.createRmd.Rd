@@ -4,8 +4,14 @@
 \alias{edgeR.exact.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with the edgeR exact test}
 \usage{
-edgeR.exact.createRmd(data.path, result.path, codefile, norm.method,
-  trend.method, disp.type)
+edgeR.exact.createRmd(
+  data.path,
+  result.path,
+  codefile,
+  norm.method,
+  trend.method,
+  disp.type
+)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}

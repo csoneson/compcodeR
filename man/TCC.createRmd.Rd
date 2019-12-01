@@ -4,8 +4,16 @@
 \alias{TCC.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with TCC}
 \usage{
-TCC.createRmd(data.path, result.path, codefile, norm.method, test.method,
-  iteration = 3, normFDR = 0.1, floorPDEG = 0.05)
+TCC.createRmd(
+  data.path,
+  result.path,
+  codefile,
+  norm.method,
+  test.method,
+  iteration = 3,
+  normFDR = 0.1,
+  floorPDEG = 0.05
+)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}

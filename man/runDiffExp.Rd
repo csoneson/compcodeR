@@ -4,8 +4,14 @@
 \alias{runDiffExp}
 \title{The main function to run differential expression analysis}
 \usage{
-runDiffExp(data.file, result.extent, Rmdfunction, output.directory = ".",
-  norm.path = TRUE, ...)
+runDiffExp(
+  data.file,
+  result.extent,
+  Rmdfunction,
+  output.directory = ".",
+  norm.path = TRUE,
+  ...
+)
 }
 \arguments{
 \item{data.file}{The path to a \code{.rds} file containing the data on which the differential expression analysis will be performed, for example a \code{compData} object returned from \code{\link{generateSyntheticData}}.}

@@ -4,8 +4,14 @@
 \alias{DESeq.GLM.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with the DESeq GLM approach}
 \usage{
-DESeq.GLM.createRmd(data.path, result.path, codefile, sharing.mode,
-  disp.method, fit.type)
+DESeq.GLM.createRmd(
+  data.path,
+  result.path,
+  codefile,
+  sharing.mode,
+  disp.method,
+  fit.type
+)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}

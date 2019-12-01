@@ -4,8 +4,16 @@
 \alias{baySeq.createRmd}
 \title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with baySeq}
 \usage{
-baySeq.createRmd(data.path, result.path, codefile, norm.method, equaldisp,
-  sample.size = 5000, estimation = "QL", pET = "BIC")
+baySeq.createRmd(
+  data.path,
+  result.path,
+  codefile,
+  norm.method,
+  equaldisp,
+  sample.size = 5000,
+  estimation = "QL",
+  pET = "BIC"
+)
 }
 \arguments{
 \item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
