@@ -9,9 +9,11 @@ cache: packages
 r_build_args: "--no-manual --no-resave-data"
 r_check_args: "--no-build-vignettes --no-manual --timings"
 
+services:
+  - xvfb
+
 before_install:
   - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
 
 r_packages:
   - covr
