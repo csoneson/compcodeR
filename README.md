@@ -1,5 +1,7 @@
 ## compcodeR
 
+[![R build status](https://github.com/csoneson/compcodeR/workflows/R-CMD-check/badge.svg)](https://github.com/csoneson/compcodeR/actions)
+
 **compcodeR** is an R package that provides extensive functionality for comparing results obtained by different methods for differential expression analysis of (mainly) RNAseq data. It also contains functions for simulating count data and interfaces to several packages for performing the differential expression analysis.
 
 The release version of **compcodeR** can be installed via [Bioconductor](http://www.bioconductor.org/packages/release/bioc/html/compcodeR.html):
