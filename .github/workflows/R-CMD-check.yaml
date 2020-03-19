@@ -38,18 +38,19 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update && sudo apt-get -y install tcl8.6-dev tk8.6-dev
+          sudo apt-get -y install bwidget
           export DISPLAY=:99.0
 
       - name: Set up display (MacOS)
         if: runner.os == 'macOS'
         run: |
           brew tap homebrew/cask && brew cask install xquartz
-          
+
       - name: Query dependencies
         run: |
           install.packages(c('remotes', 'BiocManager'))
           BiocManager::install(c('DESeq2', 'NBPSeq', 'rpanel', 'DSS'))
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), "depends.Rds", version = 2)
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), "depends.Rds", version = 2)
         shell: Rscript {0}
 
       - name: Cache R packages
