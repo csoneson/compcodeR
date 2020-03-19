@@ -60,7 +60,7 @@ jobs:
       - name: Set up display
         if: runner.os == 'Linux'
         run: |
-          apt-get update && apt-get -y install tcl8.6-dev tk8.6-dev
+          sudo apt-get update && sudo apt-get -y install tcl8.6-dev tk8.6-dev
 
       - name: Install dependencies
         run: |
