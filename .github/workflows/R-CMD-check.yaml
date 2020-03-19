@@ -36,7 +36,8 @@ jobs:
 
       - name: Query dependencies
         run: |
-          install.packages('remotes')
+          install.packages(c('remotes', 'BiocManager'))
+          BiocManager::install(c('DESeq2', 'NBPSeq', 'rpanel', 'DSS'))
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), "depends.Rds", version = 2)
         shell: Rscript {0}
 
@@ -62,6 +63,7 @@ jobs:
         run: |
           sudo apt-get update && sudo apt-get -y install tcl8.6-dev tk8.6-dev
           export DISPLAY=:99.0
+          sh -e /etc/init.d/xvfb start
       
       - name: Set up display (MacOS)
         if: runner.os == 'macOS'
@@ -75,7 +77,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning", check_dir = "check")
+        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
         shell: Rscript {0}
 
       - name: Upload check results
