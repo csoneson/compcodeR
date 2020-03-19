@@ -49,7 +49,6 @@ jobs:
       - name: Query dependencies
         run: |
           install.packages(c('remotes', 'BiocManager'))
-          BiocManager::install(c('DESeq2', 'NBPSeq', 'rpanel', 'DSS'))
           saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), "depends.Rds", version = 2)
         shell: Rscript {0}
 
