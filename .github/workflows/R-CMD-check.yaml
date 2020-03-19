@@ -58,11 +58,10 @@ jobs:
           sudo -s eval "$sysreqs"
 
       - name: Set up display
-        if: runner.os != 'Windows'
+        if: runner.os == 'Linux'
         run: |
-          export DISPLAY=:99.0
-          sh -e /etc/init.d/xvfb start
-        
+          apt-get update && apt-get -y install tcl8.6-dev tk8.6-dev
+
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
