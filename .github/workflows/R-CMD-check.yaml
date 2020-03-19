@@ -34,6 +34,18 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@master
 
+      - name: Set up display (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update && sudo apt-get -y install tcl8.6-dev tk8.6-dev
+          export DISPLAY=:99.0
+          sh -e /etc/init.d/xvfb start
+      
+      - name: Set up display (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew tap homebrew/cask && brew cask install xquartz
+          
       - name: Query dependencies
         run: |
           install.packages(c('remotes', 'BiocManager'))
@@ -57,18 +69,6 @@ jobs:
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
-
-      - name: Set up display (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update && sudo apt-get -y install tcl8.6-dev tk8.6-dev
-          export DISPLAY=:99.0
-          sh -e /etc/init.d/xvfb start
-      
-      - name: Set up display (MacOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew tap homebrew/cask && brew cask install xquartz
 
       - name: Install dependencies
         run: |
