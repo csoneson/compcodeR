@@ -5,6 +5,12 @@
 #' @author Charlotte Soneson
 #' @examples
 #' listcreateRmd()
+#' 
+#' @importFrom utils packageVersion head
+#' @importFrom stats cor hclust as.dist runif rexp median loess predict na.omit rnbinom rpois rnorm sd
+#' @importFrom grDevices heat.colors
+#' @importFrom graphics par lines legend title axis
+#' 
 listcreateRmd <- function() {
   s <- unlist(sapply(search(), ls, all.names = TRUE))
   print(unname(s[grep("\\.createRmd$", s)]))

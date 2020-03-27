@@ -25,7 +25,10 @@ generateSyntheticData(
   single.outlier.high.prob = 0,
   single.outlier.low.prob = 0,
   effect.size = 1.5,
-  output.file = NULL
+  output.file = NULL,
+  tree = NULL,
+  prop.var.tree = 1,
+  id.condition = NULL
 )
 }
 \arguments{
@@ -68,6 +71,12 @@ generateSyntheticData(
 \item{effect.size}{The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.}
 
 \item{output.file}{If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.}
+
+\item{tree}{a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.}
+
+\item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
+
+\item{id.condition}{A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.}
 }
 \value{
 A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).

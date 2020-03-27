@@ -28,6 +28,8 @@
 #' \item{counts}{the p x n matrix of counts with corresponding Poisson draws.}
 #' }
 #' 
+#' @keywords internal
+#' 
 simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample) {
   
   ## Check for packages
@@ -89,6 +91,8 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
 #' @param name name of the parameter.
 #' @param tree A phylogenetic tree with n tips.
 #' 
+#' @keywords internal
+#' 
 checkParamMatrix <- function(x, name, tree) {
   N <- length(tree$tip.label)
   
@@ -117,6 +121,8 @@ checkParamMatrix <- function(x, name, tree) {
 #' @param x vector of parameters being tested.
 #' @param name name of the parameter.
 #' @param tree A phylogenetic tree with n tips.
+#' 
+#' @keywords internal
 #' 
 checkParamVector <- function(x, name, tree) {
   N <- length(tree$tip.label)
@@ -156,6 +162,8 @@ checkParamVector <- function(x, name, tree) {
 #' \item{log_variance_phylo}{the p vector of phylogenetic log-variances for Poisson-lognormal simulations.}
 #' \item{log_variance_sample}{the p x n matrix of environemental log-variances for Poisson-lognormal simulations.}
 #' }
+#' 
+#' @keywords internal
 #' 
 get_poisson_log_normal_parameters <- function(count_means, count_dispertions, prop.var.tree) {
   N <- ncol(count_means)
@@ -208,6 +216,8 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispertions, pr
 #' \item{log_variances_pln}{Variance of the Poisson log normal in the log space.}
 #' }
 #' 
+#' @keywords internal
+#' 
 NB_to_PLN <- function(mean, dispersion) {
   ## Variance in log space
   log_variances_pln <- log(1 + dispersion)
@@ -218,6 +228,18 @@ NB_to_PLN <- function(mean, dispersion) {
               log_variances_pln = log_variances_pln))
 }
 
+#' @title Simulate the Data using the tree
+#'
+#' @description 
+#' Use the Phylogenetic Poisson Log Normal model to simulate the data.
+#' 
+#' @inheritParams generateSyntheticData 
+#' @inheritParams simulateData
+#' 
+#' @return Z a matrix with the data
+#' 
+#' @keywords internal
+#' 
 simulateDataPhylo <- function(n.vars,
                               S1, prob.S1, sum.S1, truedispersions.S1,
                               S2, prob.S2, sum.S2, truedispersions.S2,

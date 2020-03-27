@@ -51,6 +51,9 @@
 #' Pickrell JK, Marioni JC, Pai AA, Degner JF, Engelhardt BE, Nkadori E, Veyrieras JB, Stephens M, Gilad Y and Pritchard JK (2010): Understanding mechanisms underlying human gene expression variation with RNA sequencing. Nature 464, 768-772
 #' 
 #' Robles JA, Qureshi SE, Stephen SJ, Wilson SR, Burden CJ and Taylor JM (2012): Efficient experimental design and analysis strategies for the detection of differential expression using RNA-sequencing. BMC Genomics 13:484
+#' 
+#' @import sm
+#' 
 generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, repl.id = 1, 
                                   seqdepth = 1e7, minfact = 0.7, maxfact = 1.4, 
                                   relmeans = "auto", dispersions = "auto", 
@@ -437,6 +440,26 @@ computeAval <- function(count.matrix, conditions) {
   return(A.value)
 }
 
+#' @title Simulate the Data
+#'
+#' @description 
+#' Use the Poisson or Negative Binomial model to simulate the data.
+#' 
+#' @inheritParams generateSyntheticData
+#' @param S1 Indices in condition 1.
+#' @param prob.S1 Vector of means for condition 1.
+#' @param sum.S1 Sum of means for condition 1.
+#' @param truedispersions.S1 Vector of dispersions for condition 1.
+#' @param S2 Indices in condition 2.
+#' @param prob.S2 Vector of means for condition 2.
+#' @param sum.S2 Sum of means for condition 2.
+#' @param truedispersions.S2 Vector of dispersions for condition 2.
+#' @param overdispersed Indices that are overdispersed.
+#' 
+#' @return Z a n.var times 2*samples.per.cond matrix with the simulated data.
+#' 
+#' @keywords internal
+#' 
 simulateData <- function(n.vars,
                          S1, prob.S1, sum.S1, truedispersions.S1,
                          S2, prob.S2, sum.S2, truedispersions.S2,

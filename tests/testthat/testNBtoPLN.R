@@ -32,6 +32,8 @@ test_that("NB to PLN simple", {
 })
 
 test_that("NB to PLN phylo - star tree", {
+  skip_if_not_installed("phytools")
+  
   set.seed(18420318)
   
   ## Parameters
@@ -83,6 +85,8 @@ test_that("NB to PLN phylo - star tree", {
 })
 
 test_that("NB to PLN phylo - random tree", {
+  skip_if_not_installed("phytools")
+  
   set.seed(18420318)
   
   ## Parameters
