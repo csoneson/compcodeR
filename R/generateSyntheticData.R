@@ -30,6 +30,10 @@
 #' @param single.outlier.low.prob The fraction of 'single' outliers with unusually low counts.
 #' @param effect.size The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
+#' @param tree a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.
+#' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
+#' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
+#' 
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -55,7 +59,9 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   fraction.non.overdispersed = 0, random.outlier.high.prob = 0, 
                                   random.outlier.low.prob = 0, single.outlier.high.prob = 0, 
                                   single.outlier.low.prob = 0, effect.size = 1.5, 
-                                  output.file = NULL) {
+                                  output.file = NULL,
+                                  tree = NULL, prop.var.tree = 1.0,
+                                  id.condition = NULL) {
   
   ## Check output file name
   if (!is.null(output.file)) {
@@ -66,9 +72,49 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   
   ## Generate a unique ID for the data set
   uID <- paste(sample(c(0:9, letters, LETTERS), 10, replace = TRUE), collapse = "")
+  
+  ## Checks for phylogenetic tree
+  use_tree <- !is.null(tree) # If tree is specified, use it.
+  
+  if (use_tree) {
+    ## Check package
+    if (!requireNamespace("ape", quietly = TRUE)) {
+      stop("Package 'ape' is needed for phylogenetic simulations.", call. = FALSE)
+    }
+    ## Check Tree
+    if (class(tree) != "phylo") {
+      stop("Tree tree must be of class `phylo` from package `ape`.")
+    }
+    ## Check that the tree has the right number of species
+    if (length(tree$tip.label) != samples.per.cond * 2) {
+      stop("The tree should have as many species as `samples.per.cond` times two.")
+    }
+    
+    ## Check Conditions
+    if (!is.null(id.condition)) {
+      checkParamVector(id.condition, "id.condition", tree)
+    } else {
+      id.condition <- rep(c(1, 2), each = samples.per.cond)
+      names(id.condition) <- tree$tip.label
+    }
+    
+    ## Check that all genes are over-dispersed
+    if (fraction.non.overdispersed != 0) {
+      stop("The Phylogenetic Poisson lognormal distribution is always over-dispersed.")
+    }
+  } else {
+    ## Check id.condition (non phylogenetic)
+    if (!is.null(id.condition)) {
+      if (length(id.condition) != 2 * samples.per.cond) {
+        stop("Vector of conditions `id.condition` should have length `2*samples.per.cond`.")
+      }
+    } else {
+      id.condition <- rep(c(1, 2), each = samples.per.cond)
+    }
+  }
 
 	## Define conditions
-  condition <- rep(c(1, 2), each = samples.per.cond)
+  condition <- id.condition
   S1 <- which(condition == 1)
   S2 <- which(condition == 2)
 
@@ -192,28 +238,19 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	truedispersions.S1 <- truedispersions.S1 * overdispersed
 	truedispersions.S2 <- truedispersions.S2 * overdispersed
 	
-	### Initialize data matrix
-	Z <- matrix(0, n.vars, length(S1) + length(S2))
-	
-	### Generate data
-	for (i in 1:n.vars) {
-		for (j in 1:ncol(Z)) {
-			if (j %in% S1) {
-				if (overdispersed[i] == 1) {
-					Z[i, j] <- rnbinom(n = 1, mu = prob.S1[i]/sum.S1 * seq.depths[j], 
-                             size = 1/truedispersions.S1[i])
-				} else {
-					Z[i, j] <- rpois(n = 1, lambda = prob.S1[i]/sum.S1 * seq.depths[j])
-				}
-			} else {
-				if (overdispersed[i] == 1) {
-					Z[i, j] <- rnbinom(n = 1, mu = prob.S2[i]/sum.S2 * seq.depths[j], 
-                             size = 1/truedispersions.S2[i])
-				} else {
-					Z[i, j] <- rpois(n = 1, lambda = prob.S2[i]/sum.S2 * seq.depths[j])
-				}
-			}
-		}
+	if (use_tree) {
+	  Z <- simulateDataPhylo(n.vars = n.vars,
+	                         S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1,
+	                         S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2,
+	                         seq.depths = seq.depths,
+	                         overdispersed = overdispersed,
+	                         tree = tree, prop.var.tree = prop.var.tree) 
+	} else {
+	  Z <- simulateData(n.vars = n.vars,
+	                    S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1,
+	                    S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2,
+	                    seq.depths = seq.depths,
+	                    overdispersed = overdispersed)
 	}
 
 	### Add 'random' outliers
@@ -331,6 +368,10 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'repl.id' = repl.id, 'dataset' = dataset, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
 	                        'minfact' = minfact, 'maxfact' = maxfact)
+	if (use_tree) {
+	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree,
+	                                             'id.condition' = id.condition))
+	}
 	
 	### Filter the data with respect to total count
 	s <- apply(Z, 1, sum)
@@ -394,6 +435,38 @@ computeAval <- function(count.matrix, conditions) {
                                                       levels(factor(conditions))[1])], 
                           1, mean))
   return(A.value)
+}
+
+simulateData <- function(n.vars,
+                         S1, prob.S1, sum.S1, truedispersions.S1,
+                         S2, prob.S2, sum.S2, truedispersions.S2,
+                         seq.depths,
+                         overdispersed) {
+  ### Initialize data matrix
+  Z <- matrix(0, n.vars, length(S1) + length(S2))
+  
+  ### Generate data
+  for (i in 1:n.vars) {
+    for (j in 1:ncol(Z)) {
+      if (j %in% S1) {
+        if (overdispersed[i] == 1) {
+          Z[i, j] <- rnbinom(n = 1, mu = prob.S1[i]/sum.S1 * seq.depths[j], 
+                             size = 1/truedispersions.S1[i])
+        } else {
+          Z[i, j] <- rpois(n = 1, lambda = prob.S1[i]/sum.S1 * seq.depths[j])
+        }
+      } else {
+        if (overdispersed[i] == 1) {
+          Z[i, j] <- rnbinom(n = 1, mu = prob.S2[i]/sum.S2 * seq.depths[j], 
+                             size = 1/truedispersions.S2[i])
+        } else {
+          Z[i, j] <- rpois(n = 1, lambda = prob.S2[i]/sum.S2 * seq.depths[j])
+        }
+      }
+    }
+  }
+  
+  return(Z)
 }
 
 
