@@ -519,6 +519,7 @@ summarizeSyntheticDataSet <- function(data.set, output.filename) {
   ## Generate an .Rmd file
   ##output.filename <- normalizePath(output.filename)
   Rmd.file <- sub(".html", ".Rmd", output.filename)
+  md.file <- sub(".html", ".md", output.filename)
   codefile <- file(Rmd.file, open = 'w')
   output.directory <- dirname(output.filename)
   
@@ -628,12 +629,23 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
   
   close(codefile)
   
-  knit2html(input = Rmd.file,
-            output = output.filename, 
-            title = "Synthetic data set summary", 
-            envir = new.env())
+  out <- knitr::knit(input = Rmd.file,
+                     output = md.file,
+                     envir =  new.env())
+  markdown::markdownToHTML(file = out,
+                           output = output.filename,
+                           encoding = "UTF-8",
+                           title = "Synthetic data set summary")
+  
+  # knit2html(input = Rmd.file,
+  #           output = output.filename, 
+  #           title = "Synthetic data set summary", 
+  #           envir = new.env())
   
   ## Remove the .Rmd file
   # file.remove(Rmd.file)
+  
+  ## Remove the .md file
+  file.remove(md.file)
   
 }
