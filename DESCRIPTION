@@ -50,7 +50,9 @@ Suggests:
     NBPSeq (>= 0.3.0),
     rmarkdown,
     phytools,
-    testthat
+    testthat,
+    ggtree,
+    tidytree
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr

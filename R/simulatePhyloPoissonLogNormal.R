@@ -78,6 +78,9 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   ## Poisson
   counts <- matrix(rpois(N * P, exp(log_lambda)), ncol = N)
   
+  ## Names
+  colnames(counts) <- colnames(log_lambda) <- tree$tip.label
+  
   return(list(log_lambda = log_lambda,
               counts = counts))
 }

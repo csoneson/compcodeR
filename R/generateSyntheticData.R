@@ -393,7 +393,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
   ### Generate sample and variable names
   rownames(Z.TC) <- paste("g", 1:nrow(Z.TC), sep = "")
-  colnames(Z.TC) <- paste("sample", 1:ncol(Z.TC), sep = "")
+  if (!use_tree) colnames(Z.TC) <- paste("sample", 1:ncol(Z.TC), sep = "")
   rownames(sample.annotations) <- colnames(Z.TC)
   rownames(variable.annotations.TC) <- rownames(Z.TC)
   
@@ -586,6 +586,46 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                "```"), codefile)
   
+  ## Phylogenetic heatmap
+  if (!is.null(data.set@info.parameters$tree)) { # There is a tree
+    if (!requireNamespace("ggtree", quietly = TRUE) || !requireNamespace("tidytree", quietly = TRUE)) {
+      warning("Packages 'ggtree' and 'tidytree' are needed for phylogenetic heatmap plot. Skipping.", call. = FALSE)
+    } else {
+      writeLines("### log2 normalized counts heatmap plotted on the phylogeny", codefile)
+      writeLines(c("```{r maplot-phyloHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                   "library(ggtree)",
+                   "library(tidytree)",
+                   "",
+                   "tree <- data.set@info.parameters$tree",
+                   "conds <- data.frame(label = names(data.set@info.parameters$id.condition), condition = as.factor(data.set@info.parameters$id.condition))",
+                   "gt <- ggtree(tree)",
+                   "gt <- gt %<+% conds + geom_tippoint(aes(color = condition))",
+                   "",
+                   "Z <- data.set@count.matrix",
+                   "nf <- edgeR::calcNormFactors(Z)",
+                   "norm.factors <- nf * colSums(Z)",
+                   "common.libsize <- exp(mean(log(colSums(Z))))",
+                   "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
+                   "log2.pseudocounts <- log2(pseudocounts)",
+                   "",
+                   "maxGene <- data.set@info.parameters$n.diffexp",
+                   "Z1 <- log2.pseudocounts[1:maxGene, ]",
+                   "Z2 <- log2.pseudocounts[maxGene + 1:maxGene, ]",
+                   "",
+                   "gh <- gheatmap(gt, t(log2(Z1)), offset = 0.1, width = 5, colnames = FALSE)",
+                   "gh <- gheatmap(gh, t(log2(Z2)), offset = 5.2, width = 5, colnames = FALSE)",
+                   "gh <- gh + scale_fill_viridis_c(option = 'plasma', direction = -1, name = 'log2 count')",
+                   "gh",
+                   "```"), codefile)
+      writeLines(c("",
+                   "Tips colored by true differential expression status.",
+                   "Only the first `r 2*maxGene` genes are represented.",
+                   "The first block of `r maxGene` genes are differencially expressed between condition 1 and 2.",
+                   "The second block of `r maxGene` genes are not differencially expressed."),
+                 codefile)
+    }
+  }
+  
   close(codefile)
   
   knit2html(input = Rmd.file,
@@ -594,6 +634,6 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
             envir = new.env())
   
   ## Remove the .Rmd file
-  file.remove(Rmd.file)
+  # file.remove(Rmd.file)
   
 }
