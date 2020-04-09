@@ -4,42 +4,13 @@
 \alias{simulateDataPhylo}
 \title{Simulate the Data using the tree}
 \usage{
-simulateDataPhylo(
-  n.vars,
-  S1,
-  prob.S1,
-  sum.S1,
-  truedispersions.S1,
-  S2,
-  prob.S2,
-  sum.S2,
-  truedispersions.S2,
-  seq.depths,
-  overdispersed,
-  tree,
-  prop.var.tree
-)
+simulateDataPhylo(count_means, count_dispertions, tree, prop.var.tree)
 }
 \arguments{
-\item{n.vars}{The initial number of genes in the simulated data set. Based on the filtering conditions (\code{filter.threshold.total} and \code{filter.threshold.mediancpm}), the number of genes in the final data set may be lower than this number.}
+\item{count_means}{a matrix with the number of genes p rows and the number of
+samples n columns.}
 
-\item{S1}{Indices in condition 1.}
-
-\item{prob.S1}{Vector of means for condition 1.}
-
-\item{sum.S1}{Sum of means for condition 1.}
-
-\item{truedispersions.S1}{Vector of dispersions for condition 1.}
-
-\item{S2}{Indices in condition 2.}
-
-\item{prob.S2}{Vector of means for condition 2.}
-
-\item{sum.S2}{Sum of means for condition 2.}
-
-\item{truedispersions.S2}{Vector of dispersions for condition 2.}
-
-\item{overdispersed}{Indices that are overdispersed.}
+\item{count_dispertions}{a matrix of size p x n, for each gene and sample.}
 
 \item{tree}{a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.}
 

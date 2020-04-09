@@ -243,28 +243,10 @@ NB_to_PLN <- function(mean, dispersion) {
 #' 
 #' @keywords internal
 #' 
-simulateDataPhylo <- function(n.vars,
-                              S1, prob.S1, sum.S1, truedispersions.S1,
-                              S2, prob.S2, sum.S2, truedispersions.S2,
-                              seq.depths,
-                              overdispersed,
+simulateDataPhylo <- function(count_means,
+                              count_dispertions,
                               tree, prop.var.tree) {
   ### Initialize data matrix
-  count_means <- matrix(0, n.vars, length(S1) + length(S2))
-  count_dispertions <- matrix(0, n.vars, length(S1) + length(S2))
-  
-  ### Generate Negative Binomial Parameters
-  for (i in 1:n.vars) {
-    for (j in 1:ncol(count_means)) {
-      if (j %in% S1) {
-        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j]
-        count_dispertions[i, j] <- truedispersions.S1[i]
-      } else {
-        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j]
-        count_dispertions[i, j] <- truedispersions.S2[i]
-      }
-    }
-  }
   colnames(count_means) <- colnames(count_dispertions) <- tree$tip.label
   
   ### Get Equivalent Phylogenetic Poisson log-normal parameters
