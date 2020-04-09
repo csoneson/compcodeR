@@ -1171,20 +1171,28 @@ runComparison <- function(file.table,
                                                      ".Rmd", sep = "")))
   
   ## Generate the HTML file
-  knit2html(input = file.path(output.directory, paste("compcodeR_report_",
-                                                      timestamp, 
-                                                      ".Rmd", sep = "")),
-            output = file.path(output.directory, paste("compcodeR_report_",
-                                                       timestamp, 
-                                                       ".html", sep = "")),
-            title = 'compcodeR results', 
-            envir = new.env())
+  out <- knitr::knit(input = file.path(output.directory, paste("compcodeR_report_",
+                                                               timestamp, 
+                                                               ".Rmd", sep = "")),
+                     output = file.path(output.directory, paste("compcodeR_report_",
+                                                                timestamp, 
+                                                                ".md", sep = "")),
+                     envir =  new.env())
+  markdown::markdownToHTML(file = out,
+                           output = file.path(output.directory, paste("compcodeR_report_",
+                                                                      timestamp, 
+                                                                      ".html", sep = "")),
+                           encoding = "UTF-8",
+                           title = "compcodeR results")
   
   ## Remove the .Rmd file
   if (!save.rmdfile) {
     file.remove(file.path(output.directory, paste("compcodeR_report_",
                                                   timestamp, 
                                                   ".Rmd", sep = "")))
+    file.remove(file.path(output.directory, paste("compcodeR_report_",
+                                                  timestamp, 
+                                                  ".md", sep = "")))
   }
   
   ## Generate the HTML files containing the code for all compared instances
