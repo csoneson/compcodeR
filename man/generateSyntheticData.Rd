@@ -72,7 +72,7 @@ generateSyntheticData(
 
 \item{output.file}{If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.}
 
-\item{tree}{a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 

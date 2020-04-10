@@ -30,7 +30,7 @@
 #' @param single.outlier.low.prob The fraction of 'single' outliers with unusually low counts.
 #' @param effect.size The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
-#' @param tree a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.
+#' @param tree a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
 #' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
 #' 

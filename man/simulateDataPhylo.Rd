@@ -12,7 +12,7 @@ samples n columns.}
 
 \item{count_dispertions}{a matrix of size p x n, for each gene and sample.}
 
-\item{tree}{a phylogenetic tree of class \code{\link[ape:phylo]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 }

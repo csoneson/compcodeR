@@ -3,6 +3,7 @@
 export(DESeq.GLM.createRmd)
 export(DESeq.nbinom.createRmd)
 export(DESeq2.createRmd)
+export(DESeq2.norm.createRmd)
 export(DSS.createRmd)
 export(EBSeq.createRmd)
 export(NBPSeq.createRmd)

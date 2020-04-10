@@ -401,6 +401,123 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
   close(codefile)
 }
 
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with DESeq2 with custom model matrix
+#' 
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the DESeq2 package. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' 
+#' For more information about the methods and the interpretation of the parameters, see the \code{DESeq2} package and the corresponding publications. 
+#' 
+#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param result.path The path to the file where the result object will be saved.
+#' @param codefile The path to the file where the code will be written.
+#' @param fit.type The fitting method used to get the dispersion-mean relationship. Possible values are \code{"parametric"}, \code{"local"} and \code{"mean"}.
+#' @param test The test to use. Possible values are \code{"Wald"} and \code{"LRT"}.
+#' @param beta.prior Whether or not to put a zero-mean normal prior on the non-intercept coefficients. Default is \code{TRUE}. 
+#' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
+#' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
+#' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
+#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It not contain the "condition" factor column, that will be added automatically.
+#' @param extraNormFactor A matrix name for normalisation factors, to be applied in addition to the standard ones (see details). The matrix should be one of the \code{info.parameters} list entry of the \code{\link{compData}} object.
+#' 
+#' @details 
+#' The normalization factors are applied to the \code{DESeq2} model in the way explained in \code{\link[DESeq2]{normalizationFactors}} (see details and examples of this funtion). The provided matrix will be multiplied by the default normalization factor obtained through the \code{\link[DESeq2]{estimateSizeFactors}} function.
+#' 
+#' @export 
+#' @author Charlotte Soneson
+#' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
+#' @references 
+#' Anders S and Huber W (2010): Differential expression analysis for sequence count data. Genome Biology 11:R106
+#' @examples
+#' try(
+#' if (require(DESeq2)) {
+#' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#'                                     output.file = file.path(tmpdir, "mydata.rds"))
+#' ## Add annotations
+#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+#' sample.annotations(mydata.obj)$test_reg <- 1:10
+#' n_counts <- prod(dim(count.matrix(mydata.obj)))
+#' info.parameters(mydata.obj)$extraNormFactor <- matrix(rpois(n_counts, 100), ncol = 10)
+#' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
+#' ## Diff Exp
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
+#'            Rmdfunction = "DESeq2.norm.createRmd", 
+#'            output.directory = tmpdir, fit.type = "parametric",
+#'            test = "Wald",
+#'            extraDesignFactors = c("test_factor", "test_reg"),
+#'            extraNormFactor = c("extraNormFactor"))
+#' })
+DESeq2.norm.createRmd <- function(data.path, result.path, codefile, 
+                                  fit.type, test, beta.prior = TRUE, 
+                                  independent.filtering = TRUE, cooks.cutoff = TRUE, 
+                                  impute.outliers = TRUE,
+                                  extraDesignFactors = NULL,
+                                  extraNormFactor = NULL) {
+  codefile <- file(codefile, open = 'w')
+  writeLines("### DESeq2.norm", codefile)
+  writeLines(paste("Data file: ", data.path, sep = ''), codefile)
+  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = TRUE, error = TRUE, warning = TRUE}", 
+               "require(DESeq2)", 
+               paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
+  if (is.list(readRDS(data.path))) {
+    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+  }
+  writeLines(c("is.valid <- check_compData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+               codefile)
+  if (is.null(extraDesignFactors)) {
+    writeLines(c(
+      paste("DESeq2.norm.ds <- DESeq2::DESeqDataSetFromMatrix(countData = count.matrix(cdata),",
+            "colData = data.frame(condition = factor(sample.annotations(cdata)$condition)),",
+            "design = ~ condition)")),
+      codefile)
+  } else {
+    writeLines(c(
+      paste0("DESeq2.norm.ds <- DESeq2::DESeqDataSetFromMatrix(countData = count.matrix(cdata),",
+             " colData = cbind(sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "'), drop = FALSE], data.frame(condition = factor(sample.annotations(cdata)$condition))),",
+             " design = as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition')))")),
+      codefile)
+  }
+  if (!is.null(extraNormFactor)) {
+    writeLines(c(
+    "## Size Factors",
+    "DESeq2.norm.ds <-  estimateSizeFactors(DESeq2.norm.ds)",
+    "size_fac <- sizeFactors(DESeq2.norm.ds)",
+    "mat_size_fac <- matrix(size_fac, ncol = length(size_fac), nrow = nrow(count.matrix(cdata)), byrow = T)",
+    "## Extra factors",
+    paste0("extraNormFactor <- info.parameters(cdata)$", extraNormFactor),
+    "normFactors <- (mat_size_fac * extraNormFactor) / exp(rowMeans(log(mat_size_fac * extraNormFactor)))",
+    "normalizationFactors(DESeq2.norm.ds) <- as.matrix(normFactors)"),
+    codefile)
+  }
+  writeLines(paste("DESeq2.norm.ds <- DESeq2::DESeq(DESeq2.norm.ds, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""),
+             codefile)
+  if (impute.outliers == TRUE) {
+    writeLines(c("DESeq2.norm.ds.clean <- DESeq2::replaceOutliersWithTrimmedMean(DESeq2.norm.ds)",
+                 paste("DESeq2.norm.ds.clean <- DESeq2::DESeq(DESeq2.norm.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
+                 "DESeq2.norm.ds <- DESeq2.norm.ds.clean"), codefile)
+  }
+  writeLines(c(paste("DESeq2.norm.results <- DESeq2::results(DESeq2.norm.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
+               "DESeq2.norm.pvalues <- DESeq2.norm.results$pvalue", 
+               "DESeq2.norm.adjpvalues <- DESeq2.norm.results$padj", 
+               "DESeq2.norm.logFC <- DESeq2.norm.results$log2FoldChange", 
+               "DESeq2.norm.score <- 1 - DESeq2.norm.pvalues", 
+               "result.table <- data.frame('pvalue' = DESeq2.norm.pvalues, 'adjpvalue' = DESeq2.norm.adjpvalues, 'logFC' = DESeq2.norm.logFC, 'score' = DESeq2.norm.score)", 
+               "rownames(result.table) <- rownames(count.matrix(cdata))",
+               "result.table(cdata) <- result.table", 
+               "package.version(cdata) <- paste('DESeq2,', packageVersion('DESeq2'))",
+               "analysis.date(cdata) <- date()",
+               paste("method.names(cdata) <- list('short.name' = 'DESeq2.norm', 'full.name' = '", paste('DESeq2.norm.', packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), sep = ''), "')", sep = ''),
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  
+  writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
+  writeLines("sessionInfo()", codefile)
+  writeLines("```", codefile)
+  close(codefile)
+}
+
 
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with the DESeq GLM approach
 #' 
