@@ -416,7 +416,7 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
 #' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
-#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It not contain the "condition" factor column, that will be added automatically.
+#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param extraNormFactor A matrix name for normalisation factors, to be applied in addition to the standard ones (see details). The matrix should be one of the \code{info.parameters} list entry of the \code{\link{compData}} object.
 #' 
 #' @details 

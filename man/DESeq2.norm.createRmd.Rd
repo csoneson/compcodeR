@@ -37,7 +37,7 @@ DESeq2.norm.createRmd(
 
 \item{impute.outliers}{Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.}
 
-\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It not contain the "condition" factor column, that will be added automatically.}
+\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
 \item{extraNormFactor}{A matrix name for normalisation factors, to be applied in addition to the standard ones (see details). The matrix should be one of the \code{info.parameters} list entry of the \code{\link{compData}} object.}
 }
