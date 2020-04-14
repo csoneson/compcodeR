@@ -654,6 +654,25 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                  codefile)
     }
   }
+  ## Correlation heatmap
+  if (!is.null(data.set@info.parameters$tree)) { # There is a tree
+    writeLines("### log2 normalized counts samples correlation heatmap", codefile)
+    writeLines(c("```{r maplot-corHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "Z <- data.set@count.matrix",
+                 "nf <- edgeR::calcNormFactors(Z)",
+                 "norm.factors <- nf * colSums(Z)",
+                 "common.libsize <- exp(mean(log(colSums(Z))))",
+                 "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
+                 "log2.pseudocounts <- log2(pseudocounts)",
+                 "",
+                 "sampleDists <- dist( t( log2.pseudocounts ) )",
+                 "sampleDistMatrix <- as.matrix(sampleDists)",
+                 "heatmap(sampleDistMatrix, col = viridis::viridis(256, option = 'plasma', direction = 1, end = 0.9))",
+                 "```"), codefile)
+    writeLines(c("",
+                 "Note: the heatmap tree is the correlation tree (the phylogeny is not taken into account in this plot)."),
+               codefile)
+  }
   
   close(codefile)
   
