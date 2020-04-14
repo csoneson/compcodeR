@@ -641,9 +641,9 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                    "Z1 <- log2.pseudocounts[1:maxGene, ]",
                    "Z2 <- log2.pseudocounts[maxGene + 1:maxGene, ]",
                    "",
-                   "gh <- gheatmap(gt, t(log2(Z1)), offset = 0.1, width = 5, colnames = FALSE)",
-                   "gh <- gheatmap(gh, t(log2(Z2)), offset = 5.2, width = 5, colnames = FALSE)",
-                   "gh <- gh + scale_fill_viridis_c(option = 'plasma', direction = -1, name = 'log2 count')",
+                   "gh <- gheatmap(gt, t(Z1), offset = 0.1, width = 5, colnames = FALSE)",
+                   "gh <- gheatmap(gh, t(Z2), offset = 5.2, width = 5, colnames = FALSE)",
+                   "gh <- gh + scale_fill_viridis_c(option = 'plasma', direction = -1, name = 'log2 norm count')",
                    "gh",
                    "```"), codefile)
       writeLines(c("",
