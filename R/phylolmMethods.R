@@ -127,7 +127,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "  ## BM",
     "  res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
     "                                             data = data_reg,",
-    "                                             phy = cdata@info.parameters$tree,",
+    "                                             phy = getTree(cdata),",
     "                                             model = model,",
     "                                             measurement_error = measurement_error, ",
     "                                             ...)))",
@@ -166,3 +166,17 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
   writeLines("```", codefile)
   close(codefile)
 }
+
+getTree <- function(cdata) {
+  if (is.null(cdata@info.parameters$tree)) {
+    message("There were no tree in the data object. Using a star tree of unit height in phylolm.")
+    ntaxa <- cdata@info.parameters$samples.per.cond * 2
+    tree <- ape::stree(ntaxa, "star")
+    tree$edge.length <- rep(1, nrow(tree$edge))
+    tree$tip.label <- rownames(cdata@sample.annotations)
+    return(tree)
+  } else {
+    return(cdata@info.parameters$tree)
+  }
+}
+
