@@ -28,6 +28,8 @@ generateSyntheticData(
   output.file = NULL,
   tree = NULL,
   prop.var.tree = 1,
+  model_process = c("BM", "OU"),
+  selection.strength = 0,
   id.condition = NULL
 )
 }
@@ -75,6 +77,10 @@ generateSyntheticData(
 \item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
+
+\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+
+\item{selection.strength}{if the process is "OU", the selection strength parameter.}
 
 \item{id.condition}{A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.}
 }

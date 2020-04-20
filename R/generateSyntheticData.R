@@ -32,6 +32,8 @@
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
 #' @param tree a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
 #' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
+#' @param model_process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
+#' @param selection.strength if the process is "OU", the selection strength parameter.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
 #' 
 #'
@@ -64,6 +66,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   single.outlier.low.prob = 0, effect.size = 1.5, 
                                   output.file = NULL,
                                   tree = NULL, prop.var.tree = 1.0,
+                                  model_process = c("BM", "OU"), selection.strength = 0,
                                   id.condition = NULL) {
   
   ## Check output file name
@@ -91,6 +94,10 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     ## Check that the tree has the right number of species
     if (length(tree$tip.label) != samples.per.cond * 2) {
       stop("The tree should have as many species as `samples.per.cond` times two.")
+    }
+    ## Check that the tree is ultrametric
+    if (!ape::is.ultrametric(tree)) {
+      stop("The tree should be ultrametric.")
     }
     
     ## Check Conditions
@@ -247,9 +254,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                              seq.depths = seq.depths)
 	
 	if (use_tree) {
+	  model_process <- match.arg(model_process)
 	  Z <- simulateDataPhylo(params_simus$count_means,
 	                         params_simus$count_dispertions,
-	                         tree = tree, prop.var.tree = prop.var.tree) 
+	                         tree = tree, prop.var.tree = prop.var.tree,
+	                         model_process = model_process, selection.strength = selection.strength) 
 	} else {
 	  Z <- simulateData(params_simus$count_means,
 	                    params_simus$count_dispertions,

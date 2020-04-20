@@ -4,7 +4,14 @@
 \alias{simulateDataPhylo}
 \title{Simulate the Data using the tree}
 \usage{
-simulateDataPhylo(count_means, count_dispertions, tree, prop.var.tree)
+simulateDataPhylo(
+  count_means,
+  count_dispertions,
+  tree,
+  prop.var.tree,
+  model_process = "BM",
+  selection.strength = 0
+)
 }
 \arguments{
 \item{count_means}{a matrix with the number of genes p rows and the number of
@@ -15,6 +22,10 @@ samples n columns.}
 \item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
+
+\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+
+\item{selection.strength}{if the process is "OU", the selection strength parameter.}
 }
 \value{
 Z a matrix with the data

@@ -8,7 +8,9 @@ simulatePhyloPoissonLogNormal(
   tree,
   log_means,
   log_variance_phylo,
-  log_variance_sample
+  log_variance_sample,
+  model_process = "BM",
+  selection.strength = 0
 )
 }
 \arguments{

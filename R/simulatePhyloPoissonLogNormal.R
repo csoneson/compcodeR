@@ -30,11 +30,11 @@
 #' 
 #' @keywords internal
 #' 
-simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample) {
+simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample, model_process = "BM", selection.strength = 0) {
   
   ## Check for packages
-  if (!requireNamespace("ape", quietly = TRUE)) {
-    stop("Package 'ape' is needed for tree simulations.", call. = FALSE)
+  if (!requireNamespace("ape", quietly = TRUE) || !requireNamespace("phylolm", quietly = TRUE)) {
+    stop("Packages 'ape' and 'phylolm' are needed for tree simulations.", call. = FALSE)
   }
   
   ## Check means
@@ -53,21 +53,28 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   # resids <- mvMORPH::mvSIM(tree = tree,
   #                          nsim = P,
   #                          error = 0,
-  #                          model = "BM1",
-  #                          param = list(sigma = 1,
-  #                                       theta = 0))
+  #                          model = model_process,
+  #                          param = params_process)
   
   # resids <- ape::rTraitMult(phy = tree,
   #                           model = function(x, l) return(x + rnorm(length(x), 0, sqrt(l))),
   #                           p = P,
   #                           root.value = rep(0.0, P))
   
-  V <- ape::vcv(tree)
-  resids <- matrix(rnorm(N * P, mean = 0, sd = 1), nrow = N)
-  resids <- t(chol(V)) %*% resids
+  resids <- phylolm::rTrait(n = P,
+                            phy = tree,
+                            model = model_process,
+                            parameters = list(sigma2 = 1, ancestral.state = 0, optimal.value = 0, alpha = selection.strength),
+                            plot.tree = FALSE)
+  
+  # V <- ape::vcv(tree)
+  # resids <- matrix(rnorm(N * P, mean = 0, sd = 1), nrow = N)
+  # resids <- t(chol(V)) %*% resids
+  
+  log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model_process, selection.strength)
 
   ## phylo variances
-  resids <- resids * rep(1, N) %*% t(sqrt(log_variance_phylo))
+  resids <- resids * log_sd_phylo
   
   ## resid variances
   resids <- t(resids) + matrix(rnorm(N * P, mean = 0, sd = sqrt(log_variance_sample)), ncol = N)
@@ -275,7 +282,8 @@ NB_to_PLN <- function(mean, dispersion) {
 #' 
 simulateDataPhylo <- function(count_means,
                               count_dispertions,
-                              tree, prop.var.tree) {
+                              tree, prop.var.tree,
+                              model_process = "BM", selection.strength = 0) {
   ### Initialize data matrix
   colnames(count_means) <- colnames(count_dispertions) <- tree$tip.label
   
@@ -286,9 +294,49 @@ simulateDataPhylo <- function(count_means,
   res_sim <- simulatePhyloPoissonLogNormal(tree,
                                            params_poisson_lognormal$log_means,
                                            params_poisson_lognormal$log_variance_phylo,
-                                           params_poisson_lognormal$log_variance_sample)
+                                           params_poisson_lognormal$log_variance_sample,
+                                           model_process = model_process,
+                                           selection.strength = selection.strength)
   return(res_sim$counts)
 }
 
+#' @title Scale the variances
+#'
+#' @description 
+#' Scale the variances of the process simulation so that they are equel to log_variance_phylo.
+#' 
+#' @inheritParams generateSyntheticData 
+#' @inheritParams simulateData
+#' 
+#' @return A matrix N * P of factors to multiply the simulated phylogenetic residuals.
+#' 
+#' @keywords internal
+#' 
+scale_variance_process <- function(log_variance_phylo, tree, model_process, selection.strength) {
+  fac <- get_model_factor(model_process, selection.strength, tree)
+  return(fac %*% t(sqrt(log_variance_phylo)))
+}
+
+#' @title Get the scaling factor
+#'
+#' @description 
+#' Get the scaling factors.
+#' 
+#' @inheritParams generateSyntheticData 
+#' 
+#' @return A vector N of factors.
+#' 
+#' @keywords internal
+#' 
+get_model_factor <- function(model_process, selection.strength, tree) {
+  heights <- ape::node.depth.edgelength(tree)[1:length(tree$tip.label)]
+  if (model_process == "BM" || selection.strength == 0) {
+    return(sqrt(1 / heights))
+  } else if (model_process == "OU") {
+    return(sqrt(1 / expm1(-2 * selection.strength * heights) * (-2 * selection.strength)))
+  } else {
+    stop("Process not yet implemented.")
+  }
+}
 
 
