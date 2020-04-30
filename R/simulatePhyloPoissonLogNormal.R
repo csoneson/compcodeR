@@ -72,13 +72,13 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   # resids <- t(chol(V)) %*% resids
   
   log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model_process, selection.strength)
-
+  
   ## phylo variances
   resids <- resids * log_sd_phylo
   
   ## resid variances
   resids <- t(resids) + matrix(rnorm(N * P, mean = 0, sd = sqrt(log_variance_sample)), ncol = N)
-    
+  
   ## Expectations
   log_lambda <- resids + log_means
   
@@ -182,6 +182,51 @@ checkParamVector <- function(x, name, tree) {
       x <- x[correspondances]
     }
   }
+}
+
+#' @title Check Species
+#'
+#' @description
+#' Check that the parameters are compatible with the tree. Throws an error if not.
+#' 
+#' @inheritParams checkParamVector
+#' 
+#' @keywords internal
+#' 
+checkSpecies <- function(x, name, tree, tol, check.id.species) {
+  checkParamVector(x, name, tree)
+  if (check.id.species) {
+    related_matrices <- sapply(x, function(i) i == x)
+    if (!all(related_matrices == (ape::cophenetic.phylo(tree) <= tol))) {
+      stop("The provided species do not match with the tree branch lengths. Please check the 'id.species' vector. If you want to skip this check, re-lauch with option 'check.id.species=FALSE'.")
+    }
+  }
+}
+
+#' @title Add replicates to a tree
+#'
+#' @description
+#' Utility function to add replicates to a tree, as tips with zero length branches.
+#' 
+#' @param tree A phylogenetic tree with n tips.
+#' @param r the number of replicates too add at each species.
+#' 
+#' @return A phylogenetic tree with n * r tips, and clusters of tips with zero branch lengths.
+#' 
+#' @keywords internal
+#' 
+add_replicates <- function(tree, r) {
+  tree_rep <- tree
+  # Add replicates
+  for (tip_label in tree$tip.label) {
+    for (rep in 1:r) {
+      tree_rep <- phytools::bind.tip(tree_rep, tip.label = paste0(tip_label, "_", rep),
+                                     where = which(tree_rep$tip.label == tip_label))
+    }
+  }
+  # Remove original tips
+  tree_rep <- ape::drop.tip(tree_rep, tree$tip.label)
+  return(tree_rep)
 }
 
 #' @title Compute log means and variances

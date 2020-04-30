@@ -35,7 +35,10 @@
 #' @param model_process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
 #' @param selection.strength if the process is "OU", the selection strength parameter.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
-#' 
+#' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
+#' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
+#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.
+#' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation. 
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -67,7 +70,10 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   output.file = NULL,
                                   tree = NULL, prop.var.tree = 1.0,
                                   model_process = c("BM", "OU"), selection.strength = 0,
-                                  id.condition = NULL) {
+                                  id.condition = NULL,
+                                  id.species = as.factor(rep(1, 2 * samples.per.cond)),
+                                  check.id.species = TRUE,
+                                  lengths.relmeans = NULL, lengths.dispersions = NULL) {
   
   ## Check output file name
   if (!is.null(output.file)) {
@@ -81,6 +87,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   
   ## Checks for phylogenetic tree
   use_tree <- !is.null(tree) # If tree is specified, use it.
+  
+  ## Check id.species
+  if (!is.factor(id.species)) warning("Vector 'id.species' must be a factor. Transforming.")
+  id.species <- as.factor(id.species)
+  levels(id.species) <- 1:length(levels(id.species))
   
   if (use_tree) {
     ## Check package
@@ -108,6 +119,9 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
       names(id.condition) <- tree$tip.label
     }
     
+    ## Check id species
+    checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
+    
     ## Check that all genes are over-dispersed
     if (fraction.non.overdispersed != 0) {
       stop("The Phylogenetic Poisson lognormal distribution is always over-dispersed.")
@@ -123,6 +137,16 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     }
   }
 
+  ## Checks lengths
+  if (is.null(lengths.relmeans) != is.null(lengths.dispersions)) {
+    stop("For lenghts to be used, both the 'lengths.relmeans' and 'lengths.dispersions' vectors must be provided.")
+  }
+  use_lengths <- !is.null(lengths.relmeans) # If lengths are specified, use them.
+  if (use_lengths) {
+    if (length(lengths.relmeans) != n.vars) stop("The length of the 'lengths.relmeans' vector must be the same as the number of simulated genes.")
+    if (length(lengths.dispersions) != n.vars) stop("The length of the 'lengths.dispersions' vector must be the same as the number of simulated genes.")
+  }
+  
 	## Define conditions
   condition <- id.condition
   S1 <- which(condition == 1)
@@ -248,9 +272,17 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	truedispersions.S1 <- truedispersions.S1 * overdispersed
 	truedispersions.S2 <- truedispersions.S2 * overdispersed
 	
+	## Generate lengths and length factors
+	nfact_length.S1 <- nfact_length.S2 <- matrix(1, n.vars, length(S1) + length(S2))
+	if (use_lengths) {
+	  lenght_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
+	  nfact_length.S1 <- computeFactorLengths(lenght_matrix, prob.S1, sum.S1)
+	  nfact_length.S2 <- computeFactorLengths(lenght_matrix, prob.S2, sum.S2)
+	}
+	
 	params_simus <- getNegativeBinomialParameters(n.vars = n.vars,
-	                                              S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1,
-	                                              S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2,
+	                                              S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
+	                                              S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
 	                                              seq.depths = seq.depths)
 	
 	if (use_tree) {
@@ -506,8 +538,8 @@ simulateData <- function(count_means, count_dispertions, overdispersed) {
 #' @keywords internal
 #'
 getNegativeBinomialParameters <- function(n.vars,
-                                          S1, prob.S1, sum.S1, truedispersions.S1,
-                                          S2, prob.S2, sum.S2, truedispersions.S2,
+                                          S1, prob.S1, sum.S1, truedispersions.S1, nfact_length.S1,
+                                          S2, prob.S2, sum.S2, truedispersions.S2, nfact_length.S2,
                                           seq.depths) {
   ### Initialize
   count_means <- matrix(0, n.vars, length(S1) + length(S2))
@@ -517,10 +549,10 @@ getNegativeBinomialParameters <- function(n.vars,
   for (i in 1:n.vars) {
     for (j in 1:ncol(count_means)) {
       if (j %in% S1) {
-        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j]
+        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * nfact_length.S1[i, j]
         count_dispertions[i, j] <- truedispersions.S1[i]
       } else {
-        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j]
+        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j] * nfact_length.S2[i, j]
         count_dispertions[i, j] <- truedispersions.S2[i]
       }
     }
@@ -529,6 +561,53 @@ getNegativeBinomialParameters <- function(n.vars,
               count_dispertions = count_dispertions))
 }
 
+#' @title Simulate a length matrix
+#'
+#' @description 
+#' Simulate a length matrix of size n.vars times n.sample, with the length of
+#' each gene in each sample. 
+#' 
+#' @param id.species An n.sample vector, indicating the species of each sample.
+#' @param lengths.relmeans A vector of mean values to use in the simulation of
+#' lengths from the Negative Binomial distribution.
+#' @param lengths.dispersions A vector or matrix of dispersions to use in the
+#' simulation of data from the Negative Binomial distribution.
+#' 
+#' @return A matrix of the same size as 'lenght_matrix', with normalization
+#' factors to be applied for each sample and each gene.
+#' 
+#' @keywords internal
+#'
+generateLengths <- function(id.species, lengths.relmeans, lengths.dispersions) {
+  length_matrix <- matrix(NA, length(lengths.relmeans), length(id.species))
+  for(i in 1:length(lengths.relmeans)){
+    sims <- rnbinom(length(unique(id.species)),
+                    mu = lengths.relmeans[i],
+                    size = 1 / lengths.dispersions[i])
+    length_matrix[i, ] <- sims[id.species]
+  }
+  return(length_matrix)
+}
+
+#' @title Compute Length Noormalization Factors
+#'
+#' @description 
+#' Compute the factor to be applied for length normalization.
+#' Each column of the matrix (samples) is normalized by the weighted average of
+#' the column, with weights coresponding to the true probabilities of each gene.
+#' 
+#' @param lenght_matrix An n.vars times n.sample matrix of lengths of each gene in each sample.
+#' @param prob.S1 Vector of means for condition 1.
+#' @param sum.S1 Sum of means for condition 1.
+#' 
+#' @return A matrix of the same size as 'lenght_matrix', with normalization factors
+#' to be applied for each sample and each gene.
+#' 
+#' @keywords internal
+#'
+computeFactorLengths <- function(lenght_matrix, prob.S1, sum.S1) {
+  return(lenght_matrix %*% diag(1 / colSums(diag(prob.S1 / sum.S1) %*% lenght_matrix)))
+}
 
 #' Summarize a synthetic data set by some diagnostic plots 
 #' 

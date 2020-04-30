@@ -30,7 +30,11 @@ generateSyntheticData(
   prop.var.tree = 1,
   model_process = c("BM", "OU"),
   selection.strength = 0,
-  id.condition = NULL
+  id.condition = NULL,
+  id.species = as.factor(rep(1, 2 * samples.per.cond)),
+  check.id.species = TRUE,
+  lengths.relmeans = NULL,
+  lengths.dispersions = NULL
 )
 }
 \arguments{
@@ -83,6 +87,14 @@ generateSyntheticData(
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 
 \item{id.condition}{A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.}
+
+\item{id.species}{A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.}
+
+\item{check.id.species}{Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.}
+
+\item{lengths.relmeans}{An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.}
+
+\item{lengths.dispersions}{An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.}
 }
 \value{
 A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).

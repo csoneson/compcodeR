@@ -10,10 +10,12 @@ getNegativeBinomialParameters(
   prob.S1,
   sum.S1,
   truedispersions.S1,
+  nfact_length.S1,
   S2,
   prob.S2,
   sum.S2,
   truedispersions.S2,
+  nfact_length.S2,
   seq.depths
 )
 }
