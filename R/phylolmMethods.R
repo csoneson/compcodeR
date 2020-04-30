@@ -127,7 +127,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "  ## BM",
     "  res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
     "                                             data = data_reg,",
-    "                                             phy = getTree(cdata),",
+    "                                             phy = tree,",
     "                                             model = model,",
     "                                             measurement_error = measurement_error, ",
     "                                             ...)))",
@@ -145,6 +145,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
   extra_args <- sapply(extra_args, function(x) paste(" = ", x))
   extra_args <- paste(names(extra_args), extra_args, collapse = ", ")
   writeLines(c(
+    "tree <- getTree(cdata)",
     paste0("voom.phylolm.results_list <- apply(voom.data, 1, phylolm_analysis, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, ")"),
     "result.table <- do.call(rbind, voom.phylolm.results_list)",
     "result.table$adjpvalue <- p.adjust(result.table$pvalue, 'BH')"),
@@ -176,7 +177,9 @@ getTree <- function(cdata) {
     tree$tip.label <- rownames(cdata@sample.annotations)
     return(tree)
   } else {
-    return(cdata@info.parameters$tree)
+    tree <- cdata@info.parameters$tree
+    if (!ape::is.ultrametric(tree)) stop("The tree must be ultrametric.")
+    return(phytools::force.ultrametric(tree))
   }
 }
 
