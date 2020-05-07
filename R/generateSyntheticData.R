@@ -274,6 +274,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	## Generate lengths and length factors
 	nfact_length.S1 <- nfact_length.S2 <- matrix(1, n.vars, length(S1) + length(S2))
+	length_matrix <- matrix(NA, 0, 0)
 	if (use_lengths) {
 	  length_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
 	  nfact_length.S1 <- computeFactorLengths(length_matrix, prob.S1, sum.S1)
@@ -449,7 +450,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	  variable.annotations$lengths.dispersions <- lengths.dispersions
 	  variable.annotations$M.value.lengths <- M.value.lengths
 	  variable.annotations$A.value.lengths <- A.value.lengths
-	  info.parameters <- c(info.parameters, list('length.matrix' = length_matrix))
+	  # info.parameters <- c(info.parameters, list('length.matrix' = length_matrix))
 	}
 	
 	### Filter the data with respect to total count
@@ -472,12 +473,17 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   if (!use_tree) colnames(Z.TC) <- paste("sample", 1:ncol(Z.TC), sep = "")
   rownames(sample.annotations) <- colnames(Z.TC)
   rownames(variable.annotations.TC) <- rownames(Z.TC)
+  if (length(length_matrix) != 0) {
+    colnames(length_matrix) <- colnames(Z.TC)
+    rownames(length_matrix) <- rownames(Z.TC)
+  }
   
   data.object <- compData(count.matrix = Z.TC, 
                           variable.annotations = variable.annotations.TC, 
                           sample.annotations = sample.annotations, 
                           filtering = filtering, 
-                          info.parameters = info.parameters)
+                          info.parameters = info.parameters,
+                          length.matrix = length_matrix)
   
   ## Save results
   if (!is.null(output.file)) {
@@ -796,7 +802,7 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
                "```"), codefile)
   
-  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
     writeLines("### MA plot, length normalized, colored by true differential expression status", codefile)
     writeLines(c("```{r maplot-trueDEstatus-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
@@ -809,7 +815,7 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = total.nbr.outliers)) + geom_point()",
                "```"), codefile)
   
-  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
     writeLines("### MA plot, length normalized, colored by total number of outliers", codefile)
     writeLines(c("```{r maplot-nbroutliers-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = total.nbr.outliers)) + geom_point()",
@@ -823,7 +829,7 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                "```"), codefile)
   
-  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
     writeLines("### True log2-fold change vs estimated length normalized log2-fold change (M-value)", codefile)
     writeLines(c("```{r logfoldchanges-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
@@ -890,11 +896,11 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                codefile)
   }
   ##
-  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
     writeLines("### Lenghts: mean versus variance (log2)", codefile)
     writeLines(c(
       "```{r lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-      "length.matrix_species <- info.parameters(data.set)$length.matrix[, !duplicated(data.set@sample.annotations$id.species)]",
+      "length.matrix_species <- length.matrix(data.set)[, !duplicated(data.set@sample.annotations$id.species)]",
       "stats_lengths <- data.frame(mean = c(variable.annotations(data.set)$lengths.relmeans,",
       "                                     rowMeans(length.matrix_species)),",
       "                            var = c(variable.annotations(data.set)$lengths.relmeans + variable.annotations(data.set)$lengths.relmeans^2 * variable.annotations(data.set)$lengths.dispersion,",

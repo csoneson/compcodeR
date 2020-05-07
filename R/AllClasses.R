@@ -76,8 +76,27 @@ check_compData <- function(object) {
         return("If present, rownames of result.table must agree with those of count.matrix.")
       }
     }
-  }
     
+    if (length(count.matrix(object)) != 0 && 
+        length(length.matrix(object)) != 0) {
+      if (ncol(count.matrix(object)) != ncol(length.matrix(object)) || nrow(count.matrix(object)) != nrow(length.matrix(object))) {
+        return("The dimension of count.matrix is different from the dimension of length.matrix.")
+      }
+      if (length(colnames(count.matrix(object))) != 0 && 
+          length(colnames(length.matrix(object))) != 0 && 
+          any(colnames(count.matrix(object)) != 
+              colnames(length.matrix(object)))) {
+        return("The colnames of count.matrix are different from the colnames of length.matrix.")
+      }
+      if (length(rownames(count.matrix(object))) != 0 && 
+          length(rownames(length.matrix(object))) != 0 && 
+          any(rownames(count.matrix(object)) != 
+              rownames(length.matrix(object)))) {
+        return("The rownames of count.matrix are different from the rownames of length.matrix.")
+      }
+    }
+  }
+  
   return(TRUE)
 }
 
@@ -141,6 +160,7 @@ check_compData_results = function(object) {
 #' \item{\code{method.names}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A list, containing the name of the method used for the differential expression analysis. The list should have two entries: \code{full.name} and \code{short.name}, where the \code{full.name} is the full (potentially long) name identifying the method, and \code{short.name} may be an abbreviation. Class \code{list}}
 #' \item{\code{code}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A character string containing the code that was used to run the differential expression analysis. The code should be in R markdown format. Class \code{character}}
 #' \item{\code{result.table}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). Contains the results of the differential expression analysis, in the form of a data frame with one row per gene. Must contain at least one column named \code{score}, where a higher value corresponds to 'more strongly differentially expressed genes'. Class \code{data.frame}}
+#' \item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns.  Class \code{matrix}}
 #' }
 #' 
 #' @section Methods:
@@ -175,6 +195,9 @@ check_compData_results = function(object) {
 #' \item{result.table}{\code{signature(x="compData")}}
 #' \item{result.table<-}{\code{signature(x="compData",value="data.frame")}:
 #' Get or set the result table in a \code{compData} object. \code{value} should be a data frame with one row per gene, and at least a column named 'score'.}
+#' \item{length.matrix}{\code{signature(x="compData")}}
+#' \item{length.matrix<-}{\code{signature(x="compData",value="matrix")}:
+#' Get or set the length matrix in a \code{compData} object. \code{value} should be a numeric matrix.}
 #' }
 #' @section Construction:
 #' An object of the class \code{compData} can be constructed using the \code{\link{compData}} function. 
@@ -194,7 +217,8 @@ setClass(
                                   package.version = "character",
                                   method.names = "list",
                                   code = "character",
-                                  result.table = "data.frame"),
+                                  result.table = "data.frame",
+                                  length.matrix = "matrix"),
   
   validity = check_compData)
 
@@ -228,6 +252,8 @@ setMethod("code", "compData", function(x) x@code)
 setGeneric("result.table", function(x, ...) standardGeneric("result.table"))
 setMethod("result.table", "compData", function(x) x@result.table)
 
+setGeneric("length.matrix", function(x) standardGeneric("length.matrix"))
+setMethod("length.matrix", "compData", function(x) x@length.matrix)
 
 setGeneric("count.matrix<-", function(x, value) standardGeneric("count.matrix<-"))
 setReplaceMethod("count.matrix", "compData",
@@ -269,6 +295,10 @@ setReplaceMethod("code", "compData",
 setGeneric("result.table<-", function(x, value) standardGeneric("result.table<-"))
 setReplaceMethod("result.table", "compData",
                  function(x, value) {x@result.table <- value; check_compData_results(x); x})
+
+setGeneric("length.matrix<-", function(x, value) standardGeneric("length.matrix<-"))
+setReplaceMethod("length.matrix", "compData",
+                 function(x, value) {x@length.matrix <- value; check_compData(x); x})
 
 #' Create a \code{compData} object
 #' 
@@ -337,6 +367,7 @@ setReplaceMethod("result.table", "compData",
 #' \item \code{dispersion.S1} dispersion estimates in condition S1
 #' \item \code{dispersion.S2} dispersion estimates in condition S2
 #' }
+#' @param length.matrix A length matrix, with genes as rows and observations as columns.
 #' 
 #' @export
 #' @author Charlotte Soneson
@@ -350,7 +381,8 @@ compData <- function(count.matrix, sample.annotations,
                      info.parameters, variable.annotations = data.frame(), 
                      filtering = "no info", analysis.date = "", 
                      package.version = "", method.names = list(), 
-                     code = "", result.table = data.frame()) {
+                     code = "", result.table = data.frame(),
+                     length.matrix = matrix(NA_integer_, 0, 0)) {
   
   count.matrix <- as.matrix(count.matrix)
   mode(count.matrix) <- "numeric"
@@ -367,7 +399,8 @@ compData <- function(count.matrix, sample.annotations,
               package.version = package.version, 
               method.names = method.names,
               code = code, 
-              result.table = result.table)
+              result.table = result.table,
+              length.matrix = length.matrix)
   
   validObject(cmpd)
   
@@ -404,7 +437,8 @@ convertListTocompData <- function(inp.list) {
              method.names = as.list(inp.list$method.names), 
              code = as.character(inp.list$code), 
              result.table = as.data.frame(inp.list$result.table,
-                                          stringsAsFactors = FALSE))
+                                          stringsAsFactors = FALSE),
+             length.matrix = if (is.null(inp.list$length.matrix)) matrix(NA, 0, 0) else inp.list$length.matrix)
   }
 }
 
@@ -429,5 +463,6 @@ convertcompDataToList <- function(cpd) {
        package.version = package.version(cpd),
        method.names = method.names(cpd),
        code = code(cpd),
-       result.table = result.table(cpd))
+       result.table = result.table(cpd),
+       length.matrix = length.matrix(cpd))
 }

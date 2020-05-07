@@ -14,7 +14,8 @@ compData(
   package.version = "",
   method.names = list(),
   code = "",
-  result.table = data.frame()
+  result.table = data.frame(),
+  length.matrix = matrix(NA_integer_, 0, 0)
 )
 }
 \arguments{
@@ -90,6 +91,8 @@ compData(
 \item \code{dispersion.S1} dispersion estimates in condition S1
 \item \code{dispersion.S2} dispersion estimates in condition S2
 }}
+
+\item{length.matrix}{A length matrix, with genes as rows and observations as columns.}
 }
 \value{
 A \code{compData} object.

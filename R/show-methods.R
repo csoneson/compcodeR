@@ -76,6 +76,14 @@ setMethod(
         cat("\n")
       }
     }
+    
+    if (length(object@length.matrix != 0)) {
+      cat("length.matrix:\n")
+      print(head(object@length.matrix[, 1:min(ncol(object@length.matrix), 6)]))
+      cat("\n")
+    } else {
+      cat("No length matrix. \n")
+    }
   }
 )
 
