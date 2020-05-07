@@ -37,8 +37,8 @@
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
 #' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
 #' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
-#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.
-#' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation. 
+#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.
+#' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. 
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -113,7 +113,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     
     ## Check Conditions
     if (!is.null(id.condition)) {
-      checkParamVector(id.condition, "id.condition", tree)
+      if (use_tree) checkParamVector(id.condition, "id.condition", tree)
     } else {
       id.condition <- rep(c(1, 2), each = samples.per.cond)
       names(id.condition) <- tree$tip.label
@@ -139,7 +139,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 
   ## Checks lengths
   if (is.null(lengths.relmeans) != is.null(lengths.dispersions)) {
-    stop("For lenghts to be used, both the 'lengths.relmeans' and 'lengths.dispersions' vectors must be provided.")
+    stop("For lengths to be used, both the 'lengths.relmeans' and 'lengths.dispersions' vectors must be provided.")
   }
   use_lengths <- !is.null(lengths.relmeans) # If lengths are specified, use them.
   if (use_lengths) {
@@ -275,9 +275,9 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	## Generate lengths and length factors
 	nfact_length.S1 <- nfact_length.S2 <- matrix(1, n.vars, length(S1) + length(S2))
 	if (use_lengths) {
-	  lenght_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
-	  nfact_length.S1 <- computeFactorLengths(lenght_matrix, prob.S1, sum.S1)
-	  nfact_length.S2 <- computeFactorLengths(lenght_matrix, prob.S2, sum.S2)
+	  length_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
+	  nfact_length.S1 <- computeFactorLengths(length_matrix, prob.S1, sum.S1)
+	  nfact_length.S2 <- computeFactorLengths(length_matrix, prob.S2, sum.S2)
 	}
 	
 	params_simus <- getNegativeBinomialParameters(n.vars = n.vars,
@@ -371,6 +371,27 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	A.value <- 0.5*(apply(log2.pseudocounts[, S2], 1, mean) + 
 	                  apply(log2.pseudocounts[, S1], 1, mean))
 	
+	### Normalize using lengths
+	if(use_lengths) {
+	  Z.lengths <- Z / length_matrix
+	  nf.lengths <- calcNormFactors(Z.lengths)
+	  norm.factors.lengths <- nf.lengths * colSums(Z.lengths)
+	  common.libsize.lengths <- exp(mean(log(colSums(Z.lengths))))
+	  pseudocounts.lengths <- sweep(Z.lengths + 0.5, 2, norm.factors.lengths, '/') * common.libsize.lengths
+	  log2.pseudocounts.lengths <- log2(pseudocounts.lengths)
+	  M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
+	    apply(log2.pseudocounts.lengths[, S1], 1, mean)
+	  A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
+	                    apply(log2.pseudocounts.lengths[, S1], 1, mean))
+	}
+	
+	# ### Phylogenetic MA values
+	# if (use_tree) {
+	#   phyloMA <- phylo_M_A_values(log2.pseudocounts, condition, tree)
+	#   phylo.M.value <- phyloMA$M.value
+	#   phylo.A.value <- phyloMA$A.value
+	# }
+	
 	### Create an annotation data frame
 	variable.annotations <- data.frame(truedispersions.S1 = truedispersions.S1, 
 	                                   truedispersions.S2 = truedispersions.S2, 
@@ -392,9 +413,15 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                   differential.expression = differential.expression)
 	rownames(variable.annotations) <- rownames(Z)
 	
+	# if (use_tree) {
+	#   variable.annotations$phylo.M.value <- phylo.M.value
+	#   variable.annotations$phylo.A.value <- phylo.A.value
+	# }
+	
 	### Create a sample annotation data frame
 	sample.annotations <- data.frame(condition = condition, 
-	                                 depth.factor = nfacts)
+	                                 depth.factor = nfacts,
+	                                 id.species = id.species)
 	  
 	### Include information about the parameters
 	info.parameters <- list('n.diffexp' = n.diffexp, 
@@ -413,8 +440,15 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
 	                        'minfact' = minfact, 'maxfact' = maxfact)
 	if (use_tree) {
-	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree,
-	                                             'id.condition' = id.condition))
+	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree))
+	  sample.annotations$id.condition <-  id.condition
+	}
+	if (use_lengths) {
+	  variable.annotations$lengths.relmeans <- lengths.relmeans
+	  variable.annotations$lengths.dispersions <- lengths.dispersions
+	  variable.annotations$M.value.lengths <- M.value.lengths
+	  variable.annotations$A.value.lengths <- A.value.lengths
+	  info.parameters <- c(info.parameters, list('length.matrix' = length_matrix))
 	}
 	
 	### Filter the data with respect to total count
@@ -573,7 +607,7 @@ getNegativeBinomialParameters <- function(n.vars,
 #' @param lengths.dispersions A vector or matrix of dispersions to use in the
 #' simulation of data from the Negative Binomial distribution.
 #' 
-#' @return A matrix of the same size as 'lenght_matrix', with normalization
+#' @return A matrix of the same size as 'length_matrix', with normalization
 #' factors to be applied for each sample and each gene.
 #' 
 #' @keywords internal
@@ -584,6 +618,19 @@ generateLengths <- function(id.species, lengths.relmeans, lengths.dispersions) {
     sims <- rnbinom(length(unique(id.species)),
                     mu = lengths.relmeans[i],
                     size = 1 / lengths.dispersions[i])
+    if (any(sims == 0)) {
+      ntry <- 1
+      while (any(sims == 0) && ntry <= 100) {
+        sims <- rnbinom(length(unique(id.species)),
+                        mu = lengths.relmeans[i],
+                        size = 1 / lengths.dispersions[i])
+        ntry <- ntry + 1
+      }
+      if (any(sims == 0)) {
+        warning(paste0("After 100 tries, could not generate non-zero lengths for gene ", i, ". Replacing zeros with the provided mean."))
+        sims[sims == 0] <- lengths.relmeans[i]
+      }
+    }
     length_matrix[i, ] <- sims[id.species]
   }
   return(length_matrix)
@@ -596,17 +643,17 @@ generateLengths <- function(id.species, lengths.relmeans, lengths.dispersions) {
 #' Each column of the matrix (samples) is normalized by the weighted average of
 #' the column, with weights coresponding to the true probabilities of each gene.
 #' 
-#' @param lenght_matrix An n.vars times n.sample matrix of lengths of each gene in each sample.
+#' @param length_matrix An n.vars times n.sample matrix of lengths of each gene in each sample.
 #' @param prob.S1 Vector of means for condition 1.
 #' @param sum.S1 Sum of means for condition 1.
 #' 
-#' @return A matrix of the same size as 'lenght_matrix', with normalization factors
+#' @return A matrix of the same size as 'length_matrix', with normalization factors
 #' to be applied for each sample and each gene.
 #' 
 #' @keywords internal
 #'
-computeFactorLengths <- function(lenght_matrix, prob.S1, sum.S1) {
-  return(lenght_matrix %*% diag(1 / colSums(diag(prob.S1 / sum.S1) %*% lenght_matrix)))
+computeFactorLengths <- function(length_matrix, prob.S1, sum.S1) {
+  return(length_matrix %*% diag(1 / colSums(diag(prob.S1 / sum.S1) %*% length_matrix)))
 }
 
 #' Summarize a synthetic data set by some diagnostic plots 
@@ -689,6 +736,13 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
   writeLines(c("```{r maplot-trueDEstatus, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
                "```"), codefile)
+  
+  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+    writeLines("### MA plot, length normalized, colored by true differential expression status", codefile)
+    writeLines(c("```{r maplot-trueDEstatus-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+                 "```"), codefile)
+  }
 
   ## Colored by number of outlier counts
   writeLines("### MA plot, colored by total number of outliers", codefile)
@@ -696,12 +750,27 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = total.nbr.outliers)) + geom_point()",
                "```"), codefile)
   
+  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+    writeLines("### MA plot, length normalized, colored by total number of outliers", codefile)
+    writeLines(c("```{r maplot-nbroutliers-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = total.nbr.outliers)) + geom_point()",
+                 "```"), codefile)
+  }
+  
   ## Plots of estimated log2-fold change (M-value) vs true log2-fold change, colored by true differential expression status
   writeLines("### True log2-fold change vs estimated log2-fold change (M-value)", codefile)
   writeLines(c("```{r logfoldchanges, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
                "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                "```"), codefile)
+  
+  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+    writeLines("### True log2-fold change vs estimated length normalized log2-fold change (M-value)", codefile)
+    writeLines(c("```{r logfoldchanges-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
+                 "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+                 "```"), codefile)
+  }
   
   ## Phylogenetic heatmap
   if (!is.null(data.set@info.parameters$tree)) { # There is a tree
@@ -714,7 +783,7 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
                    "library(tidytree)",
                    "",
                    "tree <- data.set@info.parameters$tree",
-                   "conds <- data.frame(label = names(data.set@info.parameters$id.condition), condition = as.factor(data.set@info.parameters$id.condition))",
+                   "conds <- data.frame(label = rownames(data.set@sample.annotations), condition = as.factor(data.set@sample.annotations$id.condition))",
                    "gt <- ggtree(tree)",
                    "gt <- gt %<+% conds + geom_tippoint(aes(color = condition))",
                    "",
@@ -760,6 +829,22 @@ if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
     writeLines(c("",
                  "Note: the heatmap tree is the correlation tree (the phylogeny is not taken into account in this plot)."),
                codefile)
+  }
+  ##
+  if (!is.null(data.set@info.parameters$length.matrix)) { # There are lengths
+    writeLines("### Lenghts: mean versus variance (log2)", codefile)
+    writeLines(c(
+      "```{r lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+      "length.matrix_species <- info.parameters(data.set)$length.matrix[, !duplicated(data.set@sample.annotations$id.species)]",
+      "stats_lengths <- data.frame(mean = c(variable.annotations(data.set)$lengths.relmeans,",
+      "                                     rowMeans(length.matrix_species)),",
+      "                            var = c(variable.annotations(data.set)$lengths.relmeans + variable.annotations(data.set)$lengths.relmeans^2 * variable.annotations(data.set)$lengths.dispersion,",
+      "                                    apply(length.matrix_species, 1, var)),",
+      "                            simulated = c(rep('true values', nrow(length.matrix_species)),",
+      "                                          rep('simulated values', nrow(length.matrix_species))))",
+      "ggplot(stats_lengths, aes(x = log2(mean), y = log2(var), color = simulated)) + geom_point() + scale_color_manual(values = c('black', 'blue')) + geom_abline(slope = 1) + coord_fixed(xlim = c(0, NA), ylim = c(0, NA))",
+      "```"
+    ), codefile)
   }
   
   close(codefile)

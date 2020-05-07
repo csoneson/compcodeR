@@ -4,17 +4,17 @@
 \alias{computeFactorLengths}
 \title{Compute Length Noormalization Factors}
 \usage{
-computeFactorLengths(lenght_matrix, prob.S1, sum.S1)
+computeFactorLengths(length_matrix, prob.S1, sum.S1)
 }
 \arguments{
-\item{lenght_matrix}{An n.vars times n.sample matrix of lengths of each gene in each sample.}
+\item{length_matrix}{An n.vars times n.sample matrix of lengths of each gene in each sample.}
 
 \item{prob.S1}{Vector of means for condition 1.}
 
 \item{sum.S1}{Sum of means for condition 1.}
 }
 \value{
-A matrix of the same size as 'lenght_matrix', with normalization factors
+A matrix of the same size as 'length_matrix', with normalization factors
 to be applied for each sample and each gene.
 }
 \description{

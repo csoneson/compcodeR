@@ -92,9 +92,9 @@ generateSyntheticData(
 
 \item{check.id.species}{Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.}
 
-\item{lengths.relmeans}{An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.}
+\item{lengths.relmeans}{An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.}
 
-\item{lengths.dispersions}{An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of lenght n.vars. Default to \code{NULL}: the lenghts are not taken into account for the simulation.}
+\item{lengths.dispersions}{An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.}
 }
 \value{
 A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
