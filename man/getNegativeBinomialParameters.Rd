@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateSyntheticData.R
 \name{getNegativeBinomialParameters}
 \alias{getNegativeBinomialParameters}
-\title{Simulate the Data}
+\title{Get all parameters of the NB at once}
 \usage{
 getNegativeBinomialParameters(
   n.vars,
@@ -30,6 +30,8 @@ getNegativeBinomialParameters(
 
 \item{truedispersions.S1}{Vector of dispersions for condition 1.}
 
+\item{nfact_length.S1}{Matrix of length factors for condition 1.}
+
 \item{S2}{Indices in condition 2.}
 
 \item{prob.S2}{Vector of means for condition 2.}
@@ -37,6 +39,8 @@ getNegativeBinomialParameters(
 \item{sum.S2}{Sum of means for condition 2.}
 
 \item{truedispersions.S2}{Vector of dispersions for condition 2.}
+
+\item{nfact_length.S2}{Matrix of length factors for condition 2.}
 }
 \value{
 A list of parameters for each entry of the count matrix:
@@ -46,6 +50,6 @@ A list of parameters for each entry of the count matrix:
 }
 }
 \description{
-Use the Poisson or Negative Binomial model to simulate the data.
+Get both the mean and the dispersions of the NB as matrices for all indices.
 }
 \keyword{internal}

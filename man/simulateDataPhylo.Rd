@@ -14,11 +14,6 @@ simulateDataPhylo(
 )
 }
 \arguments{
-\item{count_means}{a matrix with the number of genes p rows and the number of
-samples n columns.}
-
-\item{count_dispertions}{a matrix of size p x n, for each gene and sample.}
-
 \item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}

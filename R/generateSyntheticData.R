@@ -280,20 +280,21 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	  nfact_length.S2 <- computeFactorLengths(length_matrix, prob.S2, sum.S2)
 	}
 	
-	params_simus <- getNegativeBinomialParameters(n.vars = n.vars,
-	                                              S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
-	                                              S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
-	                                              seq.depths = seq.depths)
-	
 	if (use_tree) {
+	  params_simus <- getNegativeBinomialParameters(n.vars = n.vars,
+	                                                S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
+	                                                S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
+	                                                seq.depths = seq.depths)
 	  model_process <- match.arg(model_process)
 	  Z <- simulateDataPhylo(params_simus$count_means,
 	                         params_simus$count_dispertions,
 	                         tree = tree, prop.var.tree = prop.var.tree,
 	                         model_process = model_process, selection.strength = selection.strength) 
 	} else {
-	  Z <- simulateData(params_simus$count_means,
-	                    params_simus$count_dispertions,
+	  Z <- simulateData(n.vars = n.vars,
+	                    S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
+	                    S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
+	                    seq.depths = seq.depths,
 	                    overdispersed = overdispersed)
 	}
 
@@ -520,27 +521,47 @@ computeAval <- function(count.matrix, conditions) {
 #' @description 
 #' Use the Poisson or Negative Binomial model to simulate the data.
 #' 
-#' @param count_means a matrix with the number of genes p rows and the number of
-#' samples n columns.
-#' @param count_dispertions a matrix of size p x n, for each gene and sample.
+#' @inheritParams generateSyntheticData
+#' @param S1 Indices in condition 1.
+#' @param prob.S1 Vector of means for condition 1.
+#' @param sum.S1 Sum of means for condition 1.
+#' @param truedispersions.S1 Vector of dispersions for condition 1.
+#' @param nfact_length.S1 Matrix of length factors for condition 1.
+#' @param S2 Indices in condition 2.
+#' @param prob.S2 Vector of means for condition 2.
+#' @param sum.S2 Sum of means for condition 2.
+#' @param truedispersions.S2 Vector of dispersions for condition 2.
+#' @param nfact_length.S2 Matrix of length factors for condition 2.
 #' @param overdispersed Indices that are overdispersed.
 #' 
 #' @return Z a n.var times 2*samples.per.cond matrix with the simulated data.
 #' 
 #' @keywords internal
 #' 
-simulateData <- function(count_means, count_dispertions, overdispersed) {
+simulateData <- function(n.vars,
+                         S1, prob.S1, sum.S1, truedispersions.S1, nfact_length.S1,
+                         S2, prob.S2, sum.S2, truedispersions.S2, nfact_length.S2,
+                         seq.depths,
+                         overdispersed) {
   ### Initialize data matrix
-  Z <- matrix(0, nrow(count_means), ncol(count_means))
+  Z <- matrix(0, n.vars, length(S1) + length(S2))
   
   ### Generate data
   for (i in 1:nrow(Z)) {
     for (j in 1:ncol(Z)) {
       if (overdispersed[i] == 1) {
-        Z[i, j] <- rnbinom(n = 1, mu = count_means[i, j], 
-                           size = 1/count_dispertions[i, j])
+        Z[i, j] <- rnbinom(n = 1, mu = getNegativeBinomialMean(i, j,
+                                                               S1, prob.S1, sum.S1, nfact_length.S1,
+                                                               S2, prob.S2, sum.S2, nfact_length.S2,
+                                                               seq.depths), 
+                           size = 1 / getNegativeBinomialDispersion(i, j,
+                                                                    S1, truedispersions.S1,
+                                                                    S2, truedispersions.S2))
       } else {
-        Z[i, j] <- rpois(n = 1, lambda = count_means[i, j])
+        Z[i, j] <- rpois(n = 1, lambda = getNegativeBinomialMean(i, j,
+                                                                 S1, prob.S1, sum.S1, nfact_length.S1,
+                                                                 S2, prob.S2, sum.S2, nfact_length.S2,
+                                                                 seq.depths))
       }
     }
   }
@@ -548,20 +569,12 @@ simulateData <- function(count_means, count_dispertions, overdispersed) {
   return(Z)
 }
 
-#' @title Simulate the Data
+#' @title Get all parameters of the NB at once
 #'
 #' @description 
-#' Use the Poisson or Negative Binomial model to simulate the data.
+#' Get both the mean and the dispersions of the NB as matrices for all indices.
 #' 
-#' @inheritParams generateSyntheticData
-#' @param S1 Indices in condition 1.
-#' @param prob.S1 Vector of means for condition 1.
-#' @param sum.S1 Sum of means for condition 1.
-#' @param truedispersions.S1 Vector of dispersions for condition 1.
-#' @param S2 Indices in condition 2.
-#' @param prob.S2 Vector of means for condition 2.
-#' @param sum.S2 Sum of means for condition 2.
-#' @param truedispersions.S2 Vector of dispersions for condition 2.
+#' @inheritParams simulateData
 #' 
 #' @return A list of parameters for each entry of the count matrix:
 #' \describe{
@@ -593,6 +606,52 @@ getNegativeBinomialParameters <- function(n.vars,
   }
   return(list(count_means = count_means,
               count_dispertions = count_dispertions))
+}
+
+#' @title Get NB mean
+#'
+#' @description 
+#' Get the NB mean for one gene in one sample
+#' 
+#' @inheritParams simulateData
+#' @param i gene indice.
+#' @param j sample indice.
+#' 
+#' @return The mean for gene i in sample j.
+#' 
+#' @keywords internal
+#'
+getNegativeBinomialMean <- function(i, j,
+                                    S1, prob.S1, sum.S1, nfact_length.S1,
+                                    S2, prob.S2, sum.S2, nfact_length.S2,
+                                    seq.depths) {
+  if (j %in% S1) {
+    return(prob.S1[i]/sum.S1 * seq.depths[j] * nfact_length.S1[i, j])
+  } else {
+    return(prob.S2[i]/sum.S2 * seq.depths[j] * nfact_length.S2[i, j])
+  }
+}
+#' @title Get NB dispersion
+#'
+#' @description 
+#' Get the NB dispersion for one gene in one sample
+#' 
+#' @inheritParams simulateData
+#' @param i gene indice.
+#' @param j sample indice.
+#' 
+#' @return The dispersion for gene i in sample j.
+#' 
+#' @keywords internal
+#'
+getNegativeBinomialDispersion <- function(i, j,
+                                          S1, truedispersions.S1,
+                                          S2, truedispersions.S2) {
+  if (j %in% S1) {
+    return(truedispersions.S1[i])
+  } else {
+    return(truedispersions.S2[i])
+  }
 }
 
 #' @title Simulate a length matrix
