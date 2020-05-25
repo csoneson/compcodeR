@@ -384,4 +384,58 @@ get_model_factor <- function(model_process, selection.strength, tree) {
   }
 }
 
+#' @title Multiplying factor for Non central Fisher
+#'
+#' @description 
+#' Under the alternative hypothesis, multiplying factor for the non-central Fisher
+#' distribution parameter, compared to the case where samples are iid and of equal size.
+#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
+#' If it is below 1.0, then the problem is "harder".
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' 
+#' @return The multiplying factor.
+#' 
+#' @keywords internal
+#' 
+deltaFisher <- function(tree, id.condition) {
+  if (is.null(tree)) {
+    n <- length(id.condition)
+    Vinv <- diag(1, n)
+  } else {
+    # Check vector order
+    checkParamVector(id.condition, "id.condition", tree)
+    # tree
+    n <- length(tree$tip.label)
+    Vinv <- solve(ape::vcv(tree))
+  }
+  # Intercept
+  X <- rep(1, n)
+  # Model matrix
+  Z <- stats::model.matrix(~factor(id.condition))[, -1, drop = FALSE]
+  deltaF <- (diag(1, n) -  X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv) %*% Z
+  deltaF <- t(deltaF) %*% Vinv %*% deltaF
+  return(unname(as.vector(deltaF)) / n * 4)
+}
 
+#' @title Multiplying factor for Non central Student
+#'
+#' @description 
+#' Under the alternative hypothesis, multiplying factor for the non-central Student
+#' distribution parameter, compared to the case where samples are iid and of equal size.
+#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
+#' If it is below 1.0, then the problem is "harder".
+#' WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactelly two factors.
+#' Otherwise, this is just the square root of the non-central Fisher factor (see \code{\link{deltaFisher}}).
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' 
+#' @return The multiplying factor.
+#' 
+#' @keywords internal
+#' 
+deltaStudent <- function(tree, id.condition) {
+  return(sqrt(deltaFisher(tree, id.condition)))
+}

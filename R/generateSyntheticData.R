@@ -435,7 +435,8 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'samples.per.cond' = samples.per.cond, 
 	                        'repl.id' = repl.id, 'dataset' = dataset, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
-	                        'minfact' = minfact, 'maxfact' = maxfact)
+	                        'minfact' = minfact, 'maxfact' = maxfact,
+	                        'studentFactor' = deltaStudent(tree, id.condition))
 	if (use_tree) {
 	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree))
 	  sample.annotations$id.condition <-  id.condition
