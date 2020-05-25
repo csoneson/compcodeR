@@ -12,7 +12,7 @@ voom.phylolm.createRmd(
   model = "BM",
   measurement_error = TRUE,
   extraDesignFactors = NULL,
-  extraNormFactor = NULL,
+  useLengths = FALSE,
   ...
 )
 }
@@ -31,7 +31,7 @@ voom.phylolm.createRmd(
 
 \item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
-\item{extraNormFactor}{A matrix name for normalisation factors, to be applied in addition to the standard ones (see details). The matrix should be one of the \code{info.parameters} list entry of the \code{\link{compData}} object.}
+\item{useLengths}{A boolean. If TRUE, the \code{length.matrix} field of the \code{compData} object is used for normalization (see details). Default to FALSE.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.}
 }
@@ -45,8 +45,9 @@ A function to generate code that can be run to perform differential expression a
 For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
 
 
-
-\code{extraNormFactor} is typically the length of the genes (or COGs) for normalization. The count matrix is divided by them before the normalization factor is computed.
+If \code{useLengths=TRUE}, the \code{length.matrix} field of the \code{compData}
+object are used in the \code{voom} method to normalize the counts. 
+TODO: EXPLAIN.
 }
 \examples{
 try(
@@ -57,27 +58,20 @@ tree <- rphylo(10, 0.1, 0)
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
                                     samples.per.cond = 5, n.diffexp = 100, 
                                     tree = tree,
+                                    id.species = 1:10,
+                                    lengths.relmeans = rpois(1000, 1000),
+                                    lengths.dispersions = rgamma(1000, 1, 1),
                                     output.file = file.path(tmpdir, "mydata.rds"))
 ## Add annotations
 sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
-n_counts <- prod(dim(count.matrix(mydata.obj)))
-info.parameters(mydata.obj)$extraNormFactor <- matrix(rpois(n_counts, 100), ncol = 10)
 saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-           Rmdfunction = "DESeq2.norm.createRmd", 
+           Rmdfunction = "voom.phylolm.createRmd", 
            output.directory = tmpdir,
            norm.method = "TMM",
            extraDesignFactors = c("test_factor", "test_reg"),
-           extraNormFactor = c("extraNormFactor"))
-           
-## Add annotations
-sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
-## Diff Exp
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-           Rmdfunction = "phylolm.createRmd", 
-           output.directory = tmpdir, 
-           extraDesignFactors = "test_factor", lower.bound = 0.1)
+           useLengths = TRUE)
 })
 }
 \references{

@@ -11,12 +11,13 @@
 #' @param model The model for trait evolution on the tree. Default to "BM".
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param extraNormFactor A matrix name for normalisation factors, to be applied in addition to the standard ones (see details). The matrix should be one of the \code{info.parameters} list entry of the \code{\link{compData}} object.
+#' @param useLengths A boolean. If TRUE, the \code{length.matrix} field of the \code{compData} object is used for normalization (see details). Default to FALSE.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
 #' 
 #' @details 
-#' 
-#' \code{extraNormFactor} is typically the length of the genes (or COGs) for normalization. The count matrix is divided by them before the normalization factor is computed.
+#' If \code{useLengths=TRUE}, the \code{length.matrix} field of the \code{compData}
+#' object are used in the \code{voom} method to normalize the counts. 
+#' TODO: EXPLAIN.
 #' 
 #' @export 
 #' 
@@ -32,32 +33,26 @@
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
 #'                                     tree = tree,
+#'                                     id.species = 1:10,
+#'                                     lengths.relmeans = rpois(1000, 1000),
+#'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
 #' ## Add annotations
 #' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
-#' n_counts <- prod(dim(count.matrix(mydata.obj)))
-#' info.parameters(mydata.obj)$extraNormFactor <- matrix(rpois(n_counts, 100), ncol = 10)
 #' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-#'            Rmdfunction = "DESeq2.norm.createRmd", 
+#'            Rmdfunction = "voom.phylolm.createRmd", 
 #'            output.directory = tmpdir,
 #'            norm.method = "TMM",
 #'            extraDesignFactors = c("test_factor", "test_reg"),
-#'            extraNormFactor = c("extraNormFactor"))
-#'            
-#' ## Add annotations
-#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
-#' ## Diff Exp
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-#'            Rmdfunction = "phylolm.createRmd", 
-#'            output.directory = tmpdir, 
-#'            extraDesignFactors = "test_factor", lower.bound = 0.1)
+#'            useLengths = TRUE)
 #' })
 voom.phylolm.createRmd <- function(data.path, result.path, codefile, 
                                    norm.method,
                                    model = "BM", measurement_error = TRUE,
-                                   extraDesignFactors = NULL, extraNormFactor = NULL,
+                                   extraDesignFactors = NULL,
+                                   useLengths = FALSE,
                                    ...) {
   codefile <- file(codefile, open = 'w')
   writeLines("### phylolm", codefile)
@@ -76,16 +71,9 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
                codefile)
   ## Normalization
   writeLines(c("", "# Normalization Factors"),codefile)
-  if (!is.null(extraNormFactor)) {
-    writeLines(c(
-      paste0("extraNormFactor <- info.parameters(cdata)$", extraNormFactor),
-      "count_data <- count.matrix(cdata) / extraNormFactor"),
-      codefile)
-  } else {
-    writeLines(c(
-      "count_data <- count.matrix(cdata)"),
-      codefile)
-  }
+  writeLines("extraNormFactor <- 1", codefile)
+  if (useLengths) writeLines("extraNormFactor <- length.matrix(cdata)", codefile)
+  writeLines("count_data <- count.matrix(cdata)", codefile)
   writeLines(
     paste("nf <- edgeR::calcNormFactors(count_data, method = '", norm.method, "')", sep = ''), 
     codefile)
@@ -108,7 +96,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     codefile)
   writeLines(c("", "# Normalisation using voom"),codefile)
   writeLines(c(
-    "voom.data <- limma::voom(count_data, design = design, lib.size = colSums(count_data) * nf)", 
+    "voom.data <- limma::voom(count_data, design = design, lib.size = colSums(count_data) * nf * t(extraNormFactor))", 
     "voom.data$genes <- rownames(count_data)",
     "voom.data <- voom.data$E"), 
     codefile)
@@ -157,7 +145,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "package.version(cdata) <- paste('phylolm,', packageVersion('phylolm'))",
     "package.version(cdata) <- paste('limma,', packageVersion('limma'))",
     "analysis.date(cdata) <- date()",
-    paste("method.names(cdata) <- list('short.name' = 'voom.phylolm', 'full.name' = '", paste('voom.phylolm', packageVersion('limma'), packageVersion('phylolm'), '.', norm.method, '.', model, '.', ifelse(!is.null(measurement_error), 'me', 'nome'), '.', ifelse(!is.null(extraDesignFactors), paste0('factor_', extraDesignFactors, '.'), ''), ifelse(!is.null(extraNormFactor), 'extra_norm', ''), sep = ''), "')", sep = ''),
+    paste("method.names(cdata) <- list('short.name' = 'voom.phylolm', 'full.name' = '", paste('voom.phylolm', packageVersion('limma'), packageVersion('phylolm'), '.', norm.method, '.', model, '.', ifelse(!is.null(measurement_error), 'me', 'nome'), '.', ifelse(!is.null(extraDesignFactors), paste0('factor_', extraDesignFactors, '.'), ''), ifelse(useLengths, 'using_lengths', ''), sep = ''), "')", sep = ''),
     "is.valid <- check_compData_results(cdata)",
     "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
     paste("saveRDS(cdata, '", result.path, "')", sep = "")),
