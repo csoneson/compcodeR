@@ -374,13 +374,8 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                  apply(log2.pseudocounts[, S1], 1, mean))
 	
 	### Normalize using lengths
-	if(use_lengths) {
-	  Z.lengths <- Z / length_matrix
-	  nf.lengths <- calcNormFactors(Z.lengths)
-	  norm.factors.lengths <- nf.lengths * colSums(Z.lengths)
-	  common.libsize.lengths <- exp(mean(log(colSums(Z.lengths))))
-	  pseudocounts.lengths <- sweep(Z.lengths + 0.5, 2, norm.factors.lengths, '/') * common.libsize.lengths
-	  log2.pseudocounts.lengths <- log2(pseudocounts.lengths)
+	if (use_lengths) {
+	  log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
 	  M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
 	    apply(log2.pseudocounts.lengths[, S1], 1, mean)
 	  A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
