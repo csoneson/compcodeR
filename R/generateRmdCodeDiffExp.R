@@ -691,16 +691,20 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #' 
 #'  Law CW, Chen Y, Shi W and Smyth GK (2014): voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biology 15, R29
 #' @examples
+#' try(
+#' if (require(limma)) {
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
-#'                                     id.species = 1:10,
+#'                                     id.species = factor(1:10),
 #'                                     lengths.relmeans = rpois(1000, 1000),
 #'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.length.limma", 
 #'            Rmdfunction = "voom.length.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
+#' })
+#' 
 voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, divByLengths = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom + limma", codefile)
