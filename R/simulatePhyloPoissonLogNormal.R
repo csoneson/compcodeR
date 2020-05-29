@@ -38,8 +38,8 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   }
   
   ## Check means
-  checkParamMatrix(log_means, "log means", tree)
-  checkParamMatrix(log_variance_sample, "log variance sample", tree)
+  log_means <- checkParamMatrix(log_means, "log means", tree)
+  log_variance_sample <- checkParamMatrix(log_variance_sample, "log variance sample", tree)
   
   N <- length(tree$tip.label)
   P <- nrow(log_means)
@@ -130,27 +130,47 @@ rpois_robust <- function(n, lambda) {
 #' @param x matrix of parameters being tested.
 #' @param name name of the parameter.
 #' @param tree A phylogenetic tree with n tips.
+#' @param transpose Should the transpose of the matrix be taken ? Default to FALSE.
 #' 
 #' @keywords internal
 #' 
-checkParamMatrix <- function(x, name, tree) {
+checkParamMatrix <- function(x, name, tree, transpose = FALSE) {
   N <- length(tree$tip.label)
   
-  if (ncol(x) != N) {
-    stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
-  }
-  if ((is.null(tree$tip.label) || is.null(colnames(x)))){
-    warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
-  } else {
-    if (!all(tree$tip.label == colnames(x))){
-      correspondances <- match(tree$tip.label, colnames(x))
-      if (length(unique(correspondances)) != length(tree$tip.label)){
-        stop(paste0("`", name, "` names do not match the tip labels."))
+  if (!transpose) {
+    if (ncol(x) != N) {
+      stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
+    }
+    if ((is.null(tree$tip.label) || is.null(colnames(x)))){
+      warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
+    } else {
+      if (!all(tree$tip.label == colnames(x))){
+        correspondances <- match(tree$tip.label, colnames(x))
+        if (length(unique(correspondances)) != length(tree$tip.label)){
+          stop(paste0("`", name, "` names do not match the tip labels."))
+        }
+        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
+        x <- x[, correspondances, drop = FALSE]
       }
-      warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
-      x <- x[, correspondances, drop = FALSE]
+    }
+  } else {
+    if (nrow(x) != N) {
+      stop(paste0("`", name, "` should have as many rows as the number of taxa in the tree."))
+    }
+    if ((is.null(tree$tip.label) || is.null(rownames(x)))){
+      warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
+    } else {
+      if (!all(tree$tip.label == rownames(x))){
+        correspondances <- match(tree$tip.label, rownames(x))
+        if (length(unique(correspondances)) != length(tree$tip.label)){
+          stop(paste0("`", name, "` names do not match the tip labels."))
+        }
+        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
+        x <- x[correspondances, , drop = FALSE]
+      }
     }
   }
+  return(x)
 }
 
 #' @title Check Vector Parameter
@@ -182,6 +202,7 @@ checkParamVector <- function(x, name, tree) {
       x <- x[correspondances]
     }
   }
+  return(x)
 }
 
 #' @title Check Species
@@ -194,13 +215,14 @@ checkParamVector <- function(x, name, tree) {
 #' @keywords internal
 #' 
 checkSpecies <- function(x, name, tree, tol, check.id.species) {
-  checkParamVector(x, name, tree)
+  x <- checkParamVector(x, name, tree)
   if (check.id.species) {
     related_matrices <- sapply(x, function(i) i == x)
     if (!all(related_matrices == (ape::cophenetic.phylo(tree) <= tol))) {
       stop("The provided species do not match with the tree branch lengths. Please check the 'id.species' vector. If you want to skip this check, re-lauch with option 'check.id.species=FALSE'.")
     }
   }
+  return(x)
 }
 
 #' @title Add replicates to a tree
@@ -405,7 +427,7 @@ deltaFisher <- function(tree, id.condition) {
     Vinv <- diag(1, n)
   } else {
     # Check vector order
-    checkParamVector(id.condition, "id.condition", tree)
+    id.condition <- checkParamVector(id.condition, "id.condition", tree)
     # tree
     n <- length(tree$tip.label)
     Vinv <- solve(ape::vcv(tree))

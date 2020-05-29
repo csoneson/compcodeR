@@ -97,6 +97,21 @@ check_compData <- function(object) {
     }
   }
   
+  ## Tree
+  if (!is.null(object@info.parameters$tree)) {
+    if (length(count.matrix(object)) != 0) {
+      tmp <- checkParamMatrix(count.matrix(object), "count.matrix", object@info.parameters$tree)
+      if (!isTRUE(all.equal(tmp, count.matrix(object)))) return("The colnames of count.matrix are different from the tip labels.")
+    }
+    if (length(length.matrix(object)) != 0) {
+      tmp <- checkParamMatrix(length.matrix(object), "length.matrix", object@info.parameters$tree)
+      if (!isTRUE(all.equal(tmp, length.matrix(object)))) return("The colnames of length.matrix are different from the tip labels.")
+    }
+    if (length(sample.annotations(object)) != 0) {
+      tmp <- checkParamMatrix(sample.annotations(object), "sample.annotations", object@info.parameters$tree, transpose = TRUE)
+      if (!isTRUE(all.equal(tmp, sample.annotations(object)))) return("The rownames of sample.annotations are different from the tip labels.")
+    }
+  }
   return(TRUE)
 }
 
@@ -389,6 +404,13 @@ compData <- function(count.matrix, sample.annotations,
   
   sample.annotations <- data.frame(sample.annotations, 
                                    stringsAsFactors = FALSE)
+  
+  ## Tree
+  if (!is.null(info.parameters$tree)) {
+    if (length(count.matrix) != 0) count.matrix <- checkParamMatrix(count.matrix, "count.matrix", info.parameters$tree)
+    if (length(length.matrix) != 0) length.matrix <- checkParamMatrix(length.matrix, "length.matrix", info.parameters$tree)
+    if (length(sample.annotations) != 0) sample.annotations <- checkParamMatrix(sample.annotations, "sample.annotations", info.parameters$tree, transpose = TRUE)
+  }
   
   cmpd <- new("compData", count.matrix = count.matrix, 
               sample.annotations = sample.annotations, 

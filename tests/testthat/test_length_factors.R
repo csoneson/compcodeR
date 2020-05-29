@@ -55,7 +55,7 @@ test_that("computeFactorLengths is equivalent to trueProba", {
   names(id.species) <- tree$tip.label
   id.species <- as.factor(id.species)
   
-  checkSpecies(id.species, "id.species", tree, 1e-10, TRUE)
+  id.species <- checkSpecies(id.species, "id.species", tree, 1e-10, TRUE)
   
   ## Mock data
   count.matrix <- matrix(rpois(n.sample * n.vars, 1:10 * 10), ncol = n.sample, byrow = T)

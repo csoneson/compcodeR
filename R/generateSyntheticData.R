@@ -113,14 +113,14 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     
     ## Check Conditions
     if (!is.null(id.condition)) {
-      if (use_tree) checkParamVector(id.condition, "id.condition", tree)
+      if (use_tree) id.condition <- checkParamVector(id.condition, "id.condition", tree)
     } else {
       id.condition <- rep(c(1, 2), each = samples.per.cond)
       names(id.condition) <- tree$tip.label
     }
     
     ## Check id species
-    checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
+    id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
     
     ## Check that all genes are over-dispersed
     if (fraction.non.overdispersed != 0) {
