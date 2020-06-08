@@ -9,6 +9,7 @@ voom.length.limma.createRmd(
   result.path,
   codefile,
   norm.method,
+  extraDesignFactors = NULL,
   divByLengths = FALSE
 )
 }
@@ -20,6 +21,8 @@ voom.length.limma.createRmd(
 \item{codefile}{The path to the file where the code will be written.}
 
 \item{norm.method}{The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}}
+
+\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
 \item{divByLengths}{If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.}
 }

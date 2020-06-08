@@ -513,7 +513,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('DESeq2,', packageVersion('DESeq2'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(divByLengths, ".divByLengths", ""), sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(divByLengths, ".divByLengths", ""), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  
@@ -676,6 +676,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param divByLengths If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.
 #'
 #' @details 
@@ -705,7 +706,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
 #' 
-voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, divByLengths = FALSE) {
+voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, extraDesignFactors = NULL, divByLengths = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom + limma", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -717,21 +718,42 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
     writeLines("cdata <- convertListTocompData(cdata)", codefile)
   }
   writeLines(c("is.valid <- check_compData(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')",
-               paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = '')), codefile)
+               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+             codefile)
+  
+  writeLines(c("", "# Design"),codefile)
+  if (is.null(extraDesignFactors)) {
+    writeLines(c(
+      "design_formula <- as.formula(~ condition)",
+      "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
+      codefile)
+  } else {
+    writeLines(c(
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      codefile)
+  }
+  writeLines(c(
+    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design <- model.matrix(design_formula, design_data)"),
+    codefile)
+  
+  writeLines(c("", "# Normalisation and fit",
+               paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = '')),
+             codefile)
   if (divByLengths) {
-    writeLines("voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = model.matrix(~factor(sample.annotations(cdata)$condition)), lib.size = colSums(count.matrix(cdata)) * nf)", 
+    writeLines("voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf)", 
                codefile)
   } else {
-    writeLines("voom.data <- limma::voom(count.matrix(cdata), design = model.matrix(~factor(sample.annotations(cdata)$condition)), lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)))", 
+    writeLines("voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)/1000))", 
                codefile)
   }
   writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
-               "voom.fitlimma <- limma::lmFit(voom.data, design = model.matrix(~factor(sample.annotations(cdata)$condition)))", 
+               "voom.fitlimma <- limma::lmFit(voom.data, design = design)", 
                "voom.fitbayes <- limma::eBayes(voom.fitlimma)", 
-               "voom.pvalues <- voom.fitbayes$p.value[, 2]", 
+               "voom.pvalues <- voom.fitbayes$p.value[, ncol(voom.fitbayes$p.value)]", 
                "voom.adjpvalues <- p.adjust(voom.pvalues, method = 'BH')", 
-               "voom.logFC <- voom.fitbayes$coefficients[, 2]", 
+               "voom.logFC <- voom.fitbayes$coefficients[, ncol(voom.fitbayes$coefficients)]", 
                "voom.score <- 1 - voom.pvalues", 
                "result.table <- data.frame('pvalue' = voom.pvalues, 'adjpvalue' = voom.adjpvalues, 'logFC' = voom.logFC, 'score' = voom.score)",
                "rownames(result.table) <- rownames(count.matrix(cdata))", 
@@ -739,7 +761,7 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, ifelse(divByLengths, ".divByLengths", ""), sep = ''), "')", sep = ''),
+                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, ifelse(divByLengths, ".divByLengths", ""), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
