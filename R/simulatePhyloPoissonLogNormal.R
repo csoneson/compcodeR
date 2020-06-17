@@ -406,6 +406,48 @@ get_model_factor <- function(model_process, selection.strength, tree) {
   }
 }
 
+#' @title Simulate a length matrix with a phylo model
+#'
+#' @description 
+#' Simulate a length matrix of size n.vars times n.sample, with the length of
+#' each gene in each sample. 
+#' 
+#' @param tree The phylogeneti tree.
+#' @param id.species An n.sample vector, indicating the species of each sample.
+#' @param lengths.relmeans A vector of mean values to use in the simulation of
+#' lengths from the Negative Binomial distribution.
+#' @param lengths.dispersions A vector or matrix of dispersions to use in the
+#' simulation of data from the Negative Binomial distribution.
+#' @param lengths.lambda A vector of heritability parameters to use in the
+#' simulation of data from the lambda model.
+#' 
+#' @return A matrix of the same size as 'length_matrix', with normalization
+#' factors to be applied for each sample and each gene.
+#' 
+#' @keywords internal
+#'
+generateLengthsPhylo <- function(tree, id.species, lengths.relmeans, lengths.dispersions) {
+  tree_sp <- trim_tree(tree, id.species)
+  ntaxa <- length(unique(id.species))
+  params_simus <- getNegativeBinomialParameters(n.vars = length(lengths.relmeans),
+                                                S1 = 1:ntaxa, prob.S1 = lengths.relmeans, sum.S1 = 1.0, truedispersions.S1 = lengths.dispersions, nfact_length.S1 = matrix(NA, 0, 0),
+                                                S2 = NULL, prob.S2 = 0, sum.S2 = 0, truedispersions.S2 = 0, nfact_length.S2 = matrix(NA, 0, 0),
+                                                seq.depths = rep(1.0, ntaxa))
+  lengths_unique <- simulateDataPhylo(params_simus$count_means,
+                                      params_simus$count_dispertions,
+                                      tree = tree_sp, prop.var.tree = 1.0,
+                                      model_process = "BM", selection.strength = 0) 
+  length_matrix <- lengths_unique[, id.species]
+  return(length_matrix)
+}
+
+trim_tree <- function(tree, id.species) {
+  tips_to_keep <- tree$tip.label[!duplicated(id.species)]
+  tree_sp <- ape::keep.tip(tree, tips_to_keep)
+  tree_sp$tip.label <- as.character(unique(id.species))
+  return(tree_sp)
+}
+
 #' @title Multiplying factor for Non central Fisher
 #'
 #' @description 

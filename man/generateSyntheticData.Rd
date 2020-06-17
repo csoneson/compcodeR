@@ -34,7 +34,8 @@ generateSyntheticData(
   id.species = as.factor(rep(1, 2 * samples.per.cond)),
   check.id.species = TRUE,
   lengths.relmeans = NULL,
-  lengths.dispersions = NULL
+  lengths.dispersions = NULL,
+  lengths.phylo = TRUE
 )
 }
 \arguments{
@@ -95,6 +96,8 @@ generateSyntheticData(
 \item{lengths.relmeans}{An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.}
 
 \item{lengths.dispersions}{An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.}
+
+\item{lengths.phylo}{Should the length be simulated using a phylogenetic Poisson Log-Normal model on the tree (with a BM process) ? Default to TRUE.}
 }
 \value{
 A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).

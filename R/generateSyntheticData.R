@@ -39,6 +39,7 @@
 #' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
 #' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.
 #' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. 
+#' @param lengths.phylo Should the length be simulated using a phylogenetic Poisson Log-Normal model on the tree (with a BM process) ? Default to TRUE.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -73,7 +74,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   id.condition = NULL,
                                   id.species = as.factor(rep(1, 2 * samples.per.cond)),
                                   check.id.species = TRUE,
-                                  lengths.relmeans = NULL, lengths.dispersions = NULL) {
+                                  lengths.relmeans = NULL, lengths.dispersions = NULL, lengths.phylo = TRUE) {
   
   ## Check output file name
   if (!is.null(output.file)) {
@@ -276,7 +277,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	nfact_length.S1 <- nfact_length.S2 <- matrix(1, n.vars, length(S1) + length(S2))
 	length_matrix <- matrix(NA, 0, 0)
 	if (use_lengths) {
-	  length_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
+	  if (lengths.phylo) {
+	    length_matrix <- generateLengthsPhylo(tree, id.species, lengths.relmeans, lengths.dispersions)
+	  } else {
+	    length_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
+	  }
 	  nfact_length.S1 <- computeFactorLengths(length_matrix, prob.S1, sum.S1)
 	  nfact_length.S2 <- computeFactorLengths(length_matrix, prob.S2, sum.S2)
 	}
@@ -375,7 +380,20 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Normalize using lengths
 	if (use_lengths) {
-	  log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
+	  get_log2_gwRMKP <- function(log2_pseudocounts, lengths) {
+	    fun <- function(i) {
+	      ff <- lm(log2_pseudocounts[i, ] ~ log2(lengths)[i, ])
+	      if (is.na(ff$coefficients[2])) return(lm(log2_pseudocounts[i, ])) ## All lengths are the same
+	      return(log2_pseudocounts[i, ] - ff$coefficients[2] * log2(lengths)[i, ])
+	      # ll <- log2(lengths)[i, ] - min(log2(lengths[i, ]))
+	      # return(resid(lm(log2_pseudocounts[i, ] ~ ll - 1)))
+	    }
+	    res <- t(sapply(1:nrow(log2_pseudocounts), fun))
+	    # res[is.na(res)] <- log2_pseudocounts[is.na(res)]
+	    return(res)
+	  }
+	  # log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
+	  log2.pseudocounts.lengths <- get_log2_gwRMKP(log2.pseudocounts, length_matrix)
 	  M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
 	    apply(log2.pseudocounts.lengths[, S1], 1, mean)
 	  A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
@@ -598,16 +616,21 @@ getNegativeBinomialParameters <- function(n.vars,
   for (i in 1:n.vars) {
     for (j in 1:ncol(count_means)) {
       if (j %in% S1) {
-        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * nfact_length.S1[i, j]
+        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j)
         count_dispertions[i, j] <- truedispersions.S1[i]
       } else {
-        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j] * nfact_length.S2[i, j]
+        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j] * get_factor(nfact_length.S2, i, j)
         count_dispertions[i, j] <- truedispersions.S2[i]
       }
     }
   }
   return(list(count_means = count_means,
               count_dispertions = count_dispertions))
+}
+
+get_factor <- function(M, i, j) {
+  if (length(M) == 0) return(1.0)
+  return(M[i, j])
 }
 
 #' @title Get NB mean
