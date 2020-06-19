@@ -88,6 +88,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   
   ## Checks for phylogenetic tree
   use_tree <- !is.null(tree) # If tree is specified, use it.
+  if (lengths.phylo && !use_tree) {
+    warning("No tree is provided. Setting 'lengths.phylo' to FALSE")
+    lengths.phylo <- FALSE
+  }
+  
   
   ## Check id.species
   if (!is.factor(id.species)) warning("Vector 'id.species' must be a factor. Transforming.")
