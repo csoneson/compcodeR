@@ -480,8 +480,26 @@ deltaFisher <- function(tree, id.condition) {
   Z <- stats::model.matrix(~factor(id.condition))[, -1, drop = FALSE]
   deltaF <- (diag(1, n) -  X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv) %*% Z
   deltaF <- t(deltaF) %*% Vinv %*% deltaF
+  # deltaF <- t(Z) %*% Vinv %*% Z - t(Z) %*% Vinv %*% X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv %*% Z
   return(unname(as.vector(deltaF)) / n * 4)
 }
+
+# deltaFisherPhylolm <- function(tree, id.condition) {
+#   if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
+#   if (is.null(tree)) return(deltaFisher(tree, id.condition))
+#   # Check vector order
+#   id.condition <- checkParamVector(id.condition, "id.condition", tree)
+#   # tree
+#   n <- length(tree$tip.label)
+#   # phylolm
+#   e1 <- rnorm(n)
+#   names(e1) <- tree$tip.label
+#   phyfit <- phylolm::phylolm(e1 ~ as.factor(id.condition), phy = tree)
+#   vv <- phyfit$vcov
+#   pp <- solve(vv) * n / (n - 2)
+#   deltaF <- (pp[2, 2] - pp[1, 2] * pp[2, 1] / pp[1, 1]) * phyfit$sigma2
+#   return(deltaF / n * 4)
+# }
 
 #' @title Multiplying factor for Non central Student
 #'
@@ -502,4 +520,60 @@ deltaFisher <- function(tree, id.condition) {
 #' 
 deltaStudent <- function(tree, id.condition) {
   return(sqrt(deltaFisher(tree, id.condition)))
+}
+
+vanillaPowerFisher <- function(tree, id.condition, level = 0.95) {
+  n <- length(tree$tip.label)
+  d1 = 2 - 1
+  d2 = n - 2
+  qq = qf(level, d1, d2)
+  pow <- pf(qq, d1, d2, deltaFisher(tree, id.condition) * n / 4, lower.tail = FALSE)
+  return(pow)
+}
+
+#' @title Vanilla Power
+#'
+#' @description 
+#' Power of the Student t-test between the two conditions for a Gaussian vector
+#' of data, with unit effect size (expectation) and variance.
+#' The tree-induced variance is taken into account.
+#' WARNING: This is only valid when \code{id.condition} has exactelly two factors.
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' @param level The level of the t-test.
+#' 
+#' @return The multiplying factor.
+#' 
+#' @keywords internal
+#' 
+vanillaPowerStudent <- function(tree, id.condition, level = 0.95) {
+  n <- length(tree$tip.label)
+  d2 = n - 2
+  qq = qt(1 - (1 - level)/2, d2)
+  pow <- pt(qq, d2,  deltaStudent(tree, id.condition) * sqrt(n / 4), lower.tail = FALSE) - pt(-qq, d2, deltaStudent(tree, id.condition) * sqrt(n / 4), lower.tail = TRUE)
+  pow
+}
+
+#' @title Vanilla Power for Independent Data
+#'
+#' @description 
+#' Power of the Student t-test between the two conditions for an independent
+#' Gaussian vector of data, with unit effect size (expectation) and variance.
+#' WARNING: This is only valid when \code{id.condition} has exactelly two factors.
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' @param level The level of the t-test.
+#' 
+#' @return The multiplying factor.
+#' 
+#' @keywords internal
+#' 
+vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
+  n <- length(tree$tip.label)
+  d2 = n - 2
+  qq = qt(1 - (1 - level)/2, d2)
+  pow <- pt(qq, d2, sqrt(n / 4), lower.tail = FALSE) - pt(-qq, d2, sqrt(n / 4), lower.tail = TRUE)
+  pow
 }

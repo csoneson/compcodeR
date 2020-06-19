@@ -7,7 +7,7 @@
 #' listcreateRmd()
 #' 
 #' @importFrom utils packageVersion head
-#' @importFrom stats cor hclust as.dist runif rexp median loess predict na.omit rnbinom rpois rnorm sd
+#' @importFrom stats cor hclust as.dist runif rexp median loess predict na.omit rnbinom rpois rnorm sd lm pf pt qf qt
 #' @importFrom grDevices heat.colors
 #' @importFrom graphics par lines legend title axis
 #' 
