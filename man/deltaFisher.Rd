@@ -4,12 +4,16 @@
 \alias{deltaFisher}
 \title{Multiplying factor for Non central Fisher}
 \usage{
-deltaFisher(tree, id.condition)
+deltaFisher(tree, id.condition, model, selection.strength)
 }
 \arguments{
 \item{tree}{A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.}
 
 \item{id.condition}{A named vector giving the state of each tip (sample).}
+
+\item{model}{The trait evolution model. One of "BM" or "OU".}
+
+\item{selection.strength}{If \code{model="OU"}, the selection strength parameter.}
 }
 \value{
 The multiplying factor.

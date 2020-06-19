@@ -458,12 +458,14 @@ trim_tree <- function(tree, id.species) {
 #' 
 #' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
 #' @param id.condition A named vector giving the state of each tip (sample).
+#' @param model The trait evolution model. One of "BM" or "OU".
+#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
 #' 
 #' @return The multiplying factor.
 #' 
 #' @keywords internal
 #' 
-deltaFisher <- function(tree, id.condition) {
+deltaFisher <- function(tree, id.condition, model, selection.strength) {
   if (is.null(tree)) {
     n <- length(id.condition)
     Vinv <- diag(1, n)
@@ -472,7 +474,8 @@ deltaFisher <- function(tree, id.condition) {
     id.condition <- checkParamVector(id.condition, "id.condition", tree)
     # tree
     n <- length(tree$tip.label)
-    Vinv <- solve(ape::vcv(tree))
+    if (model == "OU") model <- "OUfixedRoot"
+    Vinv <- solve(ape::vcv(phylolm::transf.branch.lengths(tree, model = model, list(alpha = selection.strength))$tree))
   }
   # Intercept
   X <- rep(1, n)
@@ -513,21 +516,24 @@ deltaFisher <- function(tree, id.condition) {
 #' 
 #' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
 #' @param id.condition A named vector giving the state of each tip (sample).
+#' @param model The trait evolution model. One of "BM" or "OU".
+#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
 #' 
 #' @return The multiplying factor.
 #' 
 #' @keywords internal
 #' 
-deltaStudent <- function(tree, id.condition) {
-  return(sqrt(deltaFisher(tree, id.condition)))
+deltaStudent <- function(tree, id.condition, model, selection.strength) {
+  return(sqrt(deltaFisher(tree, id.condition, model, selection.strength)))
 }
 
-vanillaPowerFisher <- function(tree, id.condition, level = 0.95) {
+vanillaPowerFisher <- function(tree, id.condition,  model, selection.strength, level = 0.95) {
   n <- length(tree$tip.label)
   d1 = 2 - 1
   d2 = n - 2
   qq = qf(level, d1, d2)
-  pow <- pf(qq, d1, d2, deltaFisher(tree, id.condition) * n / 4, lower.tail = FALSE)
+  ncc <- deltaFisher(tree, id.condition, model, selection.strength) * n / 4
+  pow <- pf(qq, d1, d2, ncc, lower.tail = FALSE)
   return(pow)
 }
 
@@ -541,17 +547,20 @@ vanillaPowerFisher <- function(tree, id.condition, level = 0.95) {
 #' 
 #' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
 #' @param id.condition A named vector giving the state of each tip (sample).
+#' @param model The trait evolution model. One of "BM" or "OU".
+#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
 #' @param level The level of the t-test.
 #' 
 #' @return The multiplying factor.
 #' 
 #' @keywords internal
 #' 
-vanillaPowerStudent <- function(tree, id.condition, level = 0.95) {
+vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, level = 0.95) {
   n <- length(tree$tip.label)
   d2 = n - 2
   qq = qt(1 - (1 - level)/2, d2)
-  pow <- pt(qq, d2,  deltaStudent(tree, id.condition) * sqrt(n / 4), lower.tail = FALSE) - pt(-qq, d2, deltaStudent(tree, id.condition) * sqrt(n / 4), lower.tail = TRUE)
+  ncc <- deltaStudent(tree, id.condition, model, selection.strength) * sqrt(n / 4)
+  pow <- pt(qq, d2,  ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
   pow
 }
 
@@ -574,6 +583,7 @@ vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
   n <- length(tree$tip.label)
   d2 = n - 2
   qq = qt(1 - (1 - level)/2, d2)
-  pow <- pt(qq, d2, sqrt(n / 4), lower.tail = FALSE) - pt(-qq, d2, sqrt(n / 4), lower.tail = TRUE)
+  ncc <- sqrt(n / 4)
+  pow <- pt(qq, d2, ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
   pow
 }

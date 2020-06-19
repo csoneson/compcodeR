@@ -4,12 +4,22 @@
 \alias{vanillaPowerStudent}
 \title{Vanilla Power}
 \usage{
-vanillaPowerStudent(tree, id.condition, level = 0.95)
+vanillaPowerStudent(
+  tree,
+  id.condition,
+  model,
+  selection.strength,
+  level = 0.95
+)
 }
 \arguments{
 \item{tree}{A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.}
 
 \item{id.condition}{A named vector giving the state of each tip (sample).}
+
+\item{model}{The trait evolution model. One of "BM" or "OU".}
+
+\item{selection.strength}{If \code{model="OU"}, the selection strength parameter.}
 
 \item{level}{The level of the t-test.}
 }
