@@ -12,7 +12,7 @@ voom.phylolm.createRmd(
   model = "BM",
   measurement_error = TRUE,
   extraDesignFactors = NULL,
-  useLengths = FALSE,
+  lengthNormalization = "RPKM",
   ...
 )
 }
@@ -31,7 +31,7 @@ voom.phylolm.createRmd(
 
 \item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
-\item{useLengths}{A boolean. If TRUE, the \code{length.matrix} field of the \code{compData} object is used for normalization (see details). Default to FALSE.}
+\item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.}
 }
@@ -45,9 +45,15 @@ A function to generate code that can be run to perform differential expression a
 For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
 
 
-If \code{useLengths=TRUE}, the \code{length.matrix} field of the \code{compData}
+The \code{length.matrix} field of the \code{compData}
 object are used in the \code{voom} method to normalize the counts. 
-TODO: EXPLAIN.
+\describe{
+\item{\code{none}:}{No length normalization.}
+\item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
+\item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
+\item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
+\item{\code{asPredictor}:}{No length normalization, but the log2 lengths are included, for each gene, to the (phylogenetic) linear model as a predictor.}
+}
 }
 \examples{
 try(
@@ -71,7 +77,7 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2"
            output.directory = tmpdir,
            norm.method = "TMM",
            extraDesignFactors = c("test_factor", "test_reg"),
-           useLengths = TRUE)
+           lengthNormalization = "RPKM")
 })
 }
 \references{

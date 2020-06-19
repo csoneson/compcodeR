@@ -677,12 +677,17 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param divByLengths If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.
+#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
 #'
 #' @details 
 #' The \code{length.matrix} field of the \code{compData}
 #' object are used in the \code{voom} method to normalize the counts. 
-#' TODO: EXPLAIN.
+#' \describe{
+#' \item{\code{none}:}{No length normalization.}
+#' \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
+#' \item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
+#' \item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
+#' }
 #' 
 #' @export 
 #' @author Charlotte Soneson
@@ -706,7 +711,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
 #' 
-voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, extraDesignFactors = NULL, divByLengths = FALSE) {
+voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, extraDesignFactors = NULL, lengthNormalization = "RPKM") {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom + limma", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -738,14 +743,29 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   
-  writeLines(c("", "# Normalisation and fit",
-               paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = '')),
+  writeLines(c("", "# Normalisation and fit"),
              codefile)
-  if (divByLengths) {
-    writeLines("voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf)", 
+  
+  lengthNormalization <- match.arg(lengthNormalization, c("gwRPKM", "RPKM", "TPM", "none"))
+  if (lengthNormalization == "none") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf)"), 
                codefile)
-  } else {
-    writeLines("voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)/1000))", 
+  } else if (lengthNormalization == "TPM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata) / length.matrix(cdata)) * nf)"), 
+               codefile)
+  } else if (lengthNormalization == "RPKM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)))"), 
+               codefile)
+  } else if (lengthNormalization == "gwRPKM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "lib.size <- colSums(count.matrix(cdata)) * nf",
+                 "y <- t(log2(t(count.matrix(cdata)+0.5)/(lib.size+1)*1e6))",
+                 "length_factor <- sapply(1:nrow(y), function(i) lm(y[i, ] ~ log2(length.matrix(cdata))[i, ])$coefficients[2])",
+                 "length_factor <- sweep(length.matrix(cdata), 1, length_factor, '^')",
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length_factor))"),
                codefile)
   }
   writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
@@ -761,7 +781,7 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, ifelse(divByLengths, ".divByLengths", ""), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
+                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, ".lengthNorm.", lengthNormalization, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)

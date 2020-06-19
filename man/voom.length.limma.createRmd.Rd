@@ -10,7 +10,7 @@ voom.length.limma.createRmd(
   codefile,
   norm.method,
   extraDesignFactors = NULL,
-  divByLengths = FALSE
+  lengthNormalization = "RPKM"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ voom.length.limma.createRmd(
 
 \item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
-\item{divByLengths}{If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.}
+\item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -38,7 +38,12 @@ For more information about the methods and the interpretation of the parameters,
 
 The \code{length.matrix} field of the \code{compData}
 object are used in the \code{voom} method to normalize the counts. 
-TODO: EXPLAIN.
+\describe{
+\item{\code{none}:}{No length normalization.}
+\item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
+\item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
+\item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
+}
 }
 \examples{
 try(

@@ -11,13 +11,19 @@
 #' @param model The model for trait evolution on the tree. Default to "BM".
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param useLengths A boolean. If TRUE, the \code{length.matrix} field of the \code{compData} object is used for normalization (see details). Default to FALSE.
+#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
 #' 
 #' @details 
-#' If \code{useLengths=TRUE}, the \code{length.matrix} field of the \code{compData}
+#' The \code{length.matrix} field of the \code{compData}
 #' object are used in the \code{voom} method to normalize the counts. 
-#' TODO: EXPLAIN.
+#' \describe{
+#' \item{\code{none}:}{No length normalization.}
+#' \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
+#' \item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
+#' \item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
+#' \item{\code{asPredictor}:}{No length normalization, but the log2 lengths are included, for each gene, to the (phylogenetic) linear model as a predictor.}
+#' }
 #' 
 #' @export 
 #' 
@@ -46,13 +52,13 @@
 #'            output.directory = tmpdir,
 #'            norm.method = "TMM",
 #'            extraDesignFactors = c("test_factor", "test_reg"),
-#'            useLengths = TRUE)
+#'            lengthNormalization = "RPKM")
 #' })
 voom.phylolm.createRmd <- function(data.path, result.path, codefile, 
                                    norm.method,
                                    model = "BM", measurement_error = TRUE,
                                    extraDesignFactors = NULL,
-                                   useLengths = FALSE,
+                                   lengthNormalization = "RPKM",
                                    ...) {
   codefile <- file(codefile, open = 'w')
   writeLines("### phylolm", codefile)
@@ -68,15 +74,8 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
   
   writeLines(c("is.valid <- check_compData(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
-               codefile)
-  ## Normalization
-  writeLines(c("", "# Normalization Factors"),codefile)
-  writeLines("extraNormFactor <- 1", codefile)
-  if (useLengths) writeLines("extraNormFactor <- length.matrix(cdata)", codefile)
+             codefile)
   writeLines("count_data <- count.matrix(cdata)", codefile)
-  writeLines(
-    paste("nf <- edgeR::calcNormFactors(count_data, method = '", norm.method, "')", sep = ''), 
-    codefile)
   ## Design for normalization
   writeLines(c("", "# Design"),codefile)
   if (is.null(extraDesignFactors)) {
@@ -95,8 +94,29 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   writeLines(c("", "# Normalisation using voom"),codefile)
+  lengthNormalization <- match.arg(lengthNormalization, c("gwRPKM", "RPKM", "TPM", "none", "asPredictor"))
+  if (lengthNormalization == "none" || lengthNormalization == "asPredictor") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf)"), 
+               codefile)
+  } else if (lengthNormalization == "TPM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata) / length.matrix(cdata)) * nf)"), 
+               codefile)
+  } else if (lengthNormalization == "RPKM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)))"), 
+               codefile)
+  } else if (lengthNormalization == "gwRPKM") {
+    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+                 "lib.size <- colSums(count.matrix(cdata)) * nf",
+                 "y <- t(log2(t(count.matrix(cdata)+0.5)/(lib.size+1)*1e6))",
+                 "length_factor <- sapply(1:nrow(y), function(i) lm(y[i, ] ~ log2(length.matrix(cdata))[i, ])$coefficients[2])",
+                 "length_factor <- sweep(length.matrix(cdata), 1, length_factor, '^')",
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length_factor))"),
+               codefile)
+  }
   writeLines(c(
-    "voom.data <- limma::voom(count_data, design = design, lib.size = colSums(count_data) * nf * t(extraNormFactor))", 
     "voom.data$genes <- rownames(count_data)",
     "voom.data <- voom.data$E"), 
     codefile)
@@ -109,35 +129,92 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "                             'logFC' = res['condition2', 'Estimate'],",
     "                             'score' = 1 - res['condition2', 'p.value'])",
     "  return(result.table)",
-    "}",
-    "phylolm_analysis <- function(dat, model, measurement_error, ...) {",
-    "  data_reg <- cbind(data.frame(expr = dat), design_data)",
-    "  levels(data_reg$condition) <- c(1, 2)",
-    "  res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
-    "                                             data = data_reg,",
-    "                                             phy = tree,",
-    "                                             model = model,",
-    "                                             measurement_error = measurement_error, ",
-    "                                             ...)))",
-    "  if (inherits(res, 'try-error')) {",
-    "    res <- NULL",
-    "    print(gene)",
-    "  }",
-    "  return(res)",
     "}"
-    ),
+  ),
   codefile)
+  if (lengthNormalization != "asPredictor") {
+    writeLines(c(
+      "phylolm_analysis <- function(dat, model, measurement_error, ...) {",
+      "  data_reg <- cbind(data.frame(expr = dat), design_data)",
+      "  levels(data_reg$condition) <- c(1, 2)",
+      "  res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
+      "                                             data = data_reg,",
+      "                                             phy = tree,",
+      "                                             model = model,",
+      "                                             measurement_error = measurement_error, ",
+      "                                             ...)))",
+      "  if (inherits(res, 'try-error')) {",
+      "    if (model == 'BM' && measurement_error) {",
+      "      res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
+      "                                                 data = data_reg,",
+      "                                                 phy = tree,",
+      "                                                 model = 'lambda',",
+      "                                                 measurement_error = FALSE, ",
+      "                                                 ...)))",
+      "    }",
+      "  }",
+      "  if (inherits(res, 'try-error')) {",
+      "    res <- data.frame('pvalue' = 1.0,",
+      "                      'logFC' = 0.0,",
+      "                      'score' = 0.0)",
+      "    warning(paste0(gene, 'produced an error.'))",
+      "  }",
+      "  return(res)",
+      "}"
+    ),
+    codefile)
+  } else {
+    writeLines(c(
+      "phylolm_analysis <- function(gene, model, measurement_error, ...) {",
+      "  data_reg <- cbind(data.frame(expr = voom.data[gene, ], lengths = log2(length.matrix(cdata)[gene, ])), design_data)",
+      "  levels(data_reg$condition) <- c(1, 2)",
+      "  res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = ''), '+lengths'),",
+      "                                             data = data_reg,",
+      "                                             phy = tree,",
+      "                                             model = model,",
+      "                                             measurement_error = measurement_error, ",
+      "                                             ...)))",
+      "  if (inherits(res, 'try-error')) {",
+      "    if (model == 'BM' && measurement_error) {",
+      "      res <- try(extract_results_phylolm(phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),",
+      "                                                 data = data_reg,",
+      "                                                 phy = tree,",
+      "                                                 model = 'lambda',",
+      "                                                 measurement_error = FALSE, ",
+      "                                                 ...)))",
+      "    }",
+      "  }",
+      "  if (inherits(res, 'try-error')) {",
+      "    res <- data.frame('pvalue' = 1.0,",
+      "                      'logFC' = 0.0,",
+      "                      'score' = 0.0)",
+      "    warning(paste0(gene, 'produced an error.'))",
+      "  }",
+      "  return(res)",
+      "}"
+    ),
+    codefile)
+  }
   ## Apply analysis
   writeLines(c("", "# Analysis"),codefile)
   extra_args <- eval(substitute(alist(...)))
   extra_args <- sapply(extra_args, function(x) paste(" = ", x))
   extra_args <- paste(names(extra_args), extra_args, collapse = ", ")
+  writeLines(c("tree <- getTree(cdata)"),codefile)
+  if (lengthNormalization != "asPredictor") {
   writeLines(c(
-    "tree <- getTree(cdata)",
     paste0("voom.phylolm.results_list <- apply(voom.data, 1, phylolm_analysis, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, ")"),
-    "result.table <- do.call(rbind, voom.phylolm.results_list)",
+    "result.table <- do.call(rbind, voom.phylolm.results_list)"),
+    codefile)
+  } else {
+    writeLines(c(
+      paste0("result.table <- t(sapply(1:nrow(voom.data), phylolm_analysis, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, "))"),
+      "result.table <- as.data.frame(result.table)"),
+      codefile)
+  }
+  writeLines(c(
     "result.table$adjpvalue <- p.adjust(result.table$pvalue, 'BH')"),
-  codefile)
+    codefile)
   writeLines(c("", "# Save the results"),codefile)
   writeLines(c(
     "rownames(result.table) <- rownames(count.matrix(cdata))",
@@ -145,7 +222,7 @@ voom.phylolm.createRmd <- function(data.path, result.path, codefile,
     "package.version(cdata) <- paste('phylolm,', packageVersion('phylolm'))",
     "package.version(cdata) <- paste('limma,', packageVersion('limma'))",
     "analysis.date(cdata) <- date()",
-    paste("method.names(cdata) <- list('short.name' = 'voom.phylolm', 'full.name' = '", paste('voom.phylolm', packageVersion('limma'), packageVersion('phylolm'), '.', norm.method, '.', model, '.', ifelse(!is.null(measurement_error), 'me', 'nome'), '.', ifelse(useLengths, 'using_lengths', ''), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
+    paste("method.names(cdata) <- list('short.name' = 'voom.phylolm', 'full.name' = '", paste('voom.phylolm', packageVersion('limma'), packageVersion('phylolm'), '.', norm.method, '.', model, '.', ifelse(!is.null(measurement_error), 'me', 'nome'), '.', ".lengthNorm.", lengthNormalization, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
     "is.valid <- check_compData_results(cdata)",
     "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
     paste("saveRDS(cdata, '", result.path, "')", sep = "")),
