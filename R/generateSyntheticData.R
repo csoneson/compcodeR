@@ -126,7 +126,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     }
     
     ## Check id species
-    id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
+    if (use_tree) id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
     
     ## Check that all genes are over-dispersed
     if (fraction.non.overdispersed != 0) {
