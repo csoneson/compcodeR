@@ -388,7 +388,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	  get_log2_gwRMKP <- function(log2_pseudocounts, lengths) {
 	    fun <- function(i) {
 	      ff <- lm(log2_pseudocounts[i, ] ~ log2(lengths)[i, ])
-	      if (is.na(ff$coefficients[2])) return(lm(log2_pseudocounts[i, ])) ## All lengths are the same
+	      if (is.na(ff$coefficients[2])) return(log2_pseudocounts[i, ]) ## All lengths are the same
 	      return(log2_pseudocounts[i, ] - ff$coefficients[2] * log2(lengths)[i, ])
 	      # ll <- log2(lengths)[i, ] - min(log2(lengths[i, ]))
 	      # return(resid(lm(log2_pseudocounts[i, ] ~ ll - 1)))

@@ -475,7 +475,9 @@ deltaFisher <- function(tree, id.condition, model, selection.strength) {
     # tree
     n <- length(tree$tip.label)
     if (model == "OU") model <- "OUfixedRoot"
-    Vinv <- solve(ape::vcv(phylolm::transf.branch.lengths(tree, model = model, list(alpha = selection.strength))$tree))
+    V <- ape::vcv(phylolm::transf.branch.lengths(tree, model = model, list(alpha = selection.strength))$tree)
+    Vinv <- try(solve(V))
+    if (inherits(Vinv, 'try-error')) Vinv <- ginv(V)
   }
   # Intercept
   X <- rep(1, n)
@@ -528,7 +530,11 @@ deltaStudent <- function(tree, id.condition, model, selection.strength) {
 }
 
 vanillaPowerFisher <- function(tree, id.condition,  model, selection.strength, level = 0.95) {
-  n <- length(tree$tip.label)
+  if (is.null(tree)) {
+    n <- length(id.condition)
+  } else {
+    n <- length(tree$tip.label)
+  }
   d1 = 2 - 1
   d2 = n - 2
   qq = qf(level, d1, d2)
@@ -556,7 +562,11 @@ vanillaPowerFisher <- function(tree, id.condition,  model, selection.strength, l
 #' @keywords internal
 #' 
 vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, level = 0.95) {
-  n <- length(tree$tip.label)
+  if (is.null(tree)) {
+    n <- length(id.condition)
+  } else {
+    n <- length(tree$tip.label)
+  }
   d2 = n - 2
   qq = qt(1 - (1 - level)/2, d2)
   ncc <- deltaStudent(tree, id.condition, model, selection.strength) * sqrt(n / 4)
@@ -580,7 +590,11 @@ vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, l
 #' @keywords internal
 #' 
 vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
-  n <- length(tree$tip.label)
+  if (is.null(tree)) {
+    n <- length(id.condition)
+  } else {
+    n <- length(tree$tip.label)
+  }
   d2 = n - 2
   qq = qt(1 - (1 - level)/2, d2)
   ncc <- sqrt(n / 4)
