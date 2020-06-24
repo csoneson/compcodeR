@@ -3,6 +3,6 @@ if (requireNamespace("testthat", quietly = TRUE)) {
   library(testthat)
   library(phylocompcodeR)
   
-  test_check("compcodeR")
+  test_check("phylocompcodeR")
   
 }
