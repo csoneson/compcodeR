@@ -244,7 +244,7 @@ getTree <- function(cdata) {
   } else {
     tree <- cdata@info.parameters$tree
     if (!ape::is.ultrametric(tree)) stop("The tree must be ultrametric.")
-    return(phytools::force.ultrametric(tree))
+    return(tree)
   }
 }
 

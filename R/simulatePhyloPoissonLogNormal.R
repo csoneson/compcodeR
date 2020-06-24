@@ -238,6 +238,9 @@ checkSpecies <- function(x, name, tree, tol, check.id.species) {
 #' @keywords internal
 #' 
 add_replicates <- function(tree, r) {
+  if (!requireNamespace("phytools", quietly = TRUE)) {
+    stop("Package 'phytools' is needed for function 'add_replicates'.", call. = FALSE)
+  }
   tree_rep <- tree
   # Add replicates
   for (tip_label in tree$tip.label) {

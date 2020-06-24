@@ -37,6 +37,7 @@ Imports:
     stats,
     utils,
     ape,
+    phylolm,
     matrixStats
 Suggests:
     BiocStyle,
@@ -50,10 +51,10 @@ Suggests:
     NBPSeq (>= 0.3.0),
     rmarkdown,
     phytools,
+    phangorn,
     testthat,
     ggtree,
     tidytree,
-    phylolm,
     compcodeR
 Enhances: rpanel, DSS
 License: GPL (>= 2)

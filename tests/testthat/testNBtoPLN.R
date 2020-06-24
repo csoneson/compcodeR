@@ -32,7 +32,7 @@ test_that("NB to PLN simple", {
 })
 
 test_that("NB to PLN phylo - star tree", {
-  skip_if_not_installed("phytools")
+  skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")
   
   set.seed(18420318)
@@ -44,7 +44,7 @@ test_that("NB to PLN phylo - star tree", {
   ## Tree
   tree <- ape::stree(ntaxa, type = "star")
   tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phytools::force.ultrametric(tree) 
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
   tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
   
   ## NB
@@ -86,7 +86,7 @@ test_that("NB to PLN phylo - star tree", {
 })
 
 test_that("NB to PLN phylo - random tree", {
-  skip_if_not_installed("phytools")
+  skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")
   
   set.seed(18420318)
@@ -98,7 +98,7 @@ test_that("NB to PLN phylo - random tree", {
   ## Tree
   tree <- ape::rtree(ntaxa)
   tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phytools::force.ultrametric(tree) 
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
   tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
   
   ## NB
@@ -165,6 +165,7 @@ test_that("NB to PLN phylo - random tree", {
 })
 
 test_that("NB to PLN phylo - star tree with repetitions", {
+  skip_if_not_installed("phangorn")
   skip_if_not_installed("phytools")
   skip_if_not_installed("phylolm")
   
@@ -177,24 +178,14 @@ test_that("NB to PLN phylo - star tree with repetitions", {
   ## Tree
   tree <- ape::stree(ntaxa, type = "star")
   tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phytools::force.ultrametric(tree) 
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
   tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
   
   ## Repetitions
   r <- 2
   ntaxa <- r * ntaxa
   
-  tree_rep <- tree
-  # Add replicates
-  for (tip_label in tree$tip.label) {
-    for (rep in 1:r) {
-      tree_rep <- phytools::bind.tip(tree_rep, tip.label = paste0(tip_label, "_", rep),
-                                     where = which(tree_rep$tip.label == tip_label))
-    }
-  }
-  # Remove original tips
-  tree_rep <- ape::drop.tip(tree_rep, tree$tip.label)
-  tree <- tree_rep
+  tree <- add_replicates(tree, r)
   
   ## NB
   mean_nb <- 1:ntaxa * 100
@@ -260,7 +251,7 @@ test_that("NB to PLN phylo - star tree with repetitions", {
 })
 
 test_that("NB to PLN phylo - random tree - OU", {
-  skip_if_not_installed("phytools")
+  skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")
   
   set.seed(18420318)
@@ -273,7 +264,7 @@ test_that("NB to PLN phylo - random tree - OU", {
   ## Tree
   tree <- ape::rtree(ntaxa)
   tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phytools::force.ultrametric(tree) 
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
   tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
   
   ## NB
@@ -345,7 +336,7 @@ test_that("NB to PLN phylo - random tree - OU", {
 })
 
 test_that("NB to PLN phylo - random tree - Not Unit Length", {
-  skip_if_not_installed("phytools")
+  skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")
   
   set.seed(18420318)
@@ -358,7 +349,7 @@ test_that("NB to PLN phylo - random tree - Not Unit Length", {
   ## Tree
   tree <- ape::rtree(ntaxa)
   tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phytools::force.ultrametric(tree) 
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
   tree_height <- ape::vcv(tree)[1, 1]
 
   ## NB

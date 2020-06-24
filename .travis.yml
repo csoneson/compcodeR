@@ -8,7 +8,7 @@ cache: packages
 
 r_build_args: "--no-manual --no-resave-data"
 r_check_args: "--no-build-vignettes --no-manual --timings"
-env: R_REMOTES_NO_ERRORS_FROM_WARNINGS="true"
+env: _R_CHECK_FORCE_SUGGESTS_="false"
 
 services:
   - xvfb
