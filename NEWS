@@ -1,3 +1,10 @@
+CHANGES IN VERSION 1.25.1.9999
+-------------------------
+  o Implement simulations according to the phylogenetic poisson log normal model
+  o Implement length-varying simulations
+  o Add possible length normalization to DESeq2 anf limma analyses
+  o Add phylolm analyses
+
 CHANGES IN VERSION 1.23.1
 -------------------------
 
