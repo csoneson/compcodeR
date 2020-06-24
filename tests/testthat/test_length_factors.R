@@ -35,6 +35,7 @@ test_that("computeFactorLengths is equivalent to trueProba", {
 })
 
 test_that("computeFactorLengths is equivalent to trueProba", {
+  skip_if_not_installed("phytools")
   set.seed(20200430)
   
   ntaxa <- 10

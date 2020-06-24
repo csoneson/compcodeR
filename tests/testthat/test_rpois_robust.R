@@ -5,7 +5,7 @@ test_that("rpois coincides with rpois_robust", {
   lambda <- c(1000, 100, 1e11)
   
   set.seed(20200317)
-  rp <- expect_warning(rpois(3, lambda), "NAs produced")
+  rp <- rpois(3, lambda)
   
   set.seed(20200317)
   rprob <- rpois_robust(3, lambda)
