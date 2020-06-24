@@ -781,7 +781,7 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, ".lengthNorm.", lengthNormalization, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."), sep = ''), "')", sep = ''),
+                     paste('voom.length.', packageVersion('limma'), '.limma.', norm.method, "lengthNorm.", lengthNormalization, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
