@@ -99,7 +99,7 @@ checkClass <- function(object, objname, trueclass) {
 #'            output.directory = ".", fit.type = "parametric")
 #' }
 runDiffExp <- function(data.file, result.extent, Rmdfunction, output.directory = ".", norm.path = TRUE, ...) {
-  code.file <- "tempcode.Rmd"
+  code.file <- tempfile(pattern = "tempcode", tmpdir = output.directory, fileext = ".Rmd")
   checkClass(data.file, "data.file", "character")
   checkClass(result.extent, "result.extent", "character")
   checkClass(Rmdfunction, "Rmdfunction", "character")
