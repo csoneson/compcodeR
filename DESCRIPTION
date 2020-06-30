@@ -12,9 +12,9 @@ Description: This package provides extensive functionality for
     several packages for performing the differential expression
     analysis.
 Depends:
-    R (>= 3.0.2),
-    sm
+    R (>= 3.0.2)
 Imports:
+    sm,
     tcltk,
     knitr (>= 1.2),
     markdown,
