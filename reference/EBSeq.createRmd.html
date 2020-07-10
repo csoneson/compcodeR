@@ -117,10 +117,10 @@
     </div>
 
     <div class="ref-description">
-    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the <code>EBSeq</code> package. The code is written to a .Rmd file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code><a href='runDiffExp.html'>runDiffExp</a></code> function.</p>
+    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the <code>EBSeq</code> package. The code is written to a .Rmd file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code>runDiffExp</code> function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>EBSeq.createRmd</span>(<span class='no'>data.path</span>, <span class='no'>result.path</span>, <span class='no'>codefile</span>, <span class='no'>norm.method</span>)</pre>
+    <pre class="usage"><span class='fu'>EBSeq.createRmd</span>(<span class='kw'>data.path</span>, <span class='kw'>result.path</span>, <span class='kw'>codefile</span>, <span class='kw'>norm.method</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -152,17 +152,20 @@
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Leng N, Dawson JA, Thomson JA, Ruotti V, Rissman AI, Smits BMG, Haag JD, Gould MN, Stewart RM and Kendziorski C (2013): EBSeq: An empirical Bayes hierarchical model for inference in RNA-seq experiments. Bioinformatics</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>(
-<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>EBSeq</span>)) {
-<span class='no'>tmpdir</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), <span class='kw'>winslash</span> <span class='kw'>=</span> <span class='st'>"/"</span>)
-<span class='no'>mydata.obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-                                    <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-                                    <span class='kw'>output.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
-<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span>(<span class='kw'>data.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), <span class='kw'>result.extent</span> <span class='kw'>=</span> <span class='st'>"EBSeq"</span>,
-           <span class='kw'>Rmdfunction</span> <span class='kw'>=</span> <span class='st'>"EBSeq.createRmd"</span>,
-           <span class='kw'>output.directory</span> <span class='kw'>=</span> <span class='no'>tmpdir</span>, <span class='kw'>norm.method</span> <span class='kw'>=</span> <span class='st'>"median"</span>)
+<span class='co'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='kw'>EBSeq</span>)) {
+<span class='kw'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), winslash = <span class='st'>"/"</span>)
+<span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
+                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>, 
+                                    output.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
+<span class='fu'>runDiffExp</span>(data.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), result.extent = <span class='st'>"EBSeq"</span>, 
+           Rmdfunction = <span class='st'>"EBSeq.createRmd"</span>, 
+           output.directory = <span class='kw'>tmpdir</span>, norm.method = <span class='st'>"median"</span>)
 }
 )</div><div class='output co'>#&gt; <span class='message'>Loading required package: EBSeq</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: blockmodeling</span></div><div class='output co'>#&gt; <span class='message'>To cite package 'blockmodeling' in publications please use package</span>
 #&gt; <span class='message'>citation and (at least) one of the articles:</span>
@@ -178,7 +181,7 @@
 #&gt; <span class='message'>  Networks 39, 46–61. https://doi.org/10.1016/j.socnet.2014.04.002.</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>  Žiberna, Aleš (2020).  Generalized and Classical Blockmodeling of</span>
-#&gt; <span class='message'>  Valued Networks, R package version 0.3.6.</span>
+#&gt; <span class='message'>  Valued Networks, R package version 1.0.0.</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>To see these entries in BibTeX format, use 'print(&lt;citation&gt;,</span>
 #&gt; <span class='message'>bibtex=TRUE)', 'toBibtex(.)', or set</span>

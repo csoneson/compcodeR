@@ -121,27 +121,27 @@
     </div>
 
     <pre class="usage"><span class='fu'>generateSyntheticData</span>(
-  <span class='no'>dataset</span>,
-  <span class='no'>n.vars</span>,
-  <span class='no'>samples.per.cond</span>,
-  <span class='no'>n.diffexp</span>,
-  <span class='kw'>repl.id</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>seqdepth</span> <span class='kw'>=</span> <span class='fl'>1e+07</span>,
-  <span class='kw'>minfact</span> <span class='kw'>=</span> <span class='fl'>0.7</span>,
-  <span class='kw'>maxfact</span> <span class='kw'>=</span> <span class='fl'>1.4</span>,
-  <span class='kw'>relmeans</span> <span class='kw'>=</span> <span class='st'>"auto"</span>,
-  <span class='kw'>dispersions</span> <span class='kw'>=</span> <span class='st'>"auto"</span>,
-  <span class='kw'>fraction.upregulated</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>between.group.diffdisp</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>filter.threshold.total</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>filter.threshold.mediancpm</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>fraction.non.overdispersed</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>random.outlier.high.prob</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>random.outlier.low.prob</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>single.outlier.high.prob</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>single.outlier.low.prob</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-  <span class='kw'>effect.size</span> <span class='kw'>=</span> <span class='fl'>1.5</span>,
-  <span class='kw'>output.file</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='kw'>dataset</span>,
+  <span class='kw'>n.vars</span>,
+  <span class='kw'>samples.per.cond</span>,
+  <span class='kw'>n.diffexp</span>,
+  repl.id = <span class='fl'>1</span>,
+  seqdepth = <span class='fl'>1e+07</span>,
+  minfact = <span class='fl'>0.7</span>,
+  maxfact = <span class='fl'>1.4</span>,
+  relmeans = <span class='st'>"auto"</span>,
+  dispersions = <span class='st'>"auto"</span>,
+  fraction.upregulated = <span class='fl'>1</span>,
+  between.group.diffdisp = <span class='fl'>FALSE</span>,
+  filter.threshold.total = <span class='fl'>1</span>,
+  filter.threshold.mediancpm = <span class='fl'>0</span>,
+  fraction.non.overdispersed = <span class='fl'>0</span>,
+  random.outlier.high.prob = <span class='fl'>0</span>,
+  random.outlier.low.prob = <span class='fl'>0</span>,
+  single.outlier.high.prob = <span class='fl'>0</span>,
+  single.outlier.low.prob = <span class='fl'>0</span>,
+  effect.size = <span class='fl'>1.5</span>,
+  output.file = <span class='kw'>NULL</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -231,7 +231,7 @@
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A <code><a href='compData.html'>compData</a></code> object. If <code>output.file</code> is not <code>NULL</code>, the object is saved in the given <code>output.file</code> (which should have an <code>.rds</code> extension).</p>
+    <p>A <code>compData</code> object. If <code>output.file</code> is not <code>NULL</code>, the object is saved in the given <code>output.file</code> (which should have an <code>.rds</code> extension).</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>In the comparison function, only results obtained for data sets with the same value of the <code>dataset</code> parameter will be compared. Hence, it is important to give the same value of this parameter e.g. to different replicates generated with the same simulation settings.</p>
@@ -245,10 +245,13 @@
 <p>Frazee AC, Langmead B and Leek JT (2011): ReCount: a multi-experiment resource of analysis-ready RNA-seq gene count datasets. BMC Bioinformatics 12:449</p>
 <p>Pickrell JK, Marioni JC, Pai AA, Degner JF, Engelhardt BE, Nkadori E, Veyrieras JB, Stephens M, Gilad Y and Pritchard JK (2010): Understanding mechanisms underlying human gene expression variation with RNA sequencing. Nature 464, 768-772</p>
 <p>Robles JA, Qureshi SE, Stephen SJ, Wilson SR, Burden CJ and Taylor JM (2012): Efficient experimental design and analysis strategies for the detection of differential expression using RNA-sequencing. BMC Genomics 13:484</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mydata.obj</span> <span class='kw'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-                                    <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>100</span>)</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
+                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

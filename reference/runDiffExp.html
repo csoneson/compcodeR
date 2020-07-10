@@ -121,12 +121,12 @@
     </div>
 
     <pre class="usage"><span class='fu'>runDiffExp</span>(
-  <span class='no'>data.file</span>,
-  <span class='no'>result.extent</span>,
-  <span class='no'>Rmdfunction</span>,
-  <span class='kw'>output.directory</span> <span class='kw'>=</span> <span class='st'>"."</span>,
-  <span class='kw'>norm.path</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>
+  <span class='kw'>data.file</span>,
+  <span class='kw'>result.extent</span>,
+  <span class='kw'>Rmdfunction</span>,
+  output.directory = <span class='st'>"."</span>,
+  norm.path = <span class='fl'>TRUE</span>,
+  <span class='kw'>...</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -134,7 +134,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data.file</th>
-      <td><p>The path to a <code>.rds</code> file containing the data on which the differential expression analysis will be performed, for example a <code>compData</code> object returned from <code><a href='generateSyntheticData.html'>generateSyntheticData</a></code>.</p></td>
+      <td><p>The path to a <code>.rds</code> file containing the data on which the differential expression analysis will be performed, for example a <code>compData</code> object returned from <code>generateSyntheticData</code>.</p></td>
     </tr>
     <tr>
       <th>result.extent</th>
@@ -142,7 +142,7 @@
     </tr>
     <tr>
       <th>Rmdfunction</th>
-      <td><p>A function that creates an Rmd file containing the code that should be run to perform the differential expression analysis. All functions available through <code>compcodeR</code> can be listed using the <code><a href='listcreateRmd.html'>listcreateRmd</a></code> function.</p></td>
+      <td><p>A function that creates an Rmd file containing the code that should be run to perform the differential expression analysis. All functions available through <code>compcodeR</code> can be listed using the <code>listcreateRmd</code> function.</p></td>
     </tr>
     <tr>
       <th>output.directory</th>
@@ -158,6 +158,9 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"></pre>

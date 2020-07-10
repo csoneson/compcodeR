@@ -121,7 +121,7 @@
     </div>
 
     <pre class="usage"><span class='co'># S4 method for compData</span>
-<span class='fu'>show</span>(<span class='no'>object</span>)</pre>
+<span class='fu'><a href='https://rdrr.io/pkg/TCC/man/TCC-class.html'>show</a></span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -132,11 +132,14 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mydata</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>12500</span>,
-                                <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>1250</span>)
-<span class='no'>mydata</span></div><div class='output co'>#&gt; An object of class compData 
+    <pre class="examples"><div class='input'><span class='kw'>mydata</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>12500</span>, 
+                                samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>1250</span>)
+<span class='kw'>mydata</span></div><div class='output co'>#&gt; An object of class compData 
 #&gt; Dataset name: mydata 
 #&gt; Number of samples: 10 
 #&gt; Number of variables: 12495 

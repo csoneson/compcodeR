@@ -117,10 +117,10 @@
     </div>
 
     <div class="ref-description">
-    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using <code>NBPSeq</code>. The code is written to a <code>.Rmd</code> file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code><a href='runDiffExp.html'>runDiffExp</a></code> function.</p>
+    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using <code>NBPSeq</code>. The code is written to a <code>.Rmd</code> file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code>runDiffExp</code> function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>NBPSeq.createRmd</span>(<span class='no'>data.path</span>, <span class='no'>result.path</span>, <span class='no'>codefile</span>, <span class='no'>norm.method</span>, <span class='no'>disp.method</span>)</pre>
+    <pre class="usage"><span class='fu'>NBPSeq.createRmd</span>(<span class='kw'>data.path</span>, <span class='kw'>result.path</span>, <span class='kw'>codefile</span>, <span class='kw'>norm.method</span>, <span class='kw'>disp.method</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -158,17 +158,20 @@
     <p>Robinson MD, McCarthy DJ and Smyth GK (2010): edgeR: a Bioconductor package for differential expression analysis of digital gene expression data. Bioinformatics 26, 139-140</p>
 <p>Robinson MD and Oshlack A (2010): A scaling normalization method for differential expression analysis of RNA-seq data. Genome Biology 11:R25</p>
 <p>Di Y, Schafer DW, Cumbie JS, and Chang JH (2011): The NBP Negative Binomial Model for Assessing Differential Gene Expression from RNA-Seq. Statistical Applications in Genetics and Molecular Biology 10(1), 1-28</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>(
-<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>NBPSeq</span>)) {
-<span class='no'>tmpdir</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), <span class='kw'>winslash</span> <span class='kw'>=</span> <span class='st'>"/"</span>)
-<span class='no'>mydata.obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-                                    <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-                                    <span class='kw'>output.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
-<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span>(<span class='kw'>data.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), <span class='kw'>result.extent</span> <span class='kw'>=</span> <span class='st'>"NBPSeq"</span>,
-           <span class='kw'>Rmdfunction</span> <span class='kw'>=</span> <span class='st'>"NBPSeq.createRmd"</span>,
-           <span class='kw'>output.directory</span> <span class='kw'>=</span> <span class='no'>tmpdir</span>, <span class='kw'>norm.method</span> <span class='kw'>=</span> <span class='st'>"TMM"</span>, <span class='kw'>disp.method</span> <span class='kw'>=</span> <span class='st'>"NBP"</span>)
+<span class='co'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='kw'>NBPSeq</span>)) {
+<span class='kw'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), winslash = <span class='st'>"/"</span>)
+<span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
+                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>, 
+                                    output.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
+<span class='fu'>runDiffExp</span>(data.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), result.extent = <span class='st'>"NBPSeq"</span>, 
+           Rmdfunction = <span class='st'>"NBPSeq.createRmd"</span>, 
+           output.directory = <span class='kw'>tmpdir</span>, norm.method = <span class='st'>"TMM"</span>, disp.method = <span class='st'>"NBP"</span>)
 })</div><div class='output co'>#&gt; <span class='message'>Loading required package: NBPSeq</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>processing file: tempcode.Rmd</span></div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%

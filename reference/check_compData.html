@@ -120,7 +120,7 @@
     <p>Check the validity of a <code>compData</code> object. An object that passes the check can be used as the input for the differential expression analysis methods interfaced by <code>compcodeR</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>check_compData</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>check_compData</span>(<span class='kw'>object</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -131,11 +131,14 @@
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>mydata</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-                                <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>100</span>)
-<span class='fu'>check_compData</span>(<span class='no'>mydata</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>mydata</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
+                                samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>)
+<span class='fu'>check_compData</span>(<span class='kw'>mydata</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

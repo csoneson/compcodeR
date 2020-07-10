@@ -117,19 +117,19 @@
     </div>
 
     <div class="ref-description">
-    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the DESeq2 package. The code is written to a <code>.Rmd</code> file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code><a href='runDiffExp.html'>runDiffExp</a></code> function.</p>
+    <p>A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the DESeq2 package. The code is written to a <code>.Rmd</code> file. This function is generally not called by the user, the main interface for performing differential expression analysis is the <code>runDiffExp</code> function.</p>
     </div>
 
     <pre class="usage"><span class='fu'>DESeq2.createRmd</span>(
-  <span class='no'>data.path</span>,
-  <span class='no'>result.path</span>,
-  <span class='no'>codefile</span>,
-  <span class='no'>fit.type</span>,
-  <span class='no'>test</span>,
-  <span class='kw'>beta.prior</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>independent.filtering</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>cooks.cutoff</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>impute.outliers</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+  <span class='kw'>data.path</span>,
+  <span class='kw'>result.path</span>,
+  <span class='kw'>codefile</span>,
+  <span class='kw'>fit.type</span>,
+  <span class='kw'>test</span>,
+  beta.prior = <span class='fl'>TRUE</span>,
+  independent.filtering = <span class='fl'>TRUE</span>,
+  cooks.cutoff = <span class='fl'>TRUE</span>,
+  impute.outliers = <span class='fl'>TRUE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -182,18 +182,21 @@
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Anders S and Huber W (2010): Differential expression analysis for sequence count data. Genome Biology 11:R106</p>
+    <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
+
+    <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/try.html'>try</a></span>(
-<span class='kw'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='no'>DESeq2</span>)) {
-<span class='no'>tmpdir</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), <span class='kw'>winslash</span> <span class='kw'>=</span> <span class='st'>"/"</span>)
-<span class='no'>mydata.obj</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span>(<span class='kw'>dataset</span> <span class='kw'>=</span> <span class='st'>"mydata"</span>, <span class='kw'>n.vars</span> <span class='kw'>=</span> <span class='fl'>1000</span>,
-                                    <span class='kw'>samples.per.cond</span> <span class='kw'>=</span> <span class='fl'>5</span>, <span class='kw'>n.diffexp</span> <span class='kw'>=</span> <span class='fl'>100</span>,
-                                    <span class='kw'>output.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
-<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span>(<span class='kw'>data.file</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='no'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), <span class='kw'>result.extent</span> <span class='kw'>=</span> <span class='st'>"DESeq2"</span>,
-           <span class='kw'>Rmdfunction</span> <span class='kw'>=</span> <span class='st'>"DESeq2.createRmd"</span>,
-           <span class='kw'>output.directory</span> <span class='kw'>=</span> <span class='no'>tmpdir</span>, <span class='kw'>fit.type</span> <span class='kw'>=</span> <span class='st'>"parametric"</span>,
-           <span class='kw'>test</span> <span class='kw'>=</span> <span class='st'>"Wald"</span>)
+<span class='co'>if</span> (<span class='fu'><a href='https://rdrr.io/r/base/library.html'>require</a></span>(<span class='kw'><a href='https://github.com/mikelove/DESeq2'>DESeq2</a></span>)) {
+<span class='kw'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), winslash = <span class='st'>"/"</span>)
+<span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
+                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>, 
+                                    output.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
+<span class='fu'>runDiffExp</span>(data.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), result.extent = <span class='st'>"DESeq2"</span>, 
+           Rmdfunction = <span class='st'>"DESeq2.createRmd"</span>, 
+           output.directory = <span class='kw'>tmpdir</span>, fit.type = <span class='st'>"parametric"</span>,
+           test = <span class='st'>"Wald"</span>)
 })</div><div class='output co'>#&gt; <span class='message'>Loading required package: DESeq2</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: S4Vectors</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: stats4</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: BiocGenerics</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: parallel</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘BiocGenerics’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:parallel’:</span>
 #&gt; <span class='message'></span>
@@ -208,14 +211,17 @@
 #&gt; <span class='message'>    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,</span>
 #&gt; <span class='message'>    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,</span>
 #&gt; <span class='message'>    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,</span>
-#&gt; <span class='message'>    union, unique, unsplit, which, which.max, which.min</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>    union, unique, unsplit, which.max, which.min</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘S4Vectors’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:base’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    expand.grid</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: IRanges</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomicRanges</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: GenomeInfoDb</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: SummarizedExperiment</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Biobase</span></div><div class='output co'>#&gt; <span class='message'>Welcome to Bioconductor</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    Vignettes contain introductory material; view with</span>
 #&gt; <span class='message'>    'browseVignettes()'. To cite Bioconductor, see</span>
-#&gt; <span class='message'>    'citation("Biobase")', and for packages 'citation("pkgname")'.</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: DelayedArray</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: matrixStats</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>    'citation("Biobase")', and for packages 'citation("pkgname")'.</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: DelayedArray</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: Matrix</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: ‘Matrix’</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from ‘package:S4Vectors’:</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    expand</span></div><div class='output co'>#&gt; <span class='message'>Loading required package: matrixStats</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: ‘matrixStats’</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from ‘package:Biobase’:</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    anyMissing, rowMedians</span></div><div class='output co'>#&gt; <span class='message'></span>
