@@ -1,5 +1,5 @@
 ### Summary of synthetic data set
-Data set from file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpkE6P0J/mydata.rds
+Data set from file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpoeYVBh/mydata.rds
 
 ```
 $n.diffexp
@@ -59,8 +59,8 @@ $maxfact
 
 
 ### MA plot, colored by true differential expression status
-![plot of chunk maplot-trueDEstatus](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpkE6P0J/compcodeR_check_figure/maplot-trueDEstatus-1.png)
+![plot of chunk maplot-trueDEstatus](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpoeYVBh/compcodeR_check_figure/maplot-trueDEstatus-1.png)
 ### MA plot, colored by total number of outliers
-![plot of chunk maplot-nbroutliers](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpkE6P0J/compcodeR_check_figure/maplot-nbroutliers-1.png)
+![plot of chunk maplot-nbroutliers](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpoeYVBh/compcodeR_check_figure/maplot-nbroutliers-1.png)
 ### True log2-fold change vs estimated log2-fold change (M-value)
-![plot of chunk logfoldchanges](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpkE6P0J/compcodeR_check_figure/logfoldchanges-1.png)
+![plot of chunk logfoldchanges](/private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpoeYVBh/compcodeR_check_figure/logfoldchanges-1.png)
