@@ -791,6 +791,109 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
   close(codefile)
 }
 
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with sqrtTPM+limma
+#' 
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the sqrt(TPM) transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' 
+#' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+#' 
+#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param result.path The path to the file where the result object will be saved.
+#' @param codefile The path to the file where the code will be written.
+#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+#'
+#' @details 
+#' The \code{length.matrix} field of the \code{compData} object 
+#' is used to normalize the counts, by computing the square root of the TPM.
+#' 
+#' @export 
+#' @author Charlotte Soneson
+#' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
+#' @references 
+#' Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
+#'
+#' Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604. 
+#' 
+#' @examples
+#' try(
+#' if (require(limma)) {
+#' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#'                                     id.species = factor(1:10),
+#'                                     lengths.relmeans = rpois(1000, 1000),
+#'                                     lengths.dispersions = rgamma(1000, 1, 1),
+#'                                     output.file = file.path(tmpdir, "mydata.rds"))
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "sqrtTPM.limma", 
+#'            Rmdfunction = "sqrtTPM.limma.createRmd", 
+#'            output.directory = tmpdir, norm.method = "TMM")
+#' })
+#' 
+sqrtTPM.limma.createRmd <- function(data.path, result.path, codefile, norm.method, extraDesignFactors = NULL) {
+  codefile <- file(codefile, open = 'w')
+  writeLines("### sqrt(TPM) + limma", codefile)
+  writeLines(paste("Data file: ", data.path, sep = ''), codefile)
+  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+               "require(limma)", 
+               "require(edgeR)",
+               paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
+  if (is.list(readRDS(data.path))) {
+    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+  }
+  writeLines(c("is.valid <- check_compData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+             codefile)
+  
+  writeLines(c("", "# Design"),codefile)
+  if (is.null(extraDesignFactors)) {
+    writeLines(c(
+      "design_formula <- as.formula(~ condition)",
+      "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
+      codefile)
+  } else {
+    writeLines(c(
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      codefile)
+  }
+  writeLines(c(
+    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design <- model.matrix(design_formula, design_data)"),
+    codefile)
+  
+  writeLines(c("", "# Normalisation and fit"),
+             codefile)
+  
+  
+  writeLines(c("countsLengths <- count.matrix(cdata) / length.matrix(cdata)",
+               paste("nf <- edgeR::calcNormFactors(countsLengths, method = '", norm.method, "')", sep = ''),
+               "lib.size <- colSums(countsLengths) * nf",
+               "sqrtTPM.data <- t(sqrt(t(countsLengths)/lib.size))"),
+             codefile)
+  writeLines(c("rownames(sqrtTPM.data) <- rownames(count.matrix(cdata))", 
+               "sqrtTPM.fitlimma <- limma::lmFit(sqrtTPM.data, design = design)", 
+               "sqrtTPM.fitbayes <- limma::eBayes(sqrtTPM.fitlimma)", 
+               "sqrtTPM.pvalues <- sqrtTPM.fitbayes$p.value[, ncol(sqrtTPM.fitbayes$p.value)]", 
+               "sqrtTPM.adjpvalues <- p.adjust(sqrtTPM.pvalues, method = 'BH')", 
+               "sqrtTPM.logFC <- sqrtTPM.fitbayes$coefficients[, ncol(sqrtTPM.fitbayes$coefficients)]", 
+               "sqrtTPM.score <- 1 - sqrtTPM.pvalues", 
+               "result.table <- data.frame('pvalue' = sqrtTPM.pvalues, 'adjpvalue' = sqrtTPM.adjpvalues, 'logFC' = sqrtTPM.logFC, 'score' = sqrtTPM.score)",
+               "rownames(result.table) <- rownames(count.matrix(cdata))", 
+               "result.table(cdata) <- result.table",
+               "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
+               "analysis.date(cdata) <- date()",
+               paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
+                     paste('sqrtTPM.', packageVersion('limma'), '.limma.', norm.method, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."), sep = ''), "')", sep = ''),
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
+  writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
+  writeLines("sessionInfo()", codefile)
+  writeLines("```", codefile)
+  close(codefile)
+}
+
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with baySeq
 #' 
 #' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the \code{baySeq} package. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
