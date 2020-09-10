@@ -60,8 +60,7 @@ Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, RNASeq, DifferentialExpression
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 URL: https://github.com/csoneson/compcodeR
 BugReports: https://github.com/csoneson/compcodeR/issues
 Encoding: UTF-8
-
