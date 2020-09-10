@@ -753,7 +753,7 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                codefile)
   } else if (lengthNormalization == "TPM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "voom.data <- limma::voom(count.matrix(cdata) / length.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata) / length.matrix(cdata)) * nf)"), 
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata) / length.matrix(cdata)) * nf * t(length.matrix(cdata)))"), 
                codefile)
   } else if (lengthNormalization == "RPKM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
