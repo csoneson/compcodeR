@@ -34,7 +34,7 @@ phylolm.createRmd(
 
 \item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 
-\item{dataTransformation}{one of "log2", "sqrt" or "VST". Data transformation to apply to the normalized data. VST stands for "Variance Stabilizing Transformation", in which case function \code{\link[DESeq2]{varianceStabilizingTransformation}} is from package \code{DESeq2} is applied to the normalized data.}
+\item{dataTransformation}{one of "log2", "log2+1", sqrt" or "VST". Data transformation to apply to the normalized data. VST stands for "Variance Stabilizing Transformation", in which case function \code{\link[DESeq2]{varianceStabilizingTransformation}} is from package \code{DESeq2} is applied to the normalized data.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.}
 }

@@ -460,7 +460,7 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
-#' @param dataTransformation one of "log2", "sqrt" or "VST". Data transformation to apply to the normalized data. VST stands for "Variance Stabilizing Transformation", in which case function \code{\link[DESeq2]{varianceStabilizingTransformation}} is from package \code{DESeq2} is applied to the normalized data.
+#' @param dataTransformation one of "log2", "log2+1", sqrt" or "VST". Data transformation to apply to the normalized data. VST stands for "Variance Stabilizing Transformation", in which case function \code{\link[DESeq2]{varianceStabilizingTransformation}} is from package \code{DESeq2} is applied to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
 #' 
 #' @details 
@@ -543,7 +543,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     codefile)
   writeLines(c("", "# Normalisation"),codefile)
   lengthNormalization <- match.arg(lengthNormalization, c("RPKM", "TPM", "none", "gwRPKM"))
-  dataTransformation <- match.arg(dataTransformation, c("log2", "sqrt", "VST"))
+  dataTransformation <- match.arg(dataTransformation, c("log2", "log2+1", "sqrt", "VST"))
   if (lengthNormalization == "none" || lengthNormalization == "asPredictor") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf"),
@@ -553,6 +553,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     } else {
       writeLines("data.norm <- sweep(count.matrix(cdata), 2, lib.size, '/')", codefile)
     }
+    writeLines("data.norm <- data.norm * 1e6", codefile)
   } else if (lengthNormalization == "TPM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata) / length.matrix(cdata)) * nf"),
@@ -562,6 +563,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     } else {
       writeLines("data.norm <- sweep((count.matrix(cdata)) / length.matrix(cdata), 2, lib.size, '/')", codefile)
     }
+    writeLines("data.norm <- data.norm * 1e6", codefile)
   } else if (lengthNormalization == "RPKM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf"),
@@ -571,11 +573,13 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     } else {
       writeLines("data.norm <- sweep((count.matrix(cdata)) / length.matrix(cdata), 2, lib.size, '/')", codefile)
     }
+    writeLines("data.norm <- data.norm * 1e9", codefile)
   } else if (lengthNormalization == "gwRPKM") {
     if (dataTransformation != "log2") stop("gwRPKM normalisation is only available for the log2 transformation.")
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf",
                  "data.norm.none <- sweep(count.matrix(cdata) + 0.5, 2, lib.size + 1, '/')",
+                 "data.norm.none <- data.norm.none * 1e9",
                  "get_gwRPKM <- function(i) {",
                  "    fitLength <- lm(log2(data.norm.none[i, ]) ~ log2(length.matrix(cdata)[i, ]))",
                  "    if (is.na(fitLength$coefficients[2])) return(log2(data.norm.none[i, ])) ## All lengths are the same",
@@ -588,6 +592,8 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     writeLines(c("", "# Transformation"),codefile)
     if (dataTransformation == "log2") {
       writeLines("data.trans <- log2(data.norm)", codefile)
+    } else if (dataTransformation == "log2+1") {
+      writeLines("data.trans <- log2(data.norm + 1)", codefile)
     } else if (dataTransformation == "sqrt") {
       writeLines("data.trans <- sqrt(data.norm)", codefile)
     } else if (dataTransformation == "VST") {
