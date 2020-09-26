@@ -46,14 +46,6 @@ runDiffExp(data.file = "mydata.rds", result.extent = "baySeq",
            Rmdfunction = "baySeq.createRmd",
            output.directory = ".", norm.method = "edgeR", 
            equaldisp = TRUE)
-runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.GLM", 
-           Rmdfunction = "DESeq.GLM.createRmd",
-           output.directory = ".", sharing.mode = "maximum", 
-           disp.method = "pooled", fit.type = "parametric")
-runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.nbinom", 
-           Rmdfunction = "DESeq.nbinom.createRmd",
-           output.directory = ".", sharing.mode = "maximum", 
-           disp.method = "pooled", fit.type = "parametric")
 runDiffExp(data.file = "mydata.rds", result.extent = "DESeq2", 
            Rmdfunction = "DESeq2.createRmd",
            output.directory = ".", fit.type = "parametric", 

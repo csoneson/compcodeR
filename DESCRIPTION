@@ -37,7 +37,6 @@ Imports:
 Suggests:
     BiocStyle,
     EBSeq,
-    DESeq,
     DESeq2 (>= 1.1.31),
     baySeq (>= 2.2.0),
     genefilter,
@@ -49,6 +48,7 @@ Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, RNASeq, DifferentialExpression
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 URL: https://github.com/csoneson/compcodeR
 BugReports: https://github.com/csoneson/compcodeR/issues
+Encoding: UTF-8
