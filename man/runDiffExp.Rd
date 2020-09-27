@@ -39,9 +39,9 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.li
            Rmdfunction = "voom.limma.createRmd", 
            output.directory = tmpdir, norm.method = "TMM")
 
-\dontrun{
+if (interactive()) {
 ## The following list covers the currently available 
-differential expression methods:
+## differential expression methods:
 runDiffExp(data.file = "mydata.rds", result.extent = "baySeq", 
            Rmdfunction = "baySeq.createRmd",
            output.directory = ".", norm.method = "edgeR", 
@@ -95,12 +95,6 @@ runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma",
 runDiffExp(data.file = "mydata.rds", result.extent = "voom.ttest", 
            Rmdfunction = "voom.ttest.createRmd",
            output.directory = ".", norm.method = "TMM")
-runDiffExp(data.file = "mydata.rds", result.extent = "vst.limma", 
-           Rmdfunction = "vst.limma.createRmd",
-           output.directory = ".", fit.type = "parametric")
-runDiffExp(data.file = "mydata.rds", result.extent = "vst.ttest", 
-           Rmdfunction = "vst.ttest.createRmd",
-           output.directory = ".", fit.type = "parametric")
 }
 }
 \author{

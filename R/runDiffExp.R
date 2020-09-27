@@ -1,5 +1,5 @@
 checkClass <- function(object, objname, trueclass) {
-  if (!(class(object) == trueclass)) {
+  if (!(is(object, trueclass))) {
     stop(paste("The object", objname, "should be of class", trueclass))
   }
 }
@@ -27,9 +27,9 @@ checkClass <- function(object, objname, trueclass) {
 #'            Rmdfunction = "voom.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' 
-#' \dontrun{
+#' if (interactive()) {
 #' ## The following list covers the currently available 
-#' differential expression methods:
+#' ## differential expression methods:
 #' runDiffExp(data.file = "mydata.rds", result.extent = "baySeq", 
 #'            Rmdfunction = "baySeq.createRmd",
 #'            output.directory = ".", norm.method = "edgeR", 
@@ -83,14 +83,9 @@ checkClass <- function(object, objname, trueclass) {
 #' runDiffExp(data.file = "mydata.rds", result.extent = "voom.ttest", 
 #'            Rmdfunction = "voom.ttest.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "vst.limma", 
-#'            Rmdfunction = "vst.limma.createRmd",
-#'            output.directory = ".", fit.type = "parametric")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "vst.ttest", 
-#'            Rmdfunction = "vst.ttest.createRmd",
-#'            output.directory = ".", fit.type = "parametric")
 #' }
-runDiffExp <- function(data.file, result.extent, Rmdfunction, output.directory = ".", norm.path = TRUE, ...) {
+runDiffExp <- function(data.file, result.extent, Rmdfunction, 
+                       output.directory = ".", norm.path = TRUE, ...) {
   code.file <- "tempcode.Rmd"
   checkClass(data.file, "data.file", "character")
   checkClass(result.extent, "result.extent", "character")

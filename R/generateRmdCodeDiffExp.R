@@ -6,7 +6,7 @@
 #' @examples
 #' listcreateRmd()
 listcreateRmd <- function() {
-  s <- unlist(sapply(search(), ls, all.names = TRUE))
+  s <- unlist(lapply(search(), ls, all.names = TRUE))
   print(unname(s[grep("\\.createRmd$", s)]))
 }
 
