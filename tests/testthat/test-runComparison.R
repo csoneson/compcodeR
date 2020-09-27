@@ -57,17 +57,17 @@ test_that("compData object checks work", {
   tmp2 <- tmp; expect_error({info.parameters(tmp2) <- 1:3})
   
   expect_equal(check_compData(tmp), TRUE)
-  expect_equal(check_compData(tmp@count.matrix), "This is not an S4 object.")
-  tmp2 <- tmp; tmp2@count.matrix <- as.matrix(numeric(0)); expect_equal(check_compData(tmp2), "Object must contain a non-empty count matrix.")
-  tmp2 <- tmp; tmp2@sample.annotations <- as.data.frame(NULL); expect_equal(check_compData(tmp2), "Object must contain a non-empty sample annotation data frame.")
-  tmp2 <- tmp; tmp2@sample.annotations <- data.frame(condition = numeric(0)); expect_equal(check_compData(tmp2), "The sample.annotations must contain a column named condition.")
-  tmp2 <- tmp; tmp2@info.parameters <- list(); expect_equal(check_compData(tmp2), "Object must contain a non-empty list called info.parameters.")
-  tmp2 <- tmp; tmp2@info.parameters <- list(tmp = 1); expect_equal(check_compData(tmp2), "info.parameters list must contain an entry named 'dataset'.")
-  tmp2 <- tmp; tmp2@info.parameters <- list(dataset = ""); expect_equal(check_compData(tmp2), "info.parameters list must contain an entry named 'uID'.")
-  tmp2 <- tmp; tmp2@count.matrix <- tmp2@count.matrix[1:10, ]; expect_equal(check_compData(tmp2), "count.matrix and variable.annotations do not contain the same number of rows.")
-  tmp2 <- tmp; rownames(tmp2@count.matrix) <- paste0("r", rownames(tmp2@count.matrix)); expect_equal(check_compData(tmp2), "The rownames of count.matrix and variable.annotations are not the same.")
-  tmp2 <- tmp; tmp2@count.matrix <- tmp2@count.matrix[, 1:2]; expect_equal(check_compData(tmp2), "The number of columns of count.matrix is different from the number of rows of sample.annotations.")
-  tmp2 <- tmp; colnames(tmp2@count.matrix) <- paste0("r", colnames(tmp2@count.matrix)); expect_equal(check_compData(tmp2), "The colnames of count.matrix are different from the rownames of sample.annotations.")
+  expect_equal(check_compData(count.matrix(tmp)), "This is not an S4 object.")
+  tmp2 <- tmp; count.matrix(tmp2) <- as.matrix(numeric(0)); expect_equal(check_compData(tmp2), "Object must contain a non-empty count matrix.")
+  tmp2 <- tmp; sample.annotations(tmp2) <- as.data.frame(NULL); expect_equal(check_compData(tmp2), "Object must contain a non-empty sample annotation data frame.")
+  tmp2 <- tmp; sample.annotations(tmp2) <- data.frame(condition = numeric(0)); expect_equal(check_compData(tmp2), "The sample.annotations must contain a column named condition.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(); expect_equal(check_compData(tmp2), "Object must contain a non-empty list called info.parameters.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(tmp = 1); expect_equal(check_compData(tmp2), "info.parameters list must contain an entry named 'dataset'.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(dataset = ""); expect_equal(check_compData(tmp2), "info.parameters list must contain an entry named 'uID'.")
+  tmp2 <- tmp; count.matrix(tmp2) <- count.matrix(tmp2)[1:10, ]; expect_equal(check_compData(tmp2), "count.matrix and variable.annotations do not contain the same number of rows.")
+  tmp2 <- tmp; rownames(count.matrix(tmp2)) <- paste0("r", rownames(count.matrix(tmp2))); expect_equal(check_compData(tmp2), "The rownames of count.matrix and variable.annotations are not the same.")
+  tmp2 <- tmp; count.matrix(tmp2) <- count.matrix(tmp2)[, 1:2]; expect_equal(check_compData(tmp2), "The number of columns of count.matrix is different from the number of rows of sample.annotations.")
+  tmp2 <- tmp; colnames(count.matrix(tmp2)) <- paste0("r", colnames(count.matrix(tmp2))); expect_equal(check_compData(tmp2), "The colnames of count.matrix are different from the rownames of sample.annotations.")
   
   expect_equal(check_compData_results(tmp), "Object must contain a list named 'method.names' identifying the differential expression method used.")
 })
@@ -82,22 +82,22 @@ test_that("generateSyntheticData works", {
     output.file = NULL
   )
   expect_is(tmp, "compData")
-  expect_equal(tmp@variable.annotations$truedispersions.S1, 
-               tmp@variable.annotations$truedispersions.S2)
-  expect_equal(tmp@variable.annotations$truemeans.S1,
-               tmp@variable.annotations$truemeans.S2)
-  expect_equal(sum(tmp@variable.annotations$n.random.outliers.up.S1 + 
-                     tmp@variable.annotations$n.random.outliers.up.S2 + 
-                     tmp@variable.annotations$n.random.outliers.down.S1 + 
-                     tmp@variable.annotations$n.random.outliers.down.S2 + 
-                     tmp@variable.annotations$n.single.outliers.up.S1 + 
-                     tmp@variable.annotations$n.single.outliers.up.S2 + 
-                     tmp@variable.annotations$n.single.outliers.down.S1 + 
-                     tmp@variable.annotations$n.single.outliers.down.S2), 0)
-  expect_equal(sum(abs(tmp@variable.annotations$truelog2foldchanges)), 0)
-  expect_equal(sum(tmp@variable.annotations$upregulation + 
-                     tmp@variable.annotations$downregulation + 
-                     tmp@variable.annotations$differential.expression), 0)
+  expect_equal(variable.annotations(tmp)$truedispersions.S1, 
+               variable.annotations(tmp)$truedispersions.S2)
+  expect_equal(variable.annotations(tmp)$truemeans.S1,
+               variable.annotations(tmp)$truemeans.S2)
+  expect_equal(sum(variable.annotations(tmp)$n.random.outliers.up.S1 + 
+                     variable.annotations(tmp)$n.random.outliers.up.S2 + 
+                     variable.annotations(tmp)$n.random.outliers.down.S1 + 
+                     variable.annotations(tmp)$n.random.outliers.down.S2 + 
+                     variable.annotations(tmp)$n.single.outliers.up.S1 + 
+                     variable.annotations(tmp)$n.single.outliers.up.S2 + 
+                     variable.annotations(tmp)$n.single.outliers.down.S1 + 
+                     variable.annotations(tmp)$n.single.outliers.down.S2), 0)
+  expect_equal(sum(abs(variable.annotations(tmp)$truelog2foldchanges)), 0)
+  expect_equal(sum(variable.annotations(tmp)$upregulation + 
+                     variable.annotations(tmp)$downregulation + 
+                     variable.annotations(tmp)$differential.expression), 0)
                
   ## Specify effect sizes individually
   tmp <- generateSyntheticData(
@@ -107,27 +107,27 @@ test_that("generateSyntheticData works", {
     output.file = NULL
   )
   expect_is(tmp, "compData")
-  expect_equal(tmp@variable.annotations$truedispersions.S1, 
-               tmp@variable.annotations$truedispersions.S2)
-  expect_equal(tmp@variable.annotations$truemeans.S1[-(1:10)],
-               tmp@variable.annotations$truemeans.S2[-(1:10)])
-  expect_equal(sum(tmp@variable.annotations$n.random.outliers.up.S1 + 
-                     tmp@variable.annotations$n.random.outliers.up.S2 + 
-                     tmp@variable.annotations$n.random.outliers.down.S1 + 
-                     tmp@variable.annotations$n.random.outliers.down.S2 + 
-                     tmp@variable.annotations$n.single.outliers.up.S1 + 
-                     tmp@variable.annotations$n.single.outliers.up.S2 + 
-                     tmp@variable.annotations$n.single.outliers.down.S1 + 
-                     tmp@variable.annotations$n.single.outliers.down.S2), 0)
-  expect_equal(sum(abs(tmp@variable.annotations$truelog2foldchanges[-(1:10)])), 0)
-  expect_equal(sign(tmp@variable.annotations$truelog2foldchanges),
+  expect_equal(variable.annotations(tmp)$truedispersions.S1, 
+               variable.annotations(tmp)$truedispersions.S2)
+  expect_equal(variable.annotations(tmp)$truemeans.S1[-(1:10)],
+               variable.annotations(tmp)$truemeans.S2[-(1:10)])
+  expect_equal(sum(variable.annotations(tmp)$n.random.outliers.up.S1 + 
+                     variable.annotations(tmp)$n.random.outliers.up.S2 + 
+                     variable.annotations(tmp)$n.random.outliers.down.S1 + 
+                     variable.annotations(tmp)$n.random.outliers.down.S2 + 
+                     variable.annotations(tmp)$n.single.outliers.up.S1 + 
+                     variable.annotations(tmp)$n.single.outliers.up.S2 + 
+                     variable.annotations(tmp)$n.single.outliers.down.S1 + 
+                     variable.annotations(tmp)$n.single.outliers.down.S2), 0)
+  expect_equal(sum(abs(variable.annotations(tmp)$truelog2foldchanges[-(1:10)])), 0)
+  expect_equal(sign(variable.annotations(tmp)$truelog2foldchanges),
                c(rep(1, 5), rep(-1, 5), rep(0, 40)))
-  expect_equal(tmp@variable.annotations$upregulation, 
+  expect_equal(variable.annotations(tmp)$upregulation, 
                c(rep(1, 5), rep(0, 45)))
-  expect_equal(tmp@variable.annotations$downregulation, 
+  expect_equal(variable.annotations(tmp)$downregulation, 
                c(rep(0, 5), rep(1, 5), rep(0, 40)))
-  expect_equal(sum(tmp@variable.annotations$upregulation + 
-                     tmp@variable.annotations$downregulation), 10)
+  expect_equal(sum(variable.annotations(tmp)$upregulation + 
+                     variable.annotations(tmp)$downregulation), 10)
   
   
   ## Different dispersions between groups
@@ -138,15 +138,15 @@ test_that("generateSyntheticData works", {
     output.file = NULL
   )
   expect_is(tmp, "compData")
-  expect_equal(sign(abs(tmp@variable.annotations$truedispersions.S1 -  
-                        tmp@variable.annotations$truedispersions.S2)),
-               rep(1, 50))
-  expect_equal(tmp@variable.annotations$upregulation, 
+  expect_equal(any(variable.annotations(tmp)$truedispersions.S1 !=  
+                     variable.annotations(tmp)$truedispersions.S2),
+               TRUE)
+  expect_equal(variable.annotations(tmp)$upregulation, 
                c(rep(1, 10), rep(0, 40)))
-  expect_equal(tmp@variable.annotations$downregulation, 
+  expect_equal(variable.annotations(tmp)$downregulation, 
                rep(0, 50))
-  expect_equal(sum(tmp@variable.annotations$upregulation + 
-                     tmp@variable.annotations$downregulation), 10)
+  expect_equal(sum(variable.annotations(tmp)$upregulation + 
+                     variable.annotations(tmp)$downregulation), 10)
   
   ## Not overdispersed
   tmp <- generateSyntheticData(
@@ -157,10 +157,10 @@ test_that("generateSyntheticData works", {
     output.file = NULL
   )
   expect_is(tmp, "compData")
-  expect_equal(tmp@variable.annotations$truedispersions.S1,  
-               tmp@variable.annotations$truedispersions.S2)
-  expect_equal(any(tmp@variable.annotations$truedispersions.S1 == 0), TRUE)
-  expect_equal(tmp@info.parameters$fraction.non.overdispersed, 0.5)
+  expect_equal(variable.annotations(tmp)$truedispersions.S1,  
+               variable.annotations(tmp)$truedispersions.S2)
+  expect_equal(any(variable.annotations(tmp)$truedispersions.S1 == 0), TRUE)
+  expect_equal(info.parameters(tmp)$fraction.non.overdispersed, 0.5)
 
   ## Outliers
   set.seed(1)
@@ -173,14 +173,14 @@ test_that("generateSyntheticData works", {
     single.outlier.low.prob = 0.1,
     output.file = NULL
   )
-  expect_equal(any(tmp@variable.annotations$n.random.outliers.up.S1 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.random.outliers.up.S2 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.random.outliers.down.S1 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.random.outliers.down.S2 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.single.outliers.up.S1 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.single.outliers.up.S2 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.single.outliers.down.S1 > 0), TRUE)
-  expect_equal(any(tmp@variable.annotations$n.single.outliers.down.S2 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.random.outliers.up.S1 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.random.outliers.up.S2 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.random.outliers.down.S1 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.random.outliers.down.S2 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.single.outliers.up.S1 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.single.outliers.up.S2 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.single.outliers.down.S1 > 0), TRUE)
+  expect_equal(any(variable.annotations(tmp)$n.single.outliers.down.S2 > 0), TRUE)
   
   ## Summary report
   expect_error(summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp.rds")),
@@ -199,21 +199,21 @@ test_that("help functions work", {
   )
   
   expect_error(
-    computeMval(tmp@count.matrix, c(3, tmp@sample.annotations$condition[-1])),
+    computeMval(count.matrix(tmp), c(3, sample.annotations(tmp)$condition[-1])),
     "Must have exactly two groups to calculate M-value"
   )
   expect_error(
-    computeAval(tmp@count.matrix, c(3, tmp@sample.annotations$condition[-1])),
+    computeAval(count.matrix(tmp), c(3, sample.annotations(tmp)$condition[-1])),
     "Must have exactly two groups to calculate A-value"
   )
   
-  mval <- computeMval(tmp@count.matrix, tmp@sample.annotations$condition)
-  aval <- computeAval(tmp@count.matrix, tmp@sample.annotations$condition)
+  mval <- computeMval(count.matrix(tmp), sample.annotaations(tmp)$condition)
+  aval <- computeAval(count.matrix(tmp), sample.annotations(tmp)$condition)
   
   expect_is(mval, "numeric")
   expect_is(aval, "numeric")
-  expect_equal(length(mval), nrow(tmp@count.matrix))
-  expect_equal(length(aval), nrow(tmp@count.matrix))
+  expect_equal(length(mval), nrow(count.matrix(tmp)))
+  expect_equal(length(aval), nrow(count.matrix(tmp)))
 })
 
 test_that("runDiffExp works", {
@@ -237,40 +237,40 @@ test_that("runDiffExp works", {
   
   tmp <- readRDS(file.path(tdir, "B_625_625_5spc_repl1.rds"))
   expect_is(tmp, "compData")
-  expect_is(tmp@count.matrix, "matrix")
-  expect_equal(nrow(tmp@count.matrix), 500)
-  expect_equal(ncol(tmp@count.matrix), 10)
-  expect_is(tmp@sample.annotations, "data.frame")
-  expect_equal(nrow(tmp@sample.annotations), 10)
-  expect_equal(ncol(tmp@sample.annotations), 2)
-  expect_is(tmp@variable.annotations, "data.frame")
-  expect_equal(nrow(tmp@variable.annotations), 500)
-  expect_equal(ncol(tmp@variable.annotations), 18)
-  expect_is(tmp@info.parameters, "list")
-  expect_equal(tmp@info.parameters$n.diffexp, 50)
-  expect_equal(tmp@info.parameters$dataset, "B_625_625")
-  expect_equal(tmp@info.parameters$fraction.upregulated, 0.5)
-  expect_equal(tmp@info.parameters$between.group.diffdisp, FALSE)
-  expect_equal(tmp@info.parameters$filter.threshold.total, 1)
-  expect_equal(tmp@info.parameters$filter.threshold.mediancpm, 0)
-  expect_equal(tmp@info.parameters$fraction.non.overdispersed, 0)
-  expect_equal(tmp@info.parameters$random.outlier.high.prob, 0)
-  expect_equal(tmp@info.parameters$random.outlier.low.prob, 0)
-  expect_equal(tmp@info.parameters$single.outlier.high.prob, 0)
-  expect_equal(tmp@info.parameters$single.outlier.low.prob, 0)
-  expect_equal(tmp@info.parameters$effect.size, 1.5)
-  expect_equal(tmp@info.parameters$samples.per.cond, 5)
-  expect_equal(tmp@info.parameters$repl.id, 1)
-  expect_equal(tmp@info.parameters$seqdepth, 1e5)
-  expect_equal(tmp@info.parameters$minfact, 0.7)
-  expect_equal(tmp@info.parameters$maxfact, 1.4)
-  expect_equal(tmp@filtering, "total count >= 1 ;  median cpm >= 0")
-  expect_is(tmp@analysis.date, "character")
-  expect_equal(tmp@analysis.date, "")
-  expect_is(tmp@package.version, "character")
-  expect_equal(tmp@package.version, "")
-  expect_is(tmp@method.names, "list")
-  expect_equal(tmp@method.names, list())
+  expect_is(count.matrix(tmp), "matrix")
+  expect_equal(nrow(count.matrix(tmp)), 500)
+  expect_equal(ncol(count.matrix(tmp)), 10)
+  expect_is(sample.annotations(tmp), "data.frame")
+  expect_equal(nrow(sample.annotations(tmp)), 10)
+  expect_equal(ncol(sample.annotations(tmp)), 2)
+  expect_is(variable.annotations(tmp), "data.frame")
+  expect_equal(nrow(variable.annotations(tmp)), 500)
+  expect_equal(ncol(variable.annotations(tmp)), 18)
+  expect_is(info.parameters(tmp), "list")
+  expect_equal(info.parameters(tmp)$n.diffexp, 50)
+  expect_equal(info.parameters(tmp)$dataset, "B_625_625")
+  expect_equal(info.parameters(tmp)$fraction.upregulated, 0.5)
+  expect_equal(info.parameters(tmp)$between.group.diffdisp, FALSE)
+  expect_equal(info.parameters(tmp)$filter.threshold.total, 1)
+  expect_equal(info.parameters(tmp)$filter.threshold.mediancpm, 0)
+  expect_equal(info.parameters(tmp)$fraction.non.overdispersed, 0)
+  expect_equal(info.parameters(tmp)$random.outlier.high.prob, 0)
+  expect_equal(info.parameters(tmp)$random.outlier.low.prob, 0)
+  expect_equal(info.parameters(tmp)$single.outlier.high.prob, 0)
+  expect_equal(info.parameters(tmp)$single.outlier.low.prob, 0)
+  expect_equal(info.parameters(tmp)$effect.size, 1.5)
+  expect_equal(info.parameters(tmp)$samples.per.cond, 5)
+  expect_equal(info.parameters(tmp)$repl.id, 1)
+  expect_equal(info.parameters(tmp)$seqdepth, 1e5)
+  expect_equal(info.parameters(tmp)$minfact, 0.7)
+  expect_equal(info.parameters(tmp)$maxfact, 1.4)
+  expect_equal(filtering(tmp), "total count >= 1 ;  median cpm >= 0")
+  expect_is(analysis.date(tmp), "character")
+  expect_equal(analysis.date(tmp), "")
+  expect_is(package.version(tmp), "character")
+  expect_equal(package.version(tmp), "")
+  expect_is(method.names(tmp), "list")
+  expect_equal(method.names(tmp), list())
 
   runDiffExp(
     data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
@@ -377,13 +377,13 @@ test_that("runDiffExp works", {
     tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
     
     expect_is(tmp, "compData")
-    expect_is(tmp@result.table, "data.frame")
-    expect_equal(nrow(tmp@result.table), 500)
-    expect_is(tmp@code, "character")
-    expect_is(tmp@analysis.date, "character")
-    expect_is(tmp@package.version, "character")
-    expect_is(tmp@method.names, "list")
-    expect_named(tmp@method.names, c("short.name", "full.name"))
+    expect_is(result.table(tmp), "data.frame")
+    expect_equal(nrow(result.table(tmp)), 500)
+    expect_is(code(tmp), "character")
+    expect_is(analysis.date(tmp), "character")
+    expect_is(package.version(tmp), "character")
+    expect_is(method.names(tmp), "list")
+    expect_named(method.names(tmp), c("short.name", "full.name"))
     
     tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
     tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
@@ -398,4 +398,20 @@ test_that("runDiffExp works", {
                                                    m, "_code.html"))))
   }
 
+  ## Comparison report
+  file.table <- data.frame(input.files = file.path(tdir, paste0("B_625_625_5spc_repl1_", c("voom.limma", "voom.ttest"), ".rds")))
+  parameters <- list(incl.nbr.samples = NULL, incl.replicates = NULL, 
+                     incl.dataset = "B_625_625", incl.de.methods = NULL, 
+                     fdr.threshold = 0.05, tpr.threshold = 0.05, 
+                     typeI.threshold = 0.05, ma.threshold = 0.05, 
+                     fdc.maxvar = 1500, overlap.threshold = 0.05, 
+                     fracsign.threshold = 0.05, 
+                     comparisons = c("auc", "mcc", "fdr", "tpr", "fdrvsexpr",
+                                     "maplot", "correlation", "typeIerror", "fracsign",
+                                     "nbrsign", "nbrtpfp", "fdcurvesall",
+                                     "fdcurvesone", "rocall", "rocone", "overlap",
+                                     "sorensen", "scorevsoutlier", "scorevsexpr",
+                                     "scorevssignal"))
+  comp <- runComparison(file.table = file.table, output.directory = tdir,
+                        parameters = parameters)
 })
