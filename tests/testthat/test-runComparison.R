@@ -1,5 +1,8 @@
 test_that("runComparison works", {
   tdir <- tempdir()
+  set.seed(1)  ## note that with other seeds, the number of genes 
+               ## passing the filtering threshold could be different
+  
   testdat <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 500, 
     samples.per.cond = 5, n.diffexp = 50, 
