@@ -1,4 +1,155 @@
-test_that("runComparison works", {
+test_that("generateSyntheticData fails with wrong inputs", {
+  tdir <- tempdir()
+  
+  expect_error(generateSyntheticData(
+    dataset = "B_625_625", n.vars = 500, 
+    samples.per.cond = 5, n.diffexp = 50, 
+    output.file = file.path(tdir, "tmp.txt")
+  ), "output.file must be an .rds file.")
+  
+  expect_error(generateSyntheticData(
+    dataset = "B_625_625", n.vars = 500, 
+    samples.per.cond = 5, n.diffexp = 50, 
+    effect.size = 1:3, 
+    output.file = file.path(tdir, "tmp.rds")
+  ), "The length of the effect.size vector must be the same as the number of simulated genes.")
+  
+  expect_error(generateSyntheticData(
+    dataset = "B_625_625", n.vars = 500, 
+    samples.per.cond = 5, n.diffexp = 50, 
+    relmeans = 1:3,
+    output.file = file.path(tdir, "tmp.rds")
+  ), "The length of the relmeans vector must be the same as the number of simulated genes.")
+  
+  expect_error(generateSyntheticData(
+    dataset = "B_625_625", n.vars = 500, 
+    samples.per.cond = 5, n.diffexp = 50, 
+    dispersions = 1:3,
+    output.file = file.path(tdir, "tmp.rds")
+  ), "The number of provided dispersions must be the same as the number of simulated genes.")
+  
+})
+
+test_that("generateSyntheticData works", {
+  tdir <- tempdir()
+  
+  ## No DEGs
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 5, n.diffexp = 0, 
+    output.file = NULL
+  )
+  expect_is(tmp, "compData")
+  expect_equal(tmp@variable.annotations$truedispersions.S1, 
+               tmp@variable.annotations$truedispersions.S2)
+  expect_equal(tmp@variable.annotations$truemeans.S1,
+               tmp@variable.annotations$truemeans.S2)
+  expect_equal(sum(tmp@variable.annotations$n.random.outliers.up.S1 + 
+                     tmp@variable.annotations$n.random.outliers.up.S2 + 
+                     tmp@variable.annotations$n.random.outliers.down.S1 + 
+                     tmp@variable.annotations$n.random.outliers.down.S2 + 
+                     tmp@variable.annotations$n.single.outliers.up.S1 + 
+                     tmp@variable.annotations$n.single.outliers.up.S2 + 
+                     tmp@variable.annotations$n.single.outliers.down.S1 + 
+                     tmp@variable.annotations$n.single.outliers.down.S2), 0)
+  expect_equal(sum(abs(tmp@variable.annotations$truelog2foldchanges)), 0)
+  expect_equal(sum(tmp@variable.annotations$upregulation + 
+                     tmp@variable.annotations$downregulation + 
+                     tmp@variable.annotations$differential.expression), 0)
+               
+  ## Specify effect sizes individually
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 5, n.diffexp = 10,
+    effect.size = c(exp(abs(rnorm(5))), exp(-abs(rnorm(5))), rep(1, 40)),
+    output.file = NULL
+  )
+  expect_is(tmp, "compData")
+  expect_equal(tmp@variable.annotations$truedispersions.S1, 
+               tmp@variable.annotations$truedispersions.S2)
+  expect_equal(tmp@variable.annotations$truemeans.S1[-(1:10)],
+               tmp@variable.annotations$truemeans.S2[-(1:10)])
+  expect_equal(sum(tmp@variable.annotations$n.random.outliers.up.S1 + 
+                     tmp@variable.annotations$n.random.outliers.up.S2 + 
+                     tmp@variable.annotations$n.random.outliers.down.S1 + 
+                     tmp@variable.annotations$n.random.outliers.down.S2 + 
+                     tmp@variable.annotations$n.single.outliers.up.S1 + 
+                     tmp@variable.annotations$n.single.outliers.up.S2 + 
+                     tmp@variable.annotations$n.single.outliers.down.S1 + 
+                     tmp@variable.annotations$n.single.outliers.down.S2), 0)
+  expect_equal(sum(abs(tmp@variable.annotations$truelog2foldchanges[-(1:10)])), 0)
+  expect_equal(sign(tmp@variable.annotations$truelog2foldchanges),
+               c(rep(1, 5), rep(-1, 5), rep(0, 40)))
+  expect_equal(tmp@variable.annotations$upregulation, 
+               c(rep(1, 5), rep(0, 45)))
+  expect_equal(tmp@variable.annotations$downregulation, 
+               c(rep(0, 5), rep(1, 5), rep(0, 40)))
+  expect_equal(sum(tmp@variable.annotations$upregulation + 
+                     tmp@variable.annotations$downregulation), 10)
+  
+  
+  ## Different dispersions between groups
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 5, n.diffexp = 10,
+    between.group.diffdisp = TRUE,
+    output.file = NULL
+  )
+  expect_is(tmp, "compData")
+  expect_equal(sign(abs(tmp@variable.annotations$truedispersions.S1 -  
+                        tmp@variable.annotations$truedispersions.S2)),
+               rep(1, 50))
+  expect_equal(tmp@variable.annotations$upregulation, 
+               c(rep(1, 10), rep(0, 40)))
+  expect_equal(tmp@variable.annotations$downregulation, 
+               rep(0, 50))
+  expect_equal(sum(tmp@variable.annotations$upregulation + 
+                     tmp@variable.annotations$downregulation), 10)
+  
+  ## Outliers
+  set.seed(1)
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 5, n.diffexp = 10,
+    random.outlier.high.prob = 0.1,
+    random.outlier.low.prob = 0.1,
+    single.outlier.high.prob = 0.1,
+    single.outlier.low.prob = 0.1,
+    output.file = NULL
+  )
+  expect_equal(any(tmp@variable.annotations$n.random.outliers.up.S1 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.random.outliers.up.S2 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.random.outliers.down.S1 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.random.outliers.down.S2 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.single.outliers.up.S1 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.single.outliers.up.S2 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.single.outliers.down.S1 > 0), TRUE)
+  expect_equal(any(tmp@variable.annotations$n.single.outliers.down.S2 > 0), TRUE)
+  
+  ## Summary report
+  expect_error(summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp.rds")),
+               "output.file must be an .html file.")
+  summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp_summaryrep.html"))
+  expect_equal(file.exists(file.path(tdir, "tmp_summaryrep.html")), TRUE)
+})
+
+test_that("help functions work", {
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 5, n.diffexp = 10,
+    output.file = NULL
+  )
+  
+  mval <- computeMval(tmp@count.matrix, tmp@sample.annotations$condition)
+  aval <- computeAval(tmp@count.matrix, tmp@sample.annotations$condition)
+  
+  expect_is(mval, "numeric")
+  expect_is(aval, "numeric")
+  expect_equal(length(mval), nrow(tmp@count.matrix))
+  expect_equal(length(aval), nrow(tmp@count.matrix))
+})
+
+test_that("runDiffExp works", {
   tdir <- tempdir()
   set.seed(1)  ## note that with other seeds, the number of genes 
                ## passing the filtering threshold could be different
