@@ -35,7 +35,7 @@ test_that("compData object checks work", {
     samples.per.cond = 5, n.diffexp = 0, 
     output.file = NULL
   )
-  tmp
+  show(tmp)
   
   expect_equal(checkDataObject(tmp), "Data object looks ok.")
   
@@ -192,6 +192,11 @@ test_that("generateSyntheticData works", {
 test_that("help functions work", {
   listcreateRmd()
   
+  expect_error(checkRange("hello", "name", 0, 1), "Illegal value")
+  expect_equal(checkRange(-1, "name", 0, 1), 0)
+  expect_equal(checkRange(2, "name", 0, 1), 1)
+  expect_equal(checkRange("-1", "name", 0, 1), 0)
+  
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -209,6 +214,9 @@ test_that("help functions work", {
   
   mval <- computeMval(count.matrix(tmp), sample.annotations(tmp)$condition)
   aval <- computeAval(count.matrix(tmp), sample.annotations(tmp)$condition)
+  
+  mval2 <- computeM(count.matrix(tmp), sample.annotations(tmp)$condition)
+  aval2 <- computeA(count.matrix(tmp), sample.annotations(tmp)$condition)
   
   expect_is(mval, "numeric")
   expect_is(aval, "numeric")
@@ -399,19 +407,29 @@ test_that("runDiffExp works", {
   }
 
   ## Comparison report
-  file.table <- data.frame(input.files = file.path(tdir, paste0("B_625_625_5spc_repl1_", c("voom.limma", "voom.ttest"), ".rds")))
-  parameters <- list(incl.nbr.samples = NULL, incl.replicates = NULL, 
-                     incl.dataset = "B_625_625", incl.de.methods = NULL, 
-                     fdr.threshold = 0.05, tpr.threshold = 0.05, 
-                     typeI.threshold = 0.05, ma.threshold = 0.05, 
-                     fdc.maxvar = 1500, overlap.threshold = 0.05, 
-                     fracsign.threshold = 0.05, 
-                     comparisons = c("auc", "mcc", "fdr", "tpr", "fdrvsexpr",
-                                     "maplot", "correlation", "typeIerror", "fracsign",
-                                     "nbrsign", "nbrtpfp", "fdcurvesall",
-                                     "fdcurvesone", "rocall", "rocone", "overlap",
-                                     "sorensen", "scorevsoutlier", "scorevsexpr",
-                                     "scorevssignal"))
+  file.table <- data.frame(input.files = file.path(
+    tdir, paste0("B_625_625_5spc_repl1_", 
+                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")))
+  parameters <- NULL
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)
+  
+  parameters <- list()
+  par2 <- parameters; par2$incl.dataset <- "missing"
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with datasets")
+  par2 <- parameters; par2$incl.nbr.samples <- 10
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with nbr.samples")
+  par2 <- parameters; par2$incl.replicates <- 10
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with replicates")
+  par2 <- parameters; par2$incl.de.methods <- "missing"
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with DE methods")
+  
 })

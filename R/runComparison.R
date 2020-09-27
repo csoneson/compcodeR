@@ -505,6 +505,7 @@ checkClass <- function(object, objname, trueclass) {
 #'            norm.method = "TMM")
 #' runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
 #' }
+#nocov start
 runComparisonGUI <- function(input.directories, output.directory, recursive, 
                              out.width = NULL, upper.limits = NULL, lower.limits = NULL) {
   if (!require(rpanel)) stop("To use the GUI you must install the rpanel package. If it is not possible to install the package on your system, please use the runComparison() function instead.")
@@ -628,6 +629,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
     return(panel)
   }, quitbutton = TRUE, title = "Continue", pos = list("row" = 2, "column" = 2))
 }
+#nocov end
 
 # Create the user interface for selecting parameters for the method comparison
 # 
@@ -635,6 +637,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
 # 
 # @param panel An rpanel
 # @author Charlotte Soneson
+#nocov start
 createSelectionPanel = function(panel) {
   ###########################################
   ## Create the GUI for setting parameters ##
@@ -861,6 +864,7 @@ createSelectionPanel = function(panel) {
   
   #rp.block(main.panel)
 }
+#nocov end
 
 checkRange <- function(value, parname, minvalue, maxvalue) {
   if (is.na(as.numeric(value))) {
@@ -879,6 +883,7 @@ checkRange <- function(value, parname, minvalue, maxvalue) {
 # 
 # @param panel An rpanel
 # @author Charlotte Soneson
+#nocov start
 performComparison <- function(panel) {
   message("Be patient, your analysis is running...")
   
@@ -946,6 +951,7 @@ performComparison <- function(panel) {
   
   return(panel)
 }
+#nocov end
 
 #' Run the performance comparison between differential expression methods. 
 #' 
@@ -1547,8 +1553,8 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
         if (is.list(X)) X <- convertListTocompData(X)
         if (is.null(variable.annotations(X)$A.value) | is.null(variable.annotations(X)$M.value)) {
-          A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
-          M.value <- computeM(count.matrix(X), sample.annotations(X)$condition)
+          A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
+          M.value <- computeMval(count.matrix(X), sample.annotations(X)$condition)
         } else {
           A.value <- variable.annotations(X)$A.value
           M.value <- variable.annotations(X)$M.value
@@ -1603,7 +1609,7 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
         if (is.list(X)) X <- convertListTocompData(X)
         if (is.null(variable.annotations(X)$A.value)) {
-          A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
+          A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
         } else {
           A.value <- variable.annotations(X)$A.value
         }
@@ -1814,32 +1820,32 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
   }
 }
 
-computeM <- function(count.matrix, conditions) {
-  nf <- calcNormFactors(count.matrix)
-  norm.factors <- nf * colSums(count.matrix)
-  common.libsize <- exp(mean(log(colSums(count.matrix))))
-  pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
-  log2.pseudocounts <- log2(pseudocounts)
-  M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-                   1, mean) - 
-    apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])], 
-          1, mean)
-  return(M.value)
-}
+# computeM <- function(count.matrix, conditions) {
+#   nf <- calcNormFactors(count.matrix)
+#   norm.factors <- nf * colSums(count.matrix)
+#   common.libsize <- exp(mean(log(colSums(count.matrix))))
+#   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
+#   log2.pseudocounts <- log2(pseudocounts)
+#   M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
+#                    1, mean) - 
+#     apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])], 
+#           1, mean)
+#   return(M.value)
+# }
 
-computeA <- function(count.matrix, conditions) {
-  nf <- calcNormFactors(count.matrix)
-  norm.factors <- nf * colSums(count.matrix)
-  common.libsize <- exp(mean(log(colSums(count.matrix))))
-  pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
-  log2.pseudocounts <- log2(pseudocounts)
-  A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-                        1, mean) + 
-                    apply(log2.pseudocounts[, which(conditions == 
-                                                      levels(factor(conditions))[1])], 
-                          1, mean))
-  return(A.value)
-}
+# computeA <- function(count.matrix, conditions) {
+#   nf <- calcNormFactors(count.matrix)
+#   norm.factors <- nf * colSums(count.matrix)
+#   common.libsize <- exp(mean(log(colSums(count.matrix))))
+#   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
+#   log2.pseudocounts <- log2(pseudocounts)
+#   A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
+#                         1, mean) + 
+#                     apply(log2.pseudocounts[, which(conditions == 
+#                                                       levels(factor(conditions))[1])], 
+#                           1, mean))
+#   return(A.value)
+# }
 
 computeFDR <- function(adjpvalues, trueDElabels, signthreshold) {
   length(intersect(which(adjpvalues < signthreshold), 
@@ -1926,7 +1932,7 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
           if (is.list(X)) X <- convertListTocompData(X)
           if (!all(variable.annotations(X)$differential.expression == 0)) {
             if (is.null(variable.annotations(X)$A.value)) {
-              A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
+              A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
             } else {
               A.value <- variable.annotations(X)$A.value
             }
