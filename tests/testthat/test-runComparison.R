@@ -207,7 +207,7 @@ test_that("help functions work", {
     "Must have exactly two groups to calculate A-value"
   )
   
-  mval <- computeMval(count.matrix(tmp), sample.annotaations(tmp)$condition)
+  mval <- computeMval(count.matrix(tmp), sample.annotations(tmp)$condition)
   aval <- computeAval(count.matrix(tmp), sample.annotations(tmp)$condition)
   
   expect_is(mval, "numeric")
