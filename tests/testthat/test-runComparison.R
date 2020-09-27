@@ -215,9 +215,6 @@ test_that("help functions work", {
   mval <- computeMval(count.matrix(tmp), sample.annotations(tmp)$condition)
   aval <- computeAval(count.matrix(tmp), sample.annotations(tmp)$condition)
   
-  mval2 <- computeM(count.matrix(tmp), sample.annotations(tmp)$condition)
-  aval2 <- computeA(count.matrix(tmp), sample.annotations(tmp)$condition)
-  
   expect_is(mval, "numeric")
   expect_is(aval, "numeric")
   expect_equal(length(mval), nrow(count.matrix(tmp)))
