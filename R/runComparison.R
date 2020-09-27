@@ -1634,78 +1634,78 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
 # @author Charlotte Soneson
-plotScoreVsOutlierEvidence <- function(setup.parameters, sel.nbrsamples, sel.repl) {
-  nbr.cols <- 3
-  nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in seq_len(length(sel.nbrsamples))) {
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
-    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
-                          setup.parameters$incl.de.methods[k])
-      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
-                          sel.nbrsamples[i])
-      idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
-      idx <- intersect(intersect(idx1, idx2), idx3)
-      if (length(idx) != 0) {
-        X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
-        if (is.list(X)) X <- convertListTocompData(X)
-        ## Normalize counts (compute pseudocounts)
-        nf <- calcNormFactors(count.matrix(X))
-        norm.factors <- nf * colSums(count.matrix(X))
-        common.libsize <- exp(mean(log(colSums(count.matrix(X)))))
-        pseudocounts <- sweep(count.matrix(X) + 0.5, 2, norm.factors, '/') * common.libsize
-        ## Compute the outlier score
-        tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-                                         levels(factor(sample.annotations(X)$condition))[1]], 
-                       1, sort))
-        outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
-                                                                            tmp[, 1])
-        outlier.score.1.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
-        outlier.score.1 <- sqrt(outlier.score.1.1*outlier.score.1.2)
-        outlier.score.1[is.na(outlier.score.1)] <- 0
-        
-        tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-                                         levels(factor(sample.annotations(X)$condition))[2]], 
-                       1, sort))
-        outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
-                                                                          tmp[, 1])
-        outlier.score.2.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
-        outlier.score.2 <- sqrt(outlier.score.2.1*outlier.score.2.2)
-        outlier.score.2[is.na(outlier.score.2)] <- 0
-        outlier.score <- 0.5*(outlier.score.1 + outlier.score.2)
-        
-        ## Count number of outliers
-        if (length(variable.annotations(X)) != 0) {
-          total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
-                                                                rownames(variable.annotations(X))), 
-                                                          which(colnames(variable.annotations(X)) %in% 
-                                                                  c("n.random.outliers.up.S1", 
-                                                                    "n.random.outliers.up.S2", 
-                                                                    "n.random.outliers.down.S1", 
-                                                                    "n.random.outliers.down.S2", 
-                                                                    "n.single.outliers.up.S1", 
-                                                                    "n.single.outliers.up.S2", 
-                                                                    "n.single.outliers.down.S1", 
-                                                                    "n.single.outliers.down.S2"))], 1, sum)
-        } else {
-          total.outliers <- rep(0, length(score))
-        }
-        
-#        boxplot(outlier.score ~ total.outliers)
-        score <- result.table(X)$score
-        linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
-        plot(outlier.score, score, cex = 0.75, pch = 20, 
-             main = setup.parameters$incl.de.methods[k], 
-             xlab = "Outlier score", 
-             ylab = "Score")
-        loessline <- loess(score ~ outlier.score)
-        xval <- seq(min(outlier.score), max(outlier.score), length.out = 500)
-        lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
-      }
-    }
-  }
-}
+# plotScoreVsOutlierEvidence <- function(setup.parameters, sel.nbrsamples, sel.repl) {
+#   nbr.cols <- 3
+#   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
+#   for (i in seq_len(length(sel.nbrsamples))) {
+#     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+#         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
+#     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
+#       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+#                           setup.parameters$incl.de.methods[k])
+#       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+#                           sel.nbrsamples[i])
+#       idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
+#       idx <- intersect(intersect(idx1, idx2), idx3)
+#       if (length(idx) != 0) {
+#         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
+#         if (is.list(X)) X <- convertListTocompData(X)
+#         ## Normalize counts (compute pseudocounts)
+#         nf <- calcNormFactors(count.matrix(X))
+#         norm.factors <- nf * colSums(count.matrix(X))
+#         common.libsize <- exp(mean(log(colSums(count.matrix(X)))))
+#         pseudocounts <- sweep(count.matrix(X) + 0.5, 2, norm.factors, '/') * common.libsize
+#         ## Compute the outlier score
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
+#                                          levels(factor(sample.annotations(X)$condition))[1]], 
+#                        1, sort))
+#         outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#                                                                             tmp[, 1])
+#         outlier.score.1.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
+#         outlier.score.1 <- sqrt(outlier.score.1.1*outlier.score.1.2)
+#         outlier.score.1[is.na(outlier.score.1)] <- 0
+#         
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
+#                                          levels(factor(sample.annotations(X)$condition))[2]], 
+#                        1, sort))
+#         outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#                                                                           tmp[, 1])
+#         outlier.score.2.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
+#         outlier.score.2 <- sqrt(outlier.score.2.1*outlier.score.2.2)
+#         outlier.score.2[is.na(outlier.score.2)] <- 0
+#         outlier.score <- 0.5*(outlier.score.1 + outlier.score.2)
+#         
+#         ## Count number of outliers
+#         if (length(variable.annotations(X)) != 0) {
+#           total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
+#                                                                 rownames(variable.annotations(X))), 
+#                                                           which(colnames(variable.annotations(X)) %in% 
+#                                                                   c("n.random.outliers.up.S1", 
+#                                                                     "n.random.outliers.up.S2", 
+#                                                                     "n.random.outliers.down.S1", 
+#                                                                     "n.random.outliers.down.S2", 
+#                                                                     "n.single.outliers.up.S1", 
+#                                                                     "n.single.outliers.up.S2", 
+#                                                                     "n.single.outliers.down.S1", 
+#                                                                     "n.single.outliers.down.S2"))], 1, sum)
+#         } else {
+#           total.outliers <- rep(0, length(score))
+#         }
+#         
+# #        boxplot(outlier.score ~ total.outliers)
+#         score <- result.table(X)$score
+#         linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
+#         plot(outlier.score, score, cex = 0.75, pch = 20, 
+#              main = setup.parameters$incl.de.methods[k], 
+#              xlab = "Outlier score", 
+#              ylab = "Score")
+#         loessline <- loess(score ~ outlier.score)
+#         xval <- seq(min(outlier.score), max(outlier.score), length.out = 500)
+#         lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
+#       }
+#     }
+#   }
+# }
 
 findGenesAllZero <- function(count.matrix, conditions) {
   ## Find genes that are zero for all samples in one condition

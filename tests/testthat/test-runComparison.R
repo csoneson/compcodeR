@@ -35,7 +35,6 @@ test_that("compData object checks work", {
     samples.per.cond = 5, n.diffexp = 0, 
     output.file = NULL
   )
-  show(tmp)
   
   expect_equal(checkDataObject(tmp), "Data object looks ok.")
   
@@ -196,6 +195,9 @@ test_that("help functions work", {
   expect_equal(checkRange(-1, "name", 0, 1), 0)
   expect_equal(checkRange(2, "name", 0, 1), 1)
   expect_equal(checkRange("-1", "name", 0, 1), 0)
+  
+  expect_equal(shorten.method.names(c("AUC", "ROC, all replicates")),
+               c("auc", "rocall"))
   
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
@@ -378,6 +380,13 @@ test_that("runDiffExp works", {
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
 
+  ## Test show() method
+  m <- methods[4]
+  tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
+  show(tmp)
+  count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
+  show(tmp)
+  
   for (m in methods) {
     tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
     
