@@ -8,11 +8,10 @@ Authors@R: c(person("Charlotte", "Soneson", role = c("aut", "cre"),
 Description: This package provides extensive functionality for
     comparing results obtained by different methods for
     differential expression analysis of RNAseq data. It also
-    contains functions for simulating count data and interfaces to
-    several packages for performing the differential expression
-    analysis.
+    contains functions for simulating count data. Finally, it provides 
+    convenient interfaces to several packages for performing the 
+    differential expression analysis.
 Depends:
-    R (>= 3.0.2),
     sm
 Imports:
     tcltk,
@@ -43,7 +42,8 @@ Suggests:
     NOISeq,
     TCC,
     NBPSeq (>= 0.3.0),
-    rmarkdown
+    rmarkdown,
+    testthat
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
