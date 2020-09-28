@@ -1,14 +1,22 @@
-# Generate a .Rmd file containing code to perform a comparison of differential expression methods
+# Generate a .Rmd file containing code to perform a comparison of differential
+# expression methods
 # 
-# A function to generate code that can be run to perform a comparison of the performance of several differential expression methods. The code is written to a .Rmd file. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function. 
+# A function to generate code that can be run to perform a comparison of the
+# performance of several differential expression methods. The code is written to
+# a .Rmd file. This function is generally not called by the user, the main
+# interface for comparing differential expression methods is the
+# \code{\link{runComparisonGUI}} function.
 # 
 # @param setup.parameters List of parameters (internal).
 # @param output.file The path to the file where the code will be written.
 # @author Charlotte Soneson
 createResultsRmdFile <- function(setup.parameters.file, output.file) {
   ## Check that the output file ends with .Rmd
-  if (!(substr(output.file, nchar(output.file) - 3, nchar(output.file)) == ".Rmd")) {
-    output.file <- sub(strsplit(output.file, "\\.")[[1]][length(strsplit(output.file, "\\.")[[1]])], 
+  if (!(substr(output.file, nchar(output.file) - 3, 
+               nchar(output.file)) == ".Rmd")) {
+    output.file <- sub(strsplit(output.file, 
+                                "\\.")[[1]][length(strsplit(output.file, 
+                                                            "\\.")[[1]])], 
                        "Rmd", 
                        output.file)
   }
@@ -18,17 +26,22 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   
   ## Load the setup parameters
   setup.parameters <- readRDS(setup.parameters.file)
-  setup.parameters$incl.nbr.samples <- as.numeric(setup.parameters$incl.nbr.samples)
-  setup.parameters$incl.replicates <- as.numeric(setup.parameters$incl.replicates)
+  setup.parameters$incl.nbr.samples <- 
+    as.numeric(setup.parameters$incl.nbr.samples)
+  setup.parameters$incl.replicates <- 
+    as.numeric(setup.parameters$incl.replicates)
   
   if (all(!is.na(setup.parameters$incl.nbr.samples))) {
-    setup.parameters$incl.nbr.samples <- sort(setup.parameters$incl.nbr.samples)
+    setup.parameters$incl.nbr.samples <- 
+      sort(setup.parameters$incl.nbr.samples)
   }
   if (all(!is.na(setup.parameters$incl.replicates))) {
-    setup.parameters$incl.replicates <- sort(setup.parameters$incl.replicates)
+    setup.parameters$incl.replicates <- 
+      sort(setup.parameters$incl.replicates)
   }
   
-  ## Write the text that goes in the top of of the report (detailing which parameter values were used etc.)
+  ## Write the text that goes in the top of of the report (detailing which
+  ## parameter values were used etc.)
   writeLines(c("```{r setup, echo = FALSE}",
                "options(width = 80)",
                "```"), resultfile)
@@ -54,12 +67,14 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                  "```"), resultfile, sep = '\n')
   }
   if (any(!is.na(setup.parameters$incl.replicates))) {
-    writeLines("Included replicates (for repeated simulated data sets):", resultfile)
+    writeLines("Included replicates (for repeated simulated data sets):", 
+               resultfile)
     writeLines(c("```{r replicates, echo = FALSE}", 
                  "cat(sort(setup.parameters$incl.replicates), sep = ', ')", 
                  "```"), resultfile, sep = '\n')
   }
-  writeLines("Differential expression methods included in the comparison:", resultfile)
+  writeLines("Differential expression methods included in the comparison:", 
+             resultfile)
   writeLines(c("```{r demethods, echo = FALSE}",
                "cat(setup.parameters$incl.de.methods, sep = '\n')",
                "```"), resultfile)
@@ -76,7 +91,8 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   nbr.rows <- ceiling((length(setup.parameters$incl.replicates) + 1)/nbr.cols)
   nbr.cols2 <- 3#min(3, length(setup.parameters$incl.de.methods))
   nbr.rows2 <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols2)
-  kk1 <- length(setup.parameters$incl.de.methods)*length(setup.parameters$incl.nbr.samples)
+  kk1 <- length(setup.parameters$incl.de.methods) * 
+    length(setup.parameters$incl.nbr.samples)
   
   writeLines("<a name='contents'></a>", resultfile)
   writeLines("## Contents", resultfile)
@@ -89,9 +105,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   if ('mcc' %in% setup.parameters$comparisons)
     writeLines("- [Matthew's correlation coefficient](#mcc)\n", resultfile)
   if ('fdcurvesall' %in% setup.parameters$comparisons)
-    writeLines("- [False discovery curves, all replicates](#fdcurvesall)\n", resultfile)
+    writeLines("- [False discovery curves, all replicates](#fdcurvesall)\n", 
+               resultfile)
   if ('fdcurvesone' %in% setup.parameters$comparisons)
-    writeLines("- [False discovery curves, single replicate](#fdcurvesone)\n", resultfile)
+    writeLines("- [False discovery curves, single replicate](#fdcurvesone)\n", 
+               resultfile)
   if ('maplot' %in% setup.parameters$comparisons)
     writeLines("- [MA plots, single replicate](#maplot)\n", resultfile)
   if ('scorevsexpr' %in% setup.parameters$comparisons)
@@ -127,7 +145,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='rocall'></a>", resultfile)
     writeLines("## ROC (receiver operating characteristic) curves [(Contents)](#contents)", resultfile)
     writeLines("A receiver operating characteristic (ROC) curve is a way to summarize the ability of a test or ranking procedure to rank truly positive (i.e., truly differentially expressed) genes ahead of truly negative (i.e., truly non-differentially expressed). To create the ROC curve for a given differential expression method, the genes are ranked in decreasing order by the score, which is assigned to them during the differential expression analysis and quantifies the degree of statistical significance or association with the predictor (the condition). For a given threshold, all genes with scores above the threshold are classified as 'positive' and all genes with scores below the threshold are classified as 'negative'. Comparing these assignments to the true differential expression status, a true positive rate and a false positive rate can be computed and marked in a plot. As the threshold is changed, these pairs of values trace out the ROC curve. A good test procedure gives a ROC curve which passes close to the upper left corner of the plot, while a poor test corresponds to a ROC curve close to the diagonal. \n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i],
                          " samples/condition [(Contents)](#contents)"), resultfile)
@@ -136,7 +154,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols, ", fig.height = ",
                          6*nbr.rows, ", fig.align = 'center'}", sep = ""),
                    paste("makeROCcurves(setup.parameters, sel.nbrsamples = ",
-                   setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])]), collapse = ", "), "))", sep = ""),
+                   setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
                    "```", "---"), resultfile)
     }
   }
@@ -145,7 +163,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='rocone'></a>", resultfile)
     writeLines("## ROC curves, single replicate [(Contents)](#contents)", resultfile)
     writeLines("A receiver operating characteristic (ROC) curve is a way to summarize the ability of a test or ranking procedure to rank truly positive (i.e., truly differentially expressed) genes ahead of truly negative (i.e., truly non-differentially expressed). To create the ROC curve for a given differential expression method, the genes are ranked in decreasing order by the score, which is assigned to them during the differential expression analysis and quantifies the degree of statistical significance or association with the predictor (the condition). For a given threshold, all genes with scores above the threshold are classified as 'positive' and all genes with scores below the threshold are classified as 'negative'. Comparing these assignments to the true differential expression status, a true positive rate and a false positive rate can be computed and marked in a plot. As the threshold is changed, these pairs of values trace out the ROC curve. A good test procedure gives a ROC curve which passes close to the upper left corner of the plot, while a poor test corresponds to a ROC curve close to the diagonal. \n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i],
                          " samples/condition [(Contents)](#contents)"), resultfile)
@@ -153,7 +171,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       writeLines(c(paste("```{r rocone-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 18, fig.height = 6, fig.align = 'left'}", sep = ""),
                    paste("makeROCcurves(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
-                         mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ")", sep = ""),
+                         mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")", sep = ""),
                    "```", "---"), resultfile)
     }
   }
@@ -191,7 +209,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='fdcurvesall'></a>", resultfile)
     writeLines("## False discovery curves, all replicates [(Contents)](#contents)", resultfile)
     writeLines("A false discovery curve depicts the number of false positives encountered while stepping through a list of genes ranked by a score representing their statistical significance or the degree of association with a predictor. The truly differentially expressed genes are considered the 'true positives', and the truly non-differentially expressed genes the 'true negatives'. Hence, at a given position in the ranked list (shown on the x-axis) the value on the y-axis represents the number of truly non-differentially expressed genes that are ranked above that position. A good ranking method puts few true negatives among the top-ranked genes, and hence the false discovery curve rises slowly. A poor ranking method is recognized by a steeply increasing false discovery curve.\n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -199,7 +217,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       writeLines(c(paste("```{r fdcall-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ",
                          6*nbr.cols, ", fig.height = ", 6*nbr.rows, ", fig.align = 'left'}", sep = ""),
                    paste("makeFalseDiscoveryCurves(setup.parameters, sel.nbrsamples = ",
-                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])]), collapse = ", "), "))", sep = ""),
+                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
                    "```", "---"), resultfile)
     }
   }
@@ -208,7 +226,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='fdcurvesone'></a>", resultfile)
     writeLines("## False discovery curves, single replicate [(Contents)](#contents)", resultfile)
     writeLines("A false discovery curve depicts the number of false positives encountered while stepping through a list of genes ranked by a score representing their statistical significance or the degree of association with a predictor. The truly differentially expressed genes are considered the 'true positives', and the truly non-differentially expressed genes the 'true negatives'. Hence, at a given position in the ranked list (shown on the x-axis) the value on the y-axis represents the number of truly non-differentially expressed genes that are ranked above that position. A good ranking method puts few true negatives among the top-ranked genes, and hence the false discovery curve rises slowly. A poor ranking method is recognized by a steeply increasing false discovery curve.\n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -216,7 +234,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       writeLines(c(paste("```{r fdcone-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 18, fig.height = 6, fig.align = 'left'}", sep = ""),
                    paste("makeFalseDiscoveryCurves(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
-                         mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ")"),
+                         mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
                    "```", "---"), resultfile)
     }
   }
@@ -225,7 +243,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='maplot'></a>", resultfile)
     writeLines("## MA plots, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("An MA plot depicts the average expression level of the genes ('A', shown on the x-axis) and their log-fold change between two conditions ('M', shown on the y-axis). The genes called differentially expressed at an adjusted p-value threshold of", setup.parameters$ma.threshold, "are marked in color.\n"), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -234,7 +252,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotMASignificant(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
-                         mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ")"),
+                         mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
                    "```", "---"), resultfile)
     }
   }
@@ -243,7 +261,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='scorevsexpr'></a>", resultfile)
     writeLines("## Gene score vs average expression level, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("In the figures below the gene score, which is computed in the differential expression analysis (and stored in the 'score' field of the result object), is plotted against the average expression level of the genes ('A', shown on the x-axis). A high value of the score signifies a 'more significant' gene. The colored line represents a loess fit to the data.\n"), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -252,7 +270,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotScoreVsExpr(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
-                         mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ")"),
+                         mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
                    "```", "---"), resultfile)
     }
   }
@@ -261,7 +279,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='scorevssignal'></a>", resultfile)
     writeLines("## Gene score vs 'signal' for genes expressed in only one condition, all replicates [(Contents)](#contents)", resultfile)
     writeLines(paste("In the figures below the gene score, which is computed in the differential expression analysis (and stored in the 'score' field of the result object), is plotted against the 'signal', for genes that are expressed in only one of the two conditions. The signal (shown on the x-axis) is defined by computing the ", c("logarithm (base 2) of the normalized pseudo-counts for all samples in the condition where the gene is expressed, and averaging these values", "signal-to-noise ratio in the condition where the gene is expressed, i.e., first computing the logarithm (base 2) of the normalized pseudo-counts for all samples in this condition, and then computing the ratio between the mean and the standard deviation of these values")[match(setup.parameters$signal.measure, c("mean", "snr"))], ". A high value of the score (shown on the y-axis) signifies a gene that is more strongly associated with the predictor (the sample condition). We expect the methods to give higher scores to genes with stronger signal. The results from all dataset replicates included in the comparison are shown in the same plot, and the points are colored according to the data set replicate they originate from.\n"), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -269,7 +287,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       writeLines(c(paste("```{r scorevssignal-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ",
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotSignalForZeroCounts(setup.parameters, sel.nbrsamples = ",
-                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])]), collapse = ", "), "))", sep = ""),
+                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
                    "```", "---"), resultfile)
     }
   }
@@ -278,7 +296,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='scorevsoutlier'></a>", resultfile)
     writeLines("## Score distribution vs number of outliers, single replicate [(Contents)](#contents)", resultfile)
     writeLines("The violin plots below show the distribution of the score assigned to the genes by the differential expression methods, as a function of the number of 'outlier counts' (that is, extremely high or low counts introduced artificially in the data and not generated by the underlying statistical distribution) for the genes. All types of outliers are summed. This allows an investigation of the sensitivity of a differential expression method to outlier counts (deviations from the underlying statistical model). A method that is sensitive to outliers shows a different score distribution for genes with outlier counts than for genes without outlier counts. When interpreting the figures below, be observant on the number of genes generating each distribution (indicated below the figure), since an empirical distribution based on only a few values many not be completely representative of the true distribution.\n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -287,7 +305,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotScoreVsOutliers(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
-                         mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ")"),
+                         mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
                    "```", "---"), resultfile)
     }
   }
@@ -366,7 +384,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='fdrvsexpr'></a>", resultfile)
     writeLines("## FDR vs average expression level [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below show the observed false discovery rate as a function of the the average expression level of the genes ('A', shown on the x-axis). The average expression levels in a given data set are binned into 10 quantiles (each containing 1/10 of the values) and the false discovery rate at an imposed adjusted p-value cutoff of ", setup.parameters$fdr.threshold, "is estimated for each bin. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n"), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"),
                    resultfile)
@@ -374,7 +392,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       writeLines(c(paste("```{r fdrvsexpr-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ",
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotFDRVsExpr(setup.parameters, sel.nbrsamples = ",
-                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])]), collapse = ", "), "))", sep = ""),
+                         setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
                    "```", "---"), resultfile)
     }
   }
@@ -392,7 +410,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='overlap'></a>", resultfile)
     writeLines("## Overlap, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("The table below shows, for each pair of differential expression methods, the number of genes that are considered statistically significant by both of them at an adjusted p-value threshold of ",setup.parameters$overlap.threshold,". Only methods returning corrected p-values or FDR estimates are included in the comparison. Note that the size of the overlap between two sets naturally depends on the number of genes in each of the sets (indicated along the diagonal of the table).\n", sep = ''), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         idx <- which(setup.parameters$file.info$nbr.samples == setup.parameters$incl.nbr.samples[i])
       } else {
@@ -404,7 +422,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
         }
         writeLines(c(paste("```{r overlap-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 10, fig.height = 10, fig.align = 'left'}", sep = ""),
 ##                     "options(width = 200)",
-                     paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ", plot.type = 'Overlap')"),
+                     paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ", plot.type = 'Overlap')"),
                      "```", "---"), resultfile)
       }
     }
@@ -414,7 +432,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='sorensen'></a>", resultfile)
     writeLines("## Sorensen index, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("The table below shows, for each pair of differential expression methods, the Sorensen index, which is a way of quantifying the overlap between the collections of differentially expressed genes found by the two methods at an adjusted p-value threshold of ", setup.parameters$overlap.threshold,".Only methods returning corrected p-values or FDR estimates are included. The Sorensen index is defined as the ratio between the number of genes shared by the two sets and the average number of genes in the two sets. Hence, it always attains values between 0 and 1. A larger Sorensen index implies better overlap between the two sets, and hence that the two compared methods give similar differential expression results. The values of the Sorensen index for all pairs of compared methods are also visualized in a 'heatmap', where the color corresponds to Sorensen index.\n", sep = ''), resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         idx <- which(setup.parameters$file.info$nbr.samples == setup.parameters$incl.nbr.samples[i])
       } else {
@@ -425,7 +443,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
           writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"), resultfile)
         }
         writeLines(c(paste("```{r sorensen-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ", length(setup.parameters$incl.de.methods) + 3, ", fig.height = ", length(setup.parameters$incl.de.methods) + 3, ", fig.align = 'left'}", sep = ""),
-                     paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i])])[1], ", plot.type = 'Sorensen')"),
+                     paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ", plot.type = 'Sorensen')"),
                      "```", "---"), resultfile)
       }
     }
@@ -435,7 +453,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("<a name='correlation'></a>", resultfile)
     writeLines("## Spearman correlation between scores [(Contents)](#contents)", resultfile)
     writeLines("The table below shows, for each pair of compared differential expression methods, the Spearman correlation between the scores that they assign to the genes. The value of the correlation is always between -1 and 1, and a high positive value of the Spearman correlation indicates that the compared methods rank the genes in a similar fashion. The results are also shown in a 'heatmap', where the color indicates the Spearman correlation. Finally, the methods are clustered using hierarchical clustering, with a dissimilarity measure defined as 1 - Spearman correlation. This visualizes the relationships among the compared differential expression methods, and groups together methods that rank the genes similarly.\n", resultfile)
-    for (i in 1:length(setup.parameters$incl.nbr.samples)) {
+    for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
       if (any(!is.na(setup.parameters$incl.nbr.samples))) {
         idx <- which(setup.parameters$file.info$nbr.samples == setup.parameters$incl.nbr.samples[i])
       } else {
@@ -445,7 +463,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
         writeLines(paste("####", setup.parameters$incl.nbr.samples[i], " samples/condition [(Contents)](#contents)"), resultfile)
       }
       writeLines(c(paste("```{r correlation-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ", length(setup.parameters$incl.de.methods) + 3, ", fig.height = ", length(setup.parameters$incl.de.methods) + 3, ", fig.align = 'left'}", sep = ""),
-                   paste("computeCorrelation(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[sapply(setup.parameters$file.info$nbr.samples, identical, setup.parameters$incl.nbr.samples[i])])[1], ")"),
+                   paste("computeCorrelation(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
                    "```", "---"), resultfile)
     }
   }
@@ -454,7 +472,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
 }
 
 checkClass <- function(object, objname, trueclass) {
-  if (!(class(object) == trueclass)) {
+  if (!(is(object, trueclass))) {
     stop(paste("The object", objname, "should be of class", trueclass))
   }
 }
@@ -475,7 +493,7 @@ checkClass <- function(object, objname, trueclass) {
 #' @export
 #' @author Charlotte Soneson
 #' @examples
-#' \dontrun{
+#' if (interactive()) {
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
 #'                                     samples.per.cond = 5, n.diffexp = 1250, 
 #'                                     output.file = "mydata.rds")
@@ -487,6 +505,7 @@ checkClass <- function(object, objname, trueclass) {
 #'            norm.method = "TMM")
 #' runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
 #' }
+#nocov start
 runComparisonGUI <- function(input.directories, output.directory, recursive, 
                              out.width = NULL, upper.limits = NULL, lower.limits = NULL) {
   if (!require(rpanel)) stop("To use the GUI you must install the rpanel package. If it is not possible to install the package on your system, please use the runComparison() function instead.")
@@ -610,6 +629,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
     return(panel)
   }, quitbutton = TRUE, title = "Continue", pos = list("row" = 2, "column" = 2))
 }
+#nocov end
 
 # Create the user interface for selecting parameters for the method comparison
 # 
@@ -617,6 +637,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
 # 
 # @param panel An rpanel
 # @author Charlotte Soneson
+#nocov start
 createSelectionPanel = function(panel) {
   ###########################################
   ## Create the GUI for setting parameters ##
@@ -843,6 +864,7 @@ createSelectionPanel = function(panel) {
   
   #rp.block(main.panel)
 }
+#nocov end
 
 checkRange <- function(value, parname, minvalue, maxvalue) {
   if (is.na(as.numeric(value))) {
@@ -861,6 +883,7 @@ checkRange <- function(value, parname, minvalue, maxvalue) {
 # 
 # @param panel An rpanel
 # @author Charlotte Soneson
+#nocov start
 performComparison <- function(panel) {
   message("Be patient, your analysis is running...")
   
@@ -928,6 +951,7 @@ performComparison <- function(panel) {
   
   return(panel)
 }
+#nocov end
 
 #' Run the performance comparison between differential expression methods. 
 #' 
@@ -1093,12 +1117,12 @@ runComparison <- function(file.table,
   ## keep all files
   if (is.null(parameters$incl.nbr.samples) || all(is.na(parameters$incl.nbr.samples))) {
     ## If no selection of nbr.samples, keep all
-    idx.keep <- 1:nrow(file.table)
+    idx.keep <- seq_len(nrow(file.table))
   } else {
     if (any(!is.na(file.table$nbr.samples))) {
       idx.keep <- which(file.table$nbr.samples %in% parameters$incl.nbr.samples)
     } else {
-      idx.keep <- 1:nrow(file.table)
+      idx.keep <- seq_len(nrow(file.table))
     }
   }
   file.table <- file.table[idx.keep, ]
@@ -1111,12 +1135,12 @@ runComparison <- function(file.table,
   ## keep all files
   if (is.null(parameters$incl.replicates) || all(is.na(parameters$incl.replicates))) {
     ## If no selection of replicates, keep all
-    idx.keep <- 1:nrow(file.table)
+    idx.keep <- seq_len(nrow(file.table))
   } else {
     if (any(!is.na(file.table$repl))) {
       idx.keep <- which(file.table$repl %in% parameters$incl.replicates)
     } else {
-      idx.keep <- 1:nrow(file.table)
+      idx.keep <- seq_len(nrow(file.table))
     }
   }
   file.table <- file.table[idx.keep, ]
@@ -1126,7 +1150,7 @@ runComparison <- function(file.table,
   
   if (is.null(parameters$incl.de.methods) || all(is.na(parameters$incl.de.methods))) {
     ## If no selection of de.methods, keep all
-    idx.keep <- 1:nrow(file.table)
+    idx.keep <- seq_len(nrow(file.table))
   } else {
     idx.keep <- which(file.table$de.methods %in% parameters$incl.de.methods)
   }
@@ -1216,7 +1240,7 @@ checkCompatibility <- function(file.info.table){
     tmp.uID <- NULL
     tmp.lines <- which(all.combinations == tmp)
     if (length(tmp.lines) != 0) {
-      for (i in 1:length(tmp.lines)) {
+      for (i in seq_len(length(tmp.lines))) {
         w <- readRDS(as.character(file.info.table$input.files[tmp.lines[i]]))
         if (is.list(w)) w <- convertListTocompData(w)
         if (!is.null(w)) tmp.uID <- c(tmp.uID, info.parameters(w)$uID)
@@ -1280,7 +1304,7 @@ definePlotColors <- function(methods) {
                             'lavender', 'lemonchiffon2', 'hotpink', 'lightskyblue2', 
                             'mediumaquamarine', 'olivedrab2', 'palegreen')
   plot.colors <- list()
-  for (i in 1:length(methods)) {
+  for (i in seq_len(length(methods))) {
     plot.colors[sort(methods)[i]] <- available.plot.colors[i]
   }
   return(plot.colors)
@@ -1300,17 +1324,17 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling((length(sel.repl) + 1)/nbr.cols)
   
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
         cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2))
     all.plot.methods <- NULL
     all.plot.colors <- NULL
-    for (j in 1:length(sel.repl)) {
+    for (j in seq_len(length(sel.repl))) {
       plot.colors <- NULL
       plot.methods <- NULL
       tmp.k <- 1
-      for (k in 1:length(setup.parameters$incl.de.methods)) {
+      for (k in seq_len(length(setup.parameters$incl.de.methods))) {
         ## Extract results from selected DE method, nbr samples and replicate
         idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                             setup.parameters$incl.de.methods[k])
@@ -1401,18 +1425,18 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
   
   ##sel.repl <- sort(sel.repl)
   
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
         cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2), 
         mgp = c(3.5, 1, 0))
     all.plot.colors <- NULL
     all.plot.methods <- NULL
-    for (j in 1:length(sel.repl)) {
+    for (j in seq_len(length(sel.repl))) {
       plot.colors <- NULL
       plot.methods <- NULL
       tmp.k <- 1
-      for (k in 1:length(setup.parameters$incl.de.methods)) {
+      for (k in seq_len(length(setup.parameters$incl.de.methods))) {
         idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                             setup.parameters$incl.de.methods[k])
         idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
@@ -1465,8 +1489,8 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
                 }
               }
               
-              suppressWarnings({plot(xcoord[1:min(which(xcoord >= tmp.fdc.maxvar))],
-                                     ycoord[1:min(which(xcoord >= tmp.fdc.maxvar))],
+              suppressWarnings({plot(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
+                                     ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
                                      type = 'l', xlim = c(0, tmp.fdc.maxvar), log = 'y', las = 1,
                                      lwd = 1.5,  #1.5
                                      ylim = c(1, tmp.fdc.maxvar),
@@ -1475,8 +1499,8 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
                                      ylab = 'Number of false discoveries',
                                      main = maintext)})
             } else {
-              suppressWarnings({lines(xcoord[1:min(which(xcoord >= tmp.fdc.maxvar))],
-                                      ycoord[1:min(which(xcoord >= tmp.fdc.maxvar))],
+              suppressWarnings({lines(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
+                                      ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
                                       col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
                                       lwd = 1.5)})   #1.5
             }
@@ -1515,10 +1539,10 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
 plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
+    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[k])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
@@ -1529,8 +1553,8 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
         if (is.list(X)) X <- convertListTocompData(X)
         if (is.null(variable.annotations(X)$A.value) | is.null(variable.annotations(X)$M.value)) {
-          A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
-          M.value <- computeM(count.matrix(X), sample.annotations(X)$condition)
+          A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
+          M.value <- computeMval(count.matrix(X), sample.annotations(X)$condition)
         } else {
           A.value <- variable.annotations(X)$A.value
           M.value <- variable.annotations(X)$M.value
@@ -1571,10 +1595,10 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
+    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
@@ -1585,7 +1609,7 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
         if (is.list(X)) X <- convertListTocompData(X)
         if (is.null(variable.annotations(X)$A.value)) {
-          A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
+          A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
         } else {
           A.value <- variable.annotations(X)$A.value
         }
@@ -1610,78 +1634,78 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
 # @author Charlotte Soneson
-plotScoreVsOutlierEvidence <- function(setup.parameters, sel.nbrsamples, sel.repl) {
-  nbr.cols <- 3
-  nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in 1:length(sel.nbrsamples)) {
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
-      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
-                          setup.parameters$incl.de.methods[k])
-      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
-                          sel.nbrsamples[i])
-      idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
-      idx <- intersect(intersect(idx1, idx2), idx3)
-      if (length(idx) != 0) {
-        X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
-        if (is.list(X)) X <- convertListTocompData(X)
-        ## Normalize counts (compute pseudocounts)
-        nf <- calcNormFactors(count.matrix(X))
-        norm.factors <- nf * colSums(count.matrix(X))
-        common.libsize <- exp(mean(log(colSums(count.matrix(X)))))
-        pseudocounts <- sweep(count.matrix(X) + 0.5, 2, norm.factors, '/') * common.libsize
-        ## Compute the outlier score
-        tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-                                         levels(factor(sample.annotations(X)$condition))[1]], 
-                       1, sort))
-        outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
-                                                                            tmp[, 1])
-        outlier.score.1.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
-        outlier.score.1 <- sqrt(outlier.score.1.1*outlier.score.1.2)
-        outlier.score.1[is.na(outlier.score.1)] <- 0
-        
-        tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-                                         levels(factor(sample.annotations(X)$condition))[2]], 
-                       1, sort))
-        outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
-                                                                          tmp[, 1])
-        outlier.score.2.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
-        outlier.score.2 <- sqrt(outlier.score.2.1*outlier.score.2.2)
-        outlier.score.2[is.na(outlier.score.2)] <- 0
-        outlier.score <- 0.5*(outlier.score.1 + outlier.score.2)
-        
-        ## Count number of outliers
-        if (length(variable.annotations(X)) != 0) {
-          total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
-                                                                rownames(variable.annotations(X))), 
-                                                          which(colnames(variable.annotations(X)) %in% 
-                                                                  c("n.random.outliers.up.S1", 
-                                                                    "n.random.outliers.up.S2", 
-                                                                    "n.random.outliers.down.S1", 
-                                                                    "n.random.outliers.down.S2", 
-                                                                    "n.single.outliers.up.S1", 
-                                                                    "n.single.outliers.up.S2", 
-                                                                    "n.single.outliers.down.S1", 
-                                                                    "n.single.outliers.down.S2"))], 1, sum)
-        } else {
-          total.outliers <- rep(0, length(score))
-        }
-        
-#        boxplot(outlier.score ~ total.outliers)
-        score <- result.table(X)$score
-        linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
-        plot(outlier.score, score, cex = 0.75, pch = 20, 
-             main = setup.parameters$incl.de.methods[k], 
-             xlab = "Outlier score", 
-             ylab = "Score")
-        loessline <- loess(score ~ outlier.score)
-        xval <- seq(min(outlier.score), max(outlier.score), length.out = 500)
-        lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
-      }
-    }
-  }
-}
+# plotScoreVsOutlierEvidence <- function(setup.parameters, sel.nbrsamples, sel.repl) {
+#   nbr.cols <- 3
+#   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
+#   for (i in seq_len(length(sel.nbrsamples))) {
+#     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+#         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
+#     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
+#       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+#                           setup.parameters$incl.de.methods[k])
+#       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+#                           sel.nbrsamples[i])
+#       idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
+#       idx <- intersect(intersect(idx1, idx2), idx3)
+#       if (length(idx) != 0) {
+#         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
+#         if (is.list(X)) X <- convertListTocompData(X)
+#         ## Normalize counts (compute pseudocounts)
+#         nf <- calcNormFactors(count.matrix(X))
+#         norm.factors <- nf * colSums(count.matrix(X))
+#         common.libsize <- exp(mean(log(colSums(count.matrix(X)))))
+#         pseudocounts <- sweep(count.matrix(X) + 0.5, 2, norm.factors, '/') * common.libsize
+#         ## Compute the outlier score
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
+#                                          levels(factor(sample.annotations(X)$condition))[1]], 
+#                        1, sort))
+#         outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#                                                                             tmp[, 1])
+#         outlier.score.1.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
+#         outlier.score.1 <- sqrt(outlier.score.1.1*outlier.score.1.2)
+#         outlier.score.1[is.na(outlier.score.1)] <- 0
+#         
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
+#                                          levels(factor(sample.annotations(X)$condition))[2]], 
+#                        1, sort))
+#         outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#                                                                           tmp[, 1])
+#         outlier.score.2.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
+#         outlier.score.2 <- sqrt(outlier.score.2.1*outlier.score.2.2)
+#         outlier.score.2[is.na(outlier.score.2)] <- 0
+#         outlier.score <- 0.5*(outlier.score.1 + outlier.score.2)
+#         
+#         ## Count number of outliers
+#         if (length(variable.annotations(X)) != 0) {
+#           total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
+#                                                                 rownames(variable.annotations(X))), 
+#                                                           which(colnames(variable.annotations(X)) %in% 
+#                                                                   c("n.random.outliers.up.S1", 
+#                                                                     "n.random.outliers.up.S2", 
+#                                                                     "n.random.outliers.down.S1", 
+#                                                                     "n.random.outliers.down.S2", 
+#                                                                     "n.single.outliers.up.S1", 
+#                                                                     "n.single.outliers.up.S2", 
+#                                                                     "n.single.outliers.down.S1", 
+#                                                                     "n.single.outliers.down.S2"))], 1, sum)
+#         } else {
+#           total.outliers <- rep(0, length(score))
+#         }
+#         
+# #        boxplot(outlier.score ~ total.outliers)
+#         score <- result.table(X)$score
+#         linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
+#         plot(outlier.score, score, cex = 0.75, pch = 20, 
+#              main = setup.parameters$incl.de.methods[k], 
+#              xlab = "Outlier score", 
+#              ylab = "Score")
+#         loessline <- loess(score ~ outlier.score)
+#         xval <- seq(min(outlier.score), max(outlier.score), length.out = 500)
+#         lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
+#       }
+#     }
+#   }
+# }
 
 findGenesAllZero <- function(count.matrix, conditions) {
   ## Find genes that are zero for all samples in one condition
@@ -1753,10 +1777,10 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
   
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
+    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
@@ -1764,7 +1788,7 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
       tmpx <- c()
       tmpy <- c()
       plotcol <- c()
-      for (j in 1:length(sel.repl)) {
+      for (j in seq_len(length(sel.repl))) {
         idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl[j])
         idx <- intersect(intersect(idx1, idx2), idx3)
         if (length(idx) != 0) {
@@ -1796,32 +1820,32 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
   }
 }
 
-computeM <- function(count.matrix, conditions) {
-  nf <- calcNormFactors(count.matrix)
-  norm.factors <- nf * colSums(count.matrix)
-  common.libsize <- exp(mean(log(colSums(count.matrix))))
-  pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
-  log2.pseudocounts <- log2(pseudocounts)
-  M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-                   1, mean) - 
-    apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])], 
-          1, mean)
-  return(M.value)
-}
+# computeM <- function(count.matrix, conditions) {
+#   nf <- calcNormFactors(count.matrix)
+#   norm.factors <- nf * colSums(count.matrix)
+#   common.libsize <- exp(mean(log(colSums(count.matrix))))
+#   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
+#   log2.pseudocounts <- log2(pseudocounts)
+#   M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
+#                    1, mean) - 
+#     apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])], 
+#           1, mean)
+#   return(M.value)
+# }
 
-computeA <- function(count.matrix, conditions) {
-  nf <- calcNormFactors(count.matrix)
-  norm.factors <- nf * colSums(count.matrix)
-  common.libsize <- exp(mean(log(colSums(count.matrix))))
-  pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
-  log2.pseudocounts <- log2(pseudocounts)
-  A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-                        1, mean) + 
-                    apply(log2.pseudocounts[, which(conditions == 
-                                                      levels(factor(conditions))[1])], 
-                          1, mean))
-  return(A.value)
-}
+# computeA <- function(count.matrix, conditions) {
+#   nf <- calcNormFactors(count.matrix)
+#   norm.factors <- nf * colSums(count.matrix)
+#   common.libsize <- exp(mean(log(colSums(count.matrix))))
+#   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
+#   log2.pseudocounts <- log2(pseudocounts)
+#   A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
+#                         1, mean) + 
+#                     apply(log2.pseudocounts[, which(conditions == 
+#                                                       levels(factor(conditions))[1])], 
+#                           1, mean))
+#   return(A.value)
+# }
 
 computeFDR <- function(adjpvalues, trueDElabels, signthreshold) {
   length(intersect(which(adjpvalues < signthreshold), 
@@ -1891,16 +1915,16 @@ findFileIdx <- function(file.table, column, value) {
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
 # @author Charlotte Soneson
 plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     all.methods <- NULL
     obs.fdr.total <- NULL
     doplot <- FALSE
     idx1 <- findFileIdx(setup.parameters$file.info, "nbr.samples", sel.nbrsamples[i])
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
+    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       obs.fdr.method <- NULL
       idx2 <- intersect(idx1, findFileIdx(setup.parameters$file.info, "de.methods", 
                                           setup.parameters$incl.de.methods[k]))
-      for (j in 1:length(sel.repl)) {
+      for (j in seq_len(length(sel.repl))) {
         idx <- intersect(idx2, findFileIdx(setup.parameters$file.info, "repl", 
                                            sel.repl[j]))
         if (length(idx) != 0) {
@@ -1908,7 +1932,7 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
           if (is.list(X)) X <- convertListTocompData(X)
           if (!all(variable.annotations(X)$differential.expression == 0)) {
             if (is.null(variable.annotations(X)$A.value)) {
-              A.value <- computeA(count.matrix(X), sample.annotations(X)$condition)
+              A.value <- computeAval(count.matrix(X), sample.annotations(X)$condition)
             } else {
               A.value <- variable.annotations(X)$A.value
             }
@@ -1935,9 +1959,9 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
                                     "(80,90]", "(90,100]")
               ## Split the fdr vector and compute the observed FDR
               split.tmp <- split(tmp, expr.bin)
-              obs.fdr <- sapply(split.tmp, function(x, thr = setup.parameters$fdr.threshold) {
+              obs.fdr <- vapply(split.tmp, function(x, thr = setup.parameters$fdr.threshold) {
                 computeFDR(x$adjp, x$status, thr)
-              })
+              }, FUN.VALUE = NA_real_)
               obs.fdr.method <- rbind(obs.fdr.method, data.frame(bin = names(obs.fdr), 
                                                                  fdr = obs.fdr, 
                                                                  method = rep(setup.parameters$incl.de.methods[k], length(obs.fdr))))
@@ -1989,10 +2013,10 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     par(mfrow = c(nbr.rows, nbr.cols), mar = c(9, 6, 4, 2), mgp = c(4, 1, 0), 
         cex.axis = 1.5, las = 1, cex.main = 1.75, cex.lab = 2)
-    for (k in 1:length(setup.parameters$incl.de.methods)) {
+    for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
@@ -2035,7 +2059,7 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
               xlab = "Total number of outliers", 
               ylab = "Score")
                 
-        axis(1, at = 1:length(unique(total.outliers)), 
+        axis(1, at = seq_len(length(unique(total.outliers))), 
              labels = paste("n =", table(total.outliers)[match(levels(factor(total.outliers)), 
                                                                names(table(total.outliers)))]), 
              tick = FALSE, line = 1, lwd = 0)
@@ -2069,7 +2093,7 @@ createResultTable <- function(setup.parameters) {
   if ('auc' %in% setup.parameters$comparisons) {auc.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('mcc' %in% setup.parameters$comparisons) {mcc.vec <- rep(NA, nrow(setup.parameters$file.info))}
   
-  for (i in 1:nrow(setup.parameters$file.info)) {
+  for (i in seq_len(nrow(setup.parameters$file.info))) {
     X <- readRDS(as.character(setup.parameters$file.info$input.files[i]))
     if (is.list(X)) X <- convertListTocompData(X)
     if ('typeIerror' %in% setup.parameters$comparisons && 'pvalue' %in% colnames(result.table(X))) {
@@ -2220,9 +2244,9 @@ padResultTable <- function(result.table) {
   rt.temp.1 <- NULL
   rt.temp.2 <- NULL
   rt.temp.3 <- NULL
-  for (i in 1:length(unique.spc)) {
-    for (j in 1:length(unique.repl)) {
-      for (k in 1:length(unique.method)) {
+  for (i in seq_len(length(unique.spc))) {
+    for (j in seq_len(length(unique.repl))) {
+      for (k in seq_len(length(unique.method))) {
         if (length(intersect(intersect(which(result.table$nbr.samples == unique.spc[i]),
                                        which(result.table$repl == unique.repl[j])),
                              which(result.table$de.methods == unique.method[k]))) == 0) {
@@ -2240,8 +2264,8 @@ padResultTable <- function(result.table) {
   }
   ## Replace NAs with NaNs
   result.table[is.na(result.table)] <- NaN
-  for (i in 1:length(unique.spc)) {
-    for (j in 1:length(unique.method)) {
+  for (i in seq_len(length(unique.spc))) {
+    for (j in seq_len(length(unique.method))) {
       a <- intersect(which(result.table$nbr.samples == unique.spc[i]),
                     which(result.table$de.methods == unique.method[j]))
       for (w in 4:ncol(result.table)) {
@@ -2266,7 +2290,7 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
   the.result <- result.table[[the.asp]]
   the.methods <- unique(result.table$de.methods)
   plot.colors <- NULL
-  for (i in 1:length(the.methods)) {
+  for (i in seq_len(length(the.methods))) {
     plot.colors <- c(plot.colors, setup.parameters$specified.colors[[the.methods[i]]])
   }
   names(plot.colors) <- the.methods
@@ -2413,13 +2437,13 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
 # @author Charlotte Soneson
 computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   all.scores <- list()
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     if (any(!is.na(sel.nbrsamples))) {
       all.scores[[sel.nbrsamples[i]]] <- list()
     } else {
       all.scores <- list()
     }
-    for (j in 1:length(setup.parameters$incl.de.methods)) {
+    for (j in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[j])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
@@ -2438,15 +2462,15 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
       }
     }
   }
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     if (any(!is.na(sel.nbrsamples))) {
       curr.methods <- names(all.scores[[sel.nbrsamples[i]]])
     } else {
       curr.methods <- names(all.scores)
     }
     Spearman.correlation <- matrix(0, length(curr.methods), length(curr.methods))
-    for (j in 1:length(curr.methods)) {
-      for (k in 1:length(curr.methods)) {
+    for (j in seq_len(length(curr.methods))) {
+      for (k in seq_len(length(curr.methods))) {
         if (any(!is.na(sel.nbrsamples))) {
           Spearman.correlation[j, k] <- cor(all.scores[[sel.nbrsamples[i]]][[curr.methods[j]]],
                                             all.scores[[sel.nbrsamples[i]]][[curr.methods[k]]],
@@ -2509,13 +2533,13 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 # @author Charlotte Soneson
 computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type) {
   sign.genes <- list()
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     if (any(!is.na(sel.nbrsamples))) {
       sign.genes[[sel.nbrsamples[i]]] <- list()
     } else {
       sign.genes <- list()
     }
-    for (j in 1:length(setup.parameters$incl.de.methods)) {
+    for (j in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[j])
       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
@@ -2551,7 +2575,7 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
       }
     }
   }
-  for (i in 1:length(sel.nbrsamples)) {
+  for (i in seq_len(length(sel.nbrsamples))) {
     if (any(!is.na(sel.nbrsamples))) {
       curr.methods <- names(sign.genes[[sel.nbrsamples[i]]])
     } else {
@@ -2559,8 +2583,8 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
     }
     Sorensen.index <- matrix(0, length(curr.methods), length(curr.methods))
     Overlap <- matrix(0, length(curr.methods), length(curr.methods))
-    for (j in 1:length(curr.methods)) {
-      for (k in 1:length(curr.methods)) {
+    for (j in seq_len(length(curr.methods))) {
+      for (k in seq_len(length(curr.methods))) {
         if (any(!is.na(sel.nbrsamples))) {
           Sorensen.index[j, k] <- 
             computeSorensen(sign.genes[[sel.nbrsamples[i]]][[curr.methods[j]]], 
@@ -2627,7 +2651,7 @@ shorten.method.names <- function(input.methods) {
                           'FDR vs average expression level' = 'fdrvsexpr',
                           'Gene score vs signal for condition-specific genes' = 'scorevssignal')
   output.methods <- rep('', length(input.methods))
-  for (i in 1:length(input.methods)) {
+  for (i in seq_len(length(input.methods))) {
     output.methods[i] <- transform.table[[input.methods[i]]]
   }
   output.methods
@@ -2700,7 +2724,7 @@ checkTableConsistency <- function(file.table) {
     }
   })
   
-  for (i in 1:length(file.table$input.files)) {
+  for (i in seq_len(length(file.table$input.files))) {
     if (is.character(file.table$input.files[i]) && 
           str_detect(file.table$input.files[i], "\\.rds$")) {
       X <- readRDS(file.table$input.files[i])

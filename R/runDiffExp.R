@@ -1,12 +1,12 @@
 checkClass <- function(object, objname, trueclass) {
-  if (!(class(object) == trueclass)) {
+  if (!(is(object, trueclass))) {
     stop(paste("The object", objname, "should be of class", trueclass))
   }
 }
 
 #' The main function to run differential expression analysis
 #' 
-#' The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method.
+#' The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the \code{generateCodeHTMLs()} function.
 #' 
 #' @param data.file The path to a \code{.rds} file containing the data on which the differential expression analysis will be performed, for example a \code{compData} object returned from \code{\link{generateSyntheticData}}.
 #' @param result.extent The extension that will be added to the data file name in order to construct the result file name. This can be for example the differential expression method together with a version number. 
@@ -27,21 +27,13 @@ checkClass <- function(object, objname, trueclass) {
 #'            Rmdfunction = "voom.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' 
-#' \dontrun{
+#' if (interactive()) {
 #' ## The following list covers the currently available 
-#' differential expression methods:
+#' ## differential expression methods:
 #' runDiffExp(data.file = "mydata.rds", result.extent = "baySeq", 
 #'            Rmdfunction = "baySeq.createRmd",
 #'            output.directory = ".", norm.method = "edgeR", 
 #'            equaldisp = TRUE)
-#' runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.GLM", 
-#'            Rmdfunction = "DESeq.GLM.createRmd",
-#'            output.directory = ".", sharing.mode = "maximum", 
-#'            disp.method = "pooled", fit.type = "parametric")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.nbinom", 
-#'            Rmdfunction = "DESeq.nbinom.createRmd",
-#'            output.directory = ".", sharing.mode = "maximum", 
-#'            disp.method = "pooled", fit.type = "parametric")
 #' runDiffExp(data.file = "mydata.rds", result.extent = "DESeq2", 
 #'            Rmdfunction = "DESeq2.createRmd",
 #'            output.directory = ".", fit.type = "parametric", 
@@ -91,14 +83,9 @@ checkClass <- function(object, objname, trueclass) {
 #' runDiffExp(data.file = "mydata.rds", result.extent = "voom.ttest", 
 #'            Rmdfunction = "voom.ttest.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "vst.limma", 
-#'            Rmdfunction = "vst.limma.createRmd",
-#'            output.directory = ".", fit.type = "parametric")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "vst.ttest", 
-#'            Rmdfunction = "vst.ttest.createRmd",
-#'            output.directory = ".", fit.type = "parametric")
 #' }
-runDiffExp <- function(data.file, result.extent, Rmdfunction, output.directory = ".", norm.path = TRUE, ...) {
+runDiffExp <- function(data.file, result.extent, Rmdfunction, 
+                       output.directory = ".", norm.path = TRUE, ...) {
   code.file <- "tempcode.Rmd"
   checkClass(data.file, "data.file", "character")
   checkClass(result.extent, "result.extent", "character")

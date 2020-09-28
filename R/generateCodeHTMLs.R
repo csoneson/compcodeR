@@ -19,7 +19,7 @@ generateCodeHTMLs <- function(input.files, output.directory) {
   input.files <- normalizePath(input.files, winslash = "/")
   output.directory <- normalizePath(output.directory, winslash = "/")
   
-  for (i in 1:length(input.files)) {
+  for (i in seq_len(length(input.files))) {
     temp <- as.character(input.files[i])
     if (!(substr(basename(temp), nchar(basename(temp)) - 3, nchar(basename(temp))) == ".rds")) {
       message(paste(temp, "is not an .rds file, no code file will be generated."))

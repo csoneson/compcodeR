@@ -39,7 +39,7 @@ setMethod(
     cat(paste("Number of known truly differentially expressed genes:", nbr.diffexp, "\n"))
     cat(paste(diffexp.statement, "\n\n"))
     cat("count.matrix:\n")
-    print(head(object@count.matrix[, 1:min(ncol(object@count.matrix), 6)]))
+    print(head(object@count.matrix[, seq_len(min(ncol(object@count.matrix), 6))]))
     nbrleftoutrows <- max(c(0, nrow(object@count.matrix) - 6))
     nbrleftoutcols <- max(c(0, ncol(object@count.matrix) - 6))
     if (nbrleftoutrows > 0 & nbrleftoutcols > 0) {
