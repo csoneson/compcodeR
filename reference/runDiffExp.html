@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="The main function to run differential expression analysis — runDiffExp" />
-<meta property="og:description" content="The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through compcodeR or a user-defined method." />
+<meta property="og:description" content="The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through compcodeR or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the generateCodeHTMLs() function." />
 
 
 
@@ -72,19 +72,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/compcodeR.html">Get started</a>
 </li>
 <li>
@@ -117,24 +111,24 @@
     </div>
 
     <div class="ref-description">
-    <p>The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through <code>compcodeR</code> or a user-defined method.</p>
+    <p>The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through <code>compcodeR</code> or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the <code><a href='generateCodeHTMLs.html'>generateCodeHTMLs()</a></code> function.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>runDiffExp</span>(
-  <span class='kw'>data.file</span>,
-  <span class='kw'>result.extent</span>,
-  <span class='kw'>Rmdfunction</span>,
-  output.directory = <span class='st'>"."</span>,
-  norm.path = <span class='fl'>TRUE</span>,
-  <span class='kw'>...</span>
-)</pre>
+    <pre class="usage"><span class='fu'>runDiffExp</span><span class='op'>(</span>
+  <span class='va'>data.file</span>,
+  <span class='va'>result.extent</span>,
+  <span class='va'>Rmdfunction</span>,
+  output.directory <span class='op'>=</span> <span class='st'>"."</span>,
+  norm.path <span class='op'>=</span> <span class='cn'>TRUE</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data.file</th>
-      <td><p>The path to a <code>.rds</code> file containing the data on which the differential expression analysis will be performed, for example a <code>compData</code> object returned from <code>generateSyntheticData</code>.</p></td>
+      <td><p>The path to a <code>.rds</code> file containing the data on which the differential expression analysis will be performed, for example a <code>compData</code> object returned from <code><a href='generateSyntheticData.html'>generateSyntheticData</a></code>.</p></td>
     </tr>
     <tr>
       <th>result.extent</th>
@@ -142,7 +136,7 @@
     </tr>
     <tr>
       <th>Rmdfunction</th>
-      <td><p>A function that creates an Rmd file containing the code that should be run to perform the differential expression analysis. All functions available through <code>compcodeR</code> can be listed using the <code>listcreateRmd</code> function.</p></td>
+      <td><p>A function that creates an Rmd file containing the code that should be run to perform the differential expression analysis. All functions available through <code>compcodeR</code> can be listed using the <code><a href='listcreateRmd.html'>listcreateRmd</a></code> function.</p></td>
     </tr>
     <tr>
       <th>output.directory</th>
@@ -163,7 +157,79 @@
     <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"></pre>
+    <pre class="examples"><div class='input'><span class='va'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, winslash <span class='op'>=</span> <span class='st'>"/"</span><span class='op'>)</span>
+<span class='va'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span><span class='op'>(</span>dataset <span class='op'>=</span> <span class='st'>"mydata"</span>, n.vars <span class='op'>=</span> <span class='fl'>1000</span>, 
+                                    samples.per.cond <span class='op'>=</span> <span class='fl'>5</span>, n.diffexp <span class='op'>=</span> <span class='fl'>100</span>, 
+                                    output.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='listcreateRmd.html'>listcreateRmd</a></span><span class='op'>(</span><span class='op'>)</span>
+</div><div class='output co'>#&gt;  [1] "baySeq.createRmd"         "DESeq2.createRmd"        
+#&gt;  [3] "DSS.createRmd"            "EBSeq.createRmd"         
+#&gt;  [5] "edgeR.exact.createRmd"    "edgeR.GLM.createRmd"     
+#&gt;  [7] "logcpm.limma.createRmd"   "NBPSeq.createRmd"        
+#&gt;  [9] "NOISeq.prenorm.createRmd" "sqrtcpm.limma.createRmd" 
+#&gt; [11] "TCC.createRmd"            "ttest.createRmd"         
+#&gt; [13] "voom.limma.createRmd"     "voom.ttest.createRmd"    </div><div class='input'><span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span>, result.extent <span class='op'>=</span> <span class='st'>"voom.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.limma.createRmd"</span>, 
+           output.directory <span class='op'>=</span> <span class='va'>tmpdir</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'>processing file: tempcode.Rmd</span></div><div class='output co'>#&gt; <span class='message'>output file: tempcode.md</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'>## The following list covers the currently available </span>
+<span class='co'>## differential expression methods:</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"baySeq"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"baySeq.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"edgeR"</span>, 
+           equaldisp <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"DESeq2"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"DESeq2.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, fit.type <span class='op'>=</span> <span class='st'>"parametric"</span>, 
+           test <span class='op'>=</span> <span class='st'>"Wald"</span>, beta.prior <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+           independent.filtering <span class='op'>=</span> <span class='cn'>TRUE</span>, cooks.cutoff <span class='op'>=</span> <span class='cn'>TRUE</span>, 
+           impute.outliers <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"DSS"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"DSS.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"quantile"</span>, 
+           disp.trend <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"EBSeq"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"EBSeq.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"median"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"edgeR.exact"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"edgeR.exact.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span>, 
+           trend.method <span class='op'>=</span> <span class='st'>"movingave"</span>, disp.type <span class='op'>=</span> <span class='st'>"tagwise"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"edgeR.GLM"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"edgeR.GLM.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span>, 
+           disp.type <span class='op'>=</span> <span class='st'>"tagwise"</span>, disp.method <span class='op'>=</span> <span class='st'>"CoxReid"</span>, 
+           trended <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"logcpm.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"logcpm.limma.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"NBPSeq"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"NBPSeq.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span>, 
+           disp.method <span class='op'>=</span> <span class='st'>"NBP"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"NOISeq"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"NOISeq.prenorm.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"sqrtcpm.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"sqrtcpm.limma.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"TCC"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"TCC.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"tmm"</span>, 
+           test.method <span class='op'>=</span> <span class='st'>"edger"</span>, iteration <span class='op'>=</span> <span class='fl'>3</span>, 
+           normFDR <span class='op'>=</span> <span class='fl'>0.1</span>, floorPDEG <span class='op'>=</span> <span class='fl'>0.05</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"ttest"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"ttest.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"voom.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.limma.createRmd"</span>, 
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runDiffExp</span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"voom.ttest"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.ttest.createRmd"</span>,
+           output.directory <span class='op'>=</span> <span class='st'>"."</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -179,7 +245,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

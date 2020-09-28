@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check the validity of a <code>compData</code> result object — check_compData_results • compcodeR</title>
+<title>Check the validity of a compData result object — check_compData_results • compcodeR</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Check the validity of a <code>compData</code> result object — check_compData_results" />
+<meta property="og:title" content="Check the validity of a compData result object — check_compData_results" />
 <meta property="og:description" content="Check the validity of a compData object containing differential expression results. An object that passes the check can be used as the input for the method comparison functions in compcodeR." />
 
 
@@ -72,19 +72,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/compcodeR.html">Get started</a>
 </li>
 <li>
@@ -120,7 +114,7 @@
     <p>Check the validity of a <code>compData</code> object containing differential expression results. An object that passes the check can be used as the input for the method comparison functions in <code>compcodeR</code>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>check_compData_results</span>(<span class='kw'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>check_compData_results</span><span class='op'>(</span><span class='va'>object</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -136,16 +130,18 @@
     <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), winslash = <span class='st'>"/"</span>)
-<span class='kw'>mydata</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
-                                samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>,
-                                output.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
+    <pre class="examples"><div class='input'><span class='va'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, winslash <span class='op'>=</span> <span class='st'>"/"</span><span class='op'>)</span>
+<span class='va'>mydata</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span><span class='op'>(</span>dataset <span class='op'>=</span> <span class='st'>"mydata"</span>, n.vars <span class='op'>=</span> <span class='fl'>1000</span>, 
+                                samples.per.cond <span class='op'>=</span> <span class='fl'>5</span>, n.diffexp <span class='op'>=</span> <span class='fl'>100</span>,
+                                output.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'>## Check an object without differential expression results</span>
-<span class='fu'>check_compData_results</span>(<span class='kw'>mydata</span>)</div><div class='output co'>#&gt; [1] "Object must contain a list named 'method.names' identifying the differential expression method used."</div><div class='input'>
-<span class='fu'>runDiffExp</span>(data.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), 
-           result.extent = <span class='st'>"voom.limma"</span>, 
-           Rmdfunction = <span class='st'>"voom.limma.createRmd"</span>, 
-           output.directory = <span class='kw'>tmpdir</span>, norm.method = <span class='st'>"TMM"</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+<span class='fu'>check_compData_results</span><span class='op'>(</span><span class='va'>mydata</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] "Object must contain a list named 'method.names' identifying the differential expression method used."</div><div class='input'>
+<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span>, 
+           result.extent <span class='op'>=</span> <span class='st'>"voom.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.limma.createRmd"</span>, 
+           output.directory <span class='op'>=</span> <span class='va'>tmpdir</span>, norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>processing file: tempcode.Rmd</span></div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%
 #&gt;   ordinary text without R code
@@ -160,9 +156,10 @@
 #&gt;  $ error  : logi TRUE
 #&gt;  $ warning: logi TRUE
 #&gt; 
-#&gt; </div><div class='output co'>#&gt; <span class='message'>output file: tempcode.md</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='kw'>resdata</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readRDS.html'>readRDS</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata_voom.limma.rds"</span>))
+#&gt; </div><div class='output co'>#&gt; <span class='message'>output file: tempcode.md</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='va'>resdata</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/readRDS.html'>readRDS</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata_voom.limma.rds"</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'>## Check an object containing differential expression results</span>
-<span class='fu'>check_compData_results</span>(<span class='kw'>resdata</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
+<span class='fu'>check_compData_results</span><span class='op'>(</span><span class='va'>resdata</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -178,7 +175,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

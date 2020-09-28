@@ -72,19 +72,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/compcodeR.html">Get started</a>
 </li>
 <li>
@@ -117,17 +111,17 @@
     </div>
 
     <div class="ref-description">
-    <p>This function provides a GUI to the main function for performing comparisons among differential expression methods and generating a report in HTML format (<code>runComparison</code>). It is assumed that all differential expression results have been generated in advance (using e.g. the function <code>runDiffExp</code>) and that the result <code>compData</code> object for each data set and each differential expression method is saved separately in files with the extension <code>.rds</code>. The function opens a graphical user interface where the user can set parameter values and choose the files to be used as the basis of the comparison. It is, however, possible to circumvent the GUI and call the comparison function <code>runComparison</code> directly.</p>
+    <p>This function provides a GUI to the main function for performing comparisons among differential expression methods and generating a report in HTML format (<code><a href='runComparison.html'>runComparison</a></code>). It is assumed that all differential expression results have been generated in advance (using e.g. the function <code><a href='runDiffExp.html'>runDiffExp</a></code>) and that the result <code>compData</code> object for each data set and each differential expression method is saved separately in files with the extension <code>.rds</code>. The function opens a graphical user interface where the user can set parameter values and choose the files to be used as the basis of the comparison. It is, however, possible to circumvent the GUI and call the comparison function <code><a href='runComparison.html'>runComparison</a></code> directly.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>runComparisonGUI</span>(
-  <span class='kw'>input.directories</span>,
-  <span class='kw'>output.directory</span>,
-  <span class='kw'>recursive</span>,
-  out.width = <span class='kw'>NULL</span>,
-  upper.limits = <span class='kw'>NULL</span>,
-  lower.limits = <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>runComparisonGUI</span><span class='op'>(</span>
+  <span class='va'>input.directories</span>,
+  <span class='va'>output.directory</span>,
+  <span class='va'>recursive</span>,
+  out.width <span class='op'>=</span> <span class='cn'>NULL</span>,
+  upper.limits <span class='op'>=</span> <span class='cn'>NULL</span>,
+  lower.limits <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -159,24 +153,25 @@
     <p>The function will create a comparison report, named <strong>compcodeR_report&lt;timestamp&gt;.html</strong>, in the <code>output.directory</code>. It will also create subfolders named <code>compcodeR_code</code> and <code>compcodeR_figure</code>, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function requires that the <code>rpanel</code> package is installed. If this package can not be installed, please use the <code>runComparison</code> function directly.</p>
+    <p>This function requires that the <code>rpanel</code> package is installed. If this package can not be installed, please use the <code><a href='runComparison.html'>runComparison</a></code> function directly.</p>
     <h2 class="hasAnchor" id="author"><a class="anchor" href="#author"></a>Author</h2>
 
     <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'>if</span> (<span class='fl'>FALSE</span>) {
-<span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>12500</span>, 
-                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>1250</span>, 
-                                    output.file = <span class='st'>"mydata.rds"</span>)
-<span class='fu'>runDiffExp</span>(data.file = <span class='st'>"mydata.rds"</span>, result.extent = <span class='st'>"voom.limma"</span>, 
-           Rmdfunction = <span class='st'>"voom.limma.createRmd"</span>, output.directory = <span class='st'>"."</span>, 
-           norm.method = <span class='st'>"TMM"</span>)
-<span class='fu'>runDiffExp</span>(data.file = <span class='st'>"mydata.rds"</span>, result.extent = <span class='st'>"ttest"</span>, 
-           Rmdfunction = <span class='st'>"ttest.createRmd"</span>, output.directory = <span class='st'>"."</span>, 
-           norm.method = <span class='st'>"TMM"</span>)
-<span class='fu'>runComparisonGUI</span>(input.directories = <span class='st'>"."</span>, output.directory = <span class='st'>"."</span>, recursive = <span class='fl'>FALSE</span>)
-}</div></pre>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/interactive.html'>interactive</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='va'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span><span class='op'>(</span>dataset <span class='op'>=</span> <span class='st'>"mydata"</span>, n.vars <span class='op'>=</span> <span class='fl'>12500</span>, 
+                                    samples.per.cond <span class='op'>=</span> <span class='fl'>5</span>, n.diffexp <span class='op'>=</span> <span class='fl'>1250</span>, 
+                                    output.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span><span class='op'>)</span>
+<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"voom.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.limma.createRmd"</span>, output.directory <span class='op'>=</span> <span class='st'>"."</span>, 
+           norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='st'>"mydata.rds"</span>, result.extent <span class='op'>=</span> <span class='st'>"ttest"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"ttest.createRmd"</span>, output.directory <span class='op'>=</span> <span class='st'>"."</span>, 
+           norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+<span class='fu'>runComparisonGUI</span><span class='op'>(</span>input.directories <span class='op'>=</span> <span class='st'>"."</span>, output.directory <span class='op'>=</span> <span class='st'>"."</span>, recursive <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span>
+<span class='op'>}</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -192,7 +187,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>

@@ -72,19 +72,13 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.2</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="../articles/compcodeR.html">Get started</a>
 </li>
 <li>
@@ -117,10 +111,10 @@
     </div>
 
     <div class="ref-description">
-    <p>A function to extract the code used to generate differential expression results from saved <code>compData</code> result objects (typically obtained by <code>runDiffExp</code>), and to write the code to HTML files. This requires that the code was saved as a character string in R markdown format in the <code>code</code> slot of the result object, which is done automatically by <code>runDiffExp</code>. If the differential expression analysis was performed with functions outside <code>compcodeR</code>, the code has to be added manually to the result object.</p>
+    <p>A function to extract the code used to generate differential expression results from saved <code>compData</code> result objects (typically obtained by <code><a href='runDiffExp.html'>runDiffExp</a></code>), and to write the code to HTML files. This requires that the code was saved as a character string in R markdown format in the <code>code</code> slot of the result object, which is done automatically by <code><a href='runDiffExp.html'>runDiffExp</a></code>. If the differential expression analysis was performed with functions outside <code>compcodeR</code>, the code has to be added manually to the result object.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>generateCodeHTMLs</span>(<span class='kw'>input.files</span>, <span class='kw'>output.directory</span>)</pre>
+    <pre class="usage"><span class='fu'>generateCodeHTMLs</span><span class='op'>(</span><span class='va'>input.files</span>, <span class='va'>output.directory</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -140,13 +134,14 @@
     <p>Charlotte Soneson</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='kw'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>(), winslash = <span class='st'>"/"</span>)
-<span class='kw'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'>generateSyntheticData</span>(dataset = <span class='st'>"mydata"</span>, n.vars = <span class='fl'>1000</span>, 
-                                    samples.per.cond = <span class='fl'>5</span>, n.diffexp = <span class='fl'>100</span>, 
-                                    output.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>))
-<span class='fu'>runDiffExp</span>(data.file = <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata.rds"</span>), result.extent = <span class='st'>"voom.limma"</span>, 
-           Rmdfunction = <span class='st'>"voom.limma.createRmd"</span>, output.directory = <span class='kw'>tmpdir</span>, 
-           norm.method = <span class='st'>"TMM"</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='va'>tmpdir</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/normalizePath.html'>normalizePath</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span><span class='op'>(</span><span class='op'>)</span>, winslash <span class='op'>=</span> <span class='st'>"/"</span><span class='op'>)</span>
+<span class='va'>mydata.obj</span> <span class='op'>&lt;-</span> <span class='fu'><a href='generateSyntheticData.html'>generateSyntheticData</a></span><span class='op'>(</span>dataset <span class='op'>=</span> <span class='st'>"mydata"</span>, n.vars <span class='op'>=</span> <span class='fl'>1000</span>, 
+                                    samples.per.cond <span class='op'>=</span> <span class='fl'>5</span>, n.diffexp <span class='op'>=</span> <span class='fl'>100</span>, 
+                                    output.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span><span class='op'>)</span>
+<span class='fu'><a href='runDiffExp.html'>runDiffExp</a></span><span class='op'>(</span>data.file <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata.rds"</span><span class='op'>)</span>, result.extent <span class='op'>=</span> <span class='st'>"voom.limma"</span>, 
+           Rmdfunction <span class='op'>=</span> <span class='st'>"voom.limma.createRmd"</span>, output.directory <span class='op'>=</span> <span class='va'>tmpdir</span>, 
+           norm.method <span class='op'>=</span> <span class='st'>"TMM"</span><span class='op'>)</span>
+</div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>processing file: tempcode.Rmd</span></div><div class='output co'>#&gt;   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%
 #&gt;   ordinary text without R code
@@ -161,7 +156,8 @@
 #&gt;  $ error  : logi TRUE
 #&gt;  $ warning: logi TRUE
 #&gt; 
-#&gt; </div><div class='output co'>#&gt; <span class='message'>output file: tempcode.md</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>generateCodeHTMLs</span>(<span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span>(<span class='kw'>tmpdir</span>, <span class='st'>"mydata_voom.limma.rds"</span>), <span class='kw'>tmpdir</span>)</div></pre>
+#&gt; </div><div class='output co'>#&gt; <span class='message'>output file: tempcode.md</span></div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>generateCodeHTMLs</span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/file.path.html'>file.path</a></span><span class='op'>(</span><span class='va'>tmpdir</span>, <span class='st'>"mydata_voom.limma.rds"</span><span class='op'>)</span>, <span class='va'>tmpdir</span><span class='op'>)</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -177,7 +173,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.9000.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.9000.</p>
 </div>
 
       </footer>
