@@ -27,7 +27,7 @@ runDiffExp(
 \item{...}{Additional arguments that will be passed to the \code{Rmdfunction}, such as parameter choices for the differential expression method.}
 }
 \description{
-The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method.
+The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the \code{generateCodeHTMLs()} function.
 }
 \examples{
 tmpdir <- normalizePath(tempdir(), winslash = "/")

@@ -6,7 +6,7 @@ checkClass <- function(object, objname, trueclass) {
 
 #' The main function to run differential expression analysis
 #' 
-#' The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method.
+#' The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the \code{generateCodeHTMLs()} function.
 #' 
 #' @param data.file The path to a \code{.rds} file containing the data on which the differential expression analysis will be performed, for example a \code{compData} object returned from \code{\link{generateSyntheticData}}.
 #' @param result.extent The extension that will be added to the data file name in order to construct the result file name. This can be for example the differential expression method together with a version number. 
