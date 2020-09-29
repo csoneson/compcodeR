@@ -79,5 +79,5 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2"
 Anders S and Huber W (2010): Differential expression analysis for sequence count data. Genome Biology 11:R106
 }
 \author{
-Charlotte Soneson
+Charlotte Soneson, Paul Bastide, Mélina Gallopin
 }
