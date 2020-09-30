@@ -109,6 +109,7 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
               gsub(".rds", paste("_", result.extent, ".rds", sep = ""), 
                    data.file.name)),
     winslash = "/")
+  print(result.file)
   
   ## Create the .Rmd file with the differential expression code
   eval(parse(text = Rmdfunction))(data.file, result.file, code.file, ...)
