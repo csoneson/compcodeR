@@ -110,6 +110,8 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
                    data.file.name)),
     winslash = "/")
   print(result.file)
+  print(file.exists(result.file))
+  print(dir(dirname(result.file)))
   
   ## Create the .Rmd file with the differential expression code
   eval(parse(text = Rmdfunction))(data.file, result.file, code.file, ...)
