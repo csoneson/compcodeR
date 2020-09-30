@@ -119,6 +119,8 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
   
   ## Run the differential expression analysis
   knit(input = input.Rmd, output = str_replace(code.file, ".Rmd", ".md"))
+  print(file.exists(result.file))
+  print(dir(dirname(result.file)))
   
   ## Add the code to the result object
   temp.file <- readRDS(result.file)
