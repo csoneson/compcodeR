@@ -279,89 +279,89 @@ test_that("runDiffExp works", {
   expect_is(method.names(tmp), "list")
   expect_equal(method.names(tmp), list())
 
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "baySeq",
+  #   Rmdfunction = "baySeq.createRmd",
+  #   output.directory = tdir, norm.method = "edgeR",
+  #   equaldisp = TRUE
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "DESeq2",
+  #   Rmdfunction = "DESeq2.createRmd",
+  #   output.directory = tdir, fit.type = "parametric",
+  #   test = "Wald", beta.prior = TRUE,
+  #   independent.filtering = TRUE, cooks.cutoff = TRUE,
+  #   impute.outliers = TRUE
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "DSS",
+  #   Rmdfunction = "DSS.createRmd",
+  #   output.directory = tdir, norm.method = "quantile",
+  #   disp.trend = FALSE
+  # )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "baySeq",
-    Rmdfunction = "baySeq.createRmd",
-    output.directory = tdir, norm.method = "edgeR",
-    equaldisp = TRUE
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "DESeq2",
-    Rmdfunction = "DESeq2.createRmd",
-    output.directory = tdir, fit.type = "parametric",
-    test = "Wald", beta.prior = TRUE,
-    independent.filtering = TRUE, cooks.cutoff = TRUE,
-    impute.outliers = TRUE
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "DSS",
-    Rmdfunction = "DSS.createRmd",
-    output.directory = tdir, norm.method = "quantile",
-    disp.trend = FALSE
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"),
     result.extent = "EBSeq",
     Rmdfunction = "EBSeq.createRmd",
     output.directory = tdir, norm.method = "median"
   )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "edgeR.exact",
-    Rmdfunction = "edgeR.exact.createRmd",
-    output.directory = tdir, norm.method = "TMM",
-    trend.method = "movingave", disp.type = "tagwise"
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "edgeR.GLM",
-    Rmdfunction = "edgeR.GLM.createRmd",
-    output.directory = tdir, norm.method = "TMM",
-    disp.type = "tagwise", disp.method = "CoxReid",
-    trended = TRUE
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "logcpm.limma",
-    Rmdfunction = "logcpm.limma.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "NBPSeq",
-    Rmdfunction = "NBPSeq.createRmd",
-    output.directory = tdir, norm.method = "TMM",
-    disp.method = "NBP"
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "NOISeq",
-    Rmdfunction = "NOISeq.prenorm.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "sqrtcpm.limma",
-    Rmdfunction = "sqrtcpm.limma.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "TCC",
-    Rmdfunction = "TCC.createRmd",
-    output.directory = tdir, norm.method = "tmm",
-    test.method = "edger", iteration = 3,
-    normFDR = 0.1, floorPDEG = 0.05
-  )
-  runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
-    result.extent = "ttest",
-    Rmdfunction = "ttest.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "edgeR.exact",
+  #   Rmdfunction = "edgeR.exact.createRmd",
+  #   output.directory = tdir, norm.method = "TMM",
+  #   trend.method = "movingave", disp.type = "tagwise"
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "edgeR.GLM",
+  #   Rmdfunction = "edgeR.GLM.createRmd",
+  #   output.directory = tdir, norm.method = "TMM",
+  #   disp.type = "tagwise", disp.method = "CoxReid",
+  #   trended = TRUE
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "logcpm.limma",
+  #   Rmdfunction = "logcpm.limma.createRmd",
+  #   output.directory = tdir, norm.method = "TMM"
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "NBPSeq",
+  #   Rmdfunction = "NBPSeq.createRmd",
+  #   output.directory = tdir, norm.method = "TMM",
+  #   disp.method = "NBP"
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "NOISeq",
+  #   Rmdfunction = "NOISeq.prenorm.createRmd",
+  #   output.directory = tdir, norm.method = "TMM"
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "sqrtcpm.limma",
+  #   Rmdfunction = "sqrtcpm.limma.createRmd",
+  #   output.directory = tdir, norm.method = "TMM"
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "TCC",
+  #   Rmdfunction = "TCC.createRmd",
+  #   output.directory = tdir, norm.method = "tmm",
+  #   test.method = "edger", iteration = 3,
+  #   normFDR = 0.1, floorPDEG = 0.05
+  # )
+  # runDiffExp(
+  #   data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+  #   result.extent = "ttest",
+  #   Rmdfunction = "ttest.createRmd",
+  #   output.directory = tdir, norm.method = "TMM"
+  # )
   runDiffExp(
     data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
     result.extent = "voom.limma",
@@ -378,7 +378,7 @@ test_that("runDiffExp works", {
   methods <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq", 
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
-               "voom.ttest")
+               "voom.ttest")[c(4, 13, 14)]
 
   ## Test show() method
   m <- methods[4]
