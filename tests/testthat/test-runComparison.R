@@ -382,13 +382,14 @@ test_that("runDiffExp works", {
 
   ## Test show() method
   m <- "EBSeq"
-  tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
+  tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
+                               winslash = "/"))
   show(tmp)
   count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
   show(tmp)
   
   for (m in methods) {
-    tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
+    tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
     
     expect_is(tmp, "compData")
     expect_is(result.table(tmp), "data.frame")
