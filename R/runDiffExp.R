@@ -104,11 +104,9 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
   ## Extract the file name of the data file (after the last /), and extend it with the 
   ## result.extent (before the .rds) to create the result file name.
   data.file.name <- basename(data.file)
-  result.file <- normalizePath(
-    file.path(output.directory, 
-              gsub(".rds", paste("_", result.extent, ".rds", sep = ""), 
-                   data.file.name)),
-    winslash = "/")
+  result.file <- file.path(output.directory, 
+                           gsub(".rds", paste("_", result.extent, ".rds", sep = ""), 
+                                data.file.name))
 
   ## Create the .Rmd file with the differential expression code
   eval(parse(text = Rmdfunction))(data.file, result.file, code.file, ...)
