@@ -381,7 +381,7 @@ test_that("runDiffExp works", {
                "voom.ttest")[c(4, 13, 14)]
 
   ## Test show() method
-  m <- methods[4]
+  m <- "EBSeq"
   tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
   show(tmp)
   count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
