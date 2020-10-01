@@ -303,7 +303,7 @@ test_that("runDiffExp works", {
   #   disp.trend = FALSE
   # )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"),
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "EBSeq",
     Rmdfunction = "EBSeq.createRmd",
     output.directory = tdir, norm.method = "median"
@@ -363,13 +363,13 @@ test_that("runDiffExp works", {
   #   output.directory = tdir, norm.method = "TMM"
   # )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "voom.limma",
     Rmdfunction = "voom.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "voom.ttest",
     Rmdfunction = "voom.ttest.createRmd",
     output.directory = tdir, norm.method = "TMM"
