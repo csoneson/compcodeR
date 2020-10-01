@@ -137,7 +137,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   }
 	
 	### Generate sequencing depths (nfacts * Nk)
-	nfacts <- runif(2 * samples.per.cond, min = minfact, max = maxfact)
+	nfacts <- stats::runif(2 * samples.per.cond, min = minfact, max = maxfact)
 	seq.depths <- nfacts * seqdepth
 
 	### If not all genes are overdispersed, let some of them be Poisson distributed (dispersion = 0)
@@ -155,10 +155,10 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   if (length(effect.size) == 1) {
     for (i in seq_len(n.vars)) {
       if (i %in% genes.upreg) {
-        prob.S2[i] <- (effect.size + rexp(1, rate = 1)) * prob.S1[i]
+        prob.S2[i] <- (effect.size + stats::rexp(1, rate = 1)) * prob.S1[i]
       } else {
         if (i %in% genes.downreg) {
-          prob.S2[i] <- 1/(effect.size + rexp(1, rate = 1)) * prob.S1[i]
+          prob.S2[i] <- 1/(effect.size + stats::rexp(1, rate = 1)) * prob.S1[i]
         } else {
           prob.S2[i] <- prob.S1[i]
         }
@@ -201,17 +201,17 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 		for (j in seq_len(ncol(Z))) {
 			if (j %in% S1) {
 				if (overdispersed[i] == 1) {
-					Z[i, j] <- rnbinom(n = 1, mu = prob.S1[i]/sum.S1 * seq.depths[j], 
-                             size = 1/truedispersions.S1[i])
+				  Z[i, j] <- stats::rnbinom(n = 1, mu = prob.S1[i]/sum.S1 * seq.depths[j], 
+				                            size = 1/truedispersions.S1[i])
 				} else {
-					Z[i, j] <- rpois(n = 1, lambda = prob.S1[i]/sum.S1 * seq.depths[j])
+					Z[i, j] <- stats::rpois(n = 1, lambda = prob.S1[i]/sum.S1 * seq.depths[j])
 				}
 			} else {
 				if (overdispersed[i] == 1) {
-					Z[i, j] <- rnbinom(n = 1, mu = prob.S2[i]/sum.S2 * seq.depths[j], 
-                             size = 1/truedispersions.S2[i])
+				  Z[i, j] <- stats::rnbinom(n = 1, mu = prob.S2[i]/sum.S2 * seq.depths[j], 
+				                            size = 1/truedispersions.S2[i])
 				} else {
-					Z[i, j] <- rpois(n = 1, lambda = prob.S2[i]/sum.S2 * seq.depths[j])
+					Z[i, j] <- stats::rpois(n = 1, lambda = prob.S2[i]/sum.S2 * seq.depths[j])
 				}
 			}
 		}
@@ -223,13 +223,13 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	if (random.outlier.high.prob != 0 | random.outlier.low.prob != 0) {
 		for (i in seq_len(nrow(Z))) {
 			for (j in seq_len(ncol(Z))) {
-        tmp <- runif(1)
+        tmp <- stats::runif(1)
 				if (tmp < random.outlier.high.prob) {
           random.outliers[i, j] <- 1
-          random.outliers.factor[i, j] <- runif(1, min = 5, max = 10)
+          random.outliers.factor[i, j] <- stats::runif(1, min = 5, max = 10)
 				} else if (tmp < random.outlier.low.prob + random.outlier.high.prob) {
           random.outliers[i, j] <- (-1)
-          random.outliers.factor[i, j] <- 1/runif(1, min = 5, max = 10)
+          random.outliers.factor[i, j] <- 1/stats::runif(1, min = 5, max = 10)
 				}
 			}
 		}
@@ -254,13 +254,13 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 		for (i in seq_len(nrow(Z))) {
 			if (has.single.outlier[i] == 1) {
 				the.sample <- sample(seq_len(ncol(Z)), 1)
-        if (runif(1) < (single.outlier.high.prob/(single.outlier.high.prob + 
+        if (stats::runif(1) < (single.outlier.high.prob/(single.outlier.high.prob + 
                                                     single.outlier.low.prob))) {
 					single.outliers[i, the.sample] <- 1
-          single.outliers.factor[i, the.sample] <- runif(1, min = 5, max = 10)
+          single.outliers.factor[i, the.sample] <- stats::runif(1, min = 5, max = 10)
 				} else {
 					single.outliers[i, the.sample] <- (-1)
-          single.outliers.factor[i, the.sample] <- 1/runif(1, min = 5, max = 10)
+          single.outliers.factor[i, the.sample] <- 1/stats::runif(1, min = 5, max = 10)
 				}
 			}
 		}
@@ -342,7 +342,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Filter the data with respect to median cpm
 	cpm <- sweep(Z.T, 2, apply(Z.T, 2, sum), '/') * 1e6
-	m <- apply(cpm, 1, median)
+	m <- apply(cpm, 1, stats::median)
 	keep.C <- which(m >= filter.threshold.mediancpm)
 	Z.TC <- Z.T[keep.C, ]
 	variable.annotations.TC <- variable.annotations.T[keep.C, ]
@@ -411,8 +411,10 @@ computeAval <- function(count.matrix, conditions) {
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
-#'                           output.filename = file.path(tmpdir, "mydata_check.html"))
+#' if (interactive()) {
+#'   summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
+#'                             output.filename = file.path(tmpdir, "mydata_check.html"))
+#' }
 summarizeSyntheticDataSet <- function(data.set, output.filename) {
   
   ## Check that the output.filename ends with .html

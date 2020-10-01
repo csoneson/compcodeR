@@ -34,7 +34,11 @@ Imports:
     edgeR,
     limma,
     vioplot,
-    methods
+    methods,
+    utils,
+    stats,
+    grDevices,
+    graphics
 Suggests:
     BiocStyle,
     EBSeq,

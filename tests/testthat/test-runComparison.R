@@ -75,6 +75,7 @@ test_that("generateSyntheticData works", {
   tdir <- tempdir()
   
   ## No DEGs
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 0, 
@@ -99,6 +100,7 @@ test_that("generateSyntheticData works", {
                      variable.annotations(tmp)$differential.expression), 0)
                
   ## Specify effect sizes individually
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -128,8 +130,8 @@ test_that("generateSyntheticData works", {
   expect_equal(sum(variable.annotations(tmp)$upregulation + 
                      variable.annotations(tmp)$downregulation), 10)
   
-  
   ## Different dispersions between groups
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -148,6 +150,7 @@ test_that("generateSyntheticData works", {
                      variable.annotations(tmp)$downregulation), 10)
   
   ## Not overdispersed
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -185,7 +188,8 @@ test_that("generateSyntheticData works", {
   expect_error(summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp.rds")),
                "output.file must be an .html file.")
   summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp_summaryrep.html"))
-  expect_equal(file.exists(file.path(tdir, "tmp_summaryrep.html")), TRUE)
+  expect_equal(file.exists(normalizePath(file.path(tdir, "tmp_summaryrep.html"), 
+                                         winslash = "/")), TRUE)
 })
 
 test_that("help functions work", {
@@ -199,6 +203,7 @@ test_that("help functions work", {
   expect_equal(shorten.method.names(c("AUC", "ROC, all replicates")),
                c("auc", "rocall"))
   
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -242,7 +247,7 @@ test_that("runDiffExp works", {
   
   expect_equal(checkDataObject(testdat), "Data object looks ok.")
   
-  tmp <- readRDS(file.path(tdir, "B_625_625_5spc_repl1.rds"))
+  tmp <- readRDS(normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
   expect_is(tmp, "compData")
   expect_is(count.matrix(tmp), "matrix")
   expect_equal(nrow(count.matrix(tmp)), 500)
@@ -407,16 +412,18 @@ test_that("runDiffExp works", {
   
   for (m in methods) {
     generateCodeHTMLs(
-      file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), tdir
+      normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
+                    winslash = "/"), normalizePath(tdir)
     )
-    expect_true(file.exists(file.path(tdir, paste0("B_625_625_5spc_repl1_", 
-                                                   m, "_code.html"))))
+    expect_true(file.exists(normalizePath(file.path(
+      tdir, paste0("B_625_625_5spc_repl1_", 
+                   m, "_code.html")), winslash = "/")))
   }
 
   ## Comparison report
-  file.table <- data.frame(input.files = file.path(
+  file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")))
+                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")), winslash = "/"))
   parameters <- NULL
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)
