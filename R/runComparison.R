@@ -1030,7 +1030,14 @@ performComparison <- function(panel) {
 #'                    fracsign.threshold = 0.05, mcc.threshold = 0.05, 
 #'                    nbrtpfp.threshold = 0.05, 
 #'                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
-#' runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
+#' if (interactive()) {
+#'   runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
+#' }
+#' @importFrom grDevices heat.colors
+#' @importFrom graphics axis legend lines par title
+#' @importFrom stats as.dist cor hclust loess median na.omit predict rexp rnbinom
+#'   rpois runif sd
+#' @importFrom utils packageVersion
 runComparison <- function(file.table, 
                           parameters, 
                           output.directory, 
@@ -1326,8 +1333,8 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
   
   for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2))
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+                  cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2))
     all.plot.methods <- NULL
     all.plot.colors <- NULL
     for (j in seq_len(length(sel.repl))) {
@@ -1390,9 +1397,10 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
                    xlab = 'False positive rate',
                    ylab = 'True positive rate')
             } else {
-              lines(fpr, tpr, 
-                    col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
-                    lwd = 1.5)
+              graphics::lines(
+                fpr, tpr, 
+                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
+                lwd = 1.5)
             }
           } 
           tmp.k <- tmp.k + 1
@@ -1401,10 +1409,10 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
     }
     if (incl.legend) {
       plot(0:1, 0:1, type = 'n', axes = FALSE, xlab = '', ylab = '')
-      legend('topleft', legend = all.plot.methods, 
-             col = all.plot.colors, lty = 1, lwd = 2, 
-             cex = ifelse(length(all.plot.methods) < 24, 1.5, 
-                          1.3/length(all.plot.methods)*24))
+      graphics::legend('topleft', legend = all.plot.methods, 
+                       col = all.plot.colors, lty = 1, lwd = 2, 
+                       cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+                                    1.3/length(all.plot.methods)*24))
     } else {
       cat("No truly differentially expressed genes found. ")
     }
@@ -1427,9 +1435,9 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
   
   for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2), 
-        mgp = c(3.5, 1, 0))
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+                  cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2), 
+                  mgp = c(3.5, 1, 0))
     all.plot.colors <- NULL
     all.plot.methods <- NULL
     for (j in seq_len(length(sel.repl))) {
@@ -1499,10 +1507,11 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
                                      ylab = 'Number of false discoveries',
                                      main = maintext)})
             } else {
-              suppressWarnings({lines(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
-                                      ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
-                                      col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
-                                      lwd = 1.5)})   #1.5
+              suppressWarnings({
+                graphics::lines(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
+                                ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
+                                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
+                                lwd = 1.5)})   #1.5
             }
           } 
           tmp.k <- tmp.k + 1
@@ -1512,15 +1521,15 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
     if (incl.legend) {
       if (legend.outside) {
         plot(0:1, 0:1, type = 'n', axes = FALSE, xlab = '', ylab = '')
-        legend('topleft', legend = all.plot.methods, 
-               col = all.plot.colors, lty = 1, lwd = 2, 
-               cex = ifelse(length(all.plot.methods) < 24, 1.5, 
-                            1.3/length(all.plot.methods)*24))
+        graphics::legend('topleft', legend = all.plot.methods, 
+                         col = all.plot.colors, lty = 1, lwd = 2, 
+                         cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+                                      1.3/length(all.plot.methods)*24))
       } else {
-        legend('bottomright', legend = all.plot.methods, 
-               col = all.plot.colors, lty = 1, lwd = 2, 
-               cex = ifelse(length(all.plot.methods) < 24, 1.5, 
-                            1.3/length(all.plot.methods)*24))
+        graphics::legend('bottomright', legend = all.plot.methods, 
+                         col = all.plot.colors, lty = 1, lwd = 2, 
+                         cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+                                      1.3/length(all.plot.methods)*24))
       }
     } else {
       cat("No truly differentially expressed genes found.")
@@ -1540,8 +1549,9 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+                  cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[k])
@@ -1596,8 +1606,9 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+                  cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
@@ -1618,9 +1629,9 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         plot(A.value, score, cex = 0.75, pch = 20, main = setup.parameters$incl.de.methods[k], 
              xlab = "Average expression", 
              ylab = "Score")
-        loessline <- loess(score ~ A.value)
+        loessline <- stats::loess(score ~ A.value)
         xval <- seq(min(A.value), max(A.value), length.out = 500)
-        lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
+        graphics::lines(xval, stats::predict(loessline, xval), col = linecol, lwd = 5) 
       }
     }
   }
@@ -1740,13 +1751,13 @@ computeSignal <- function(count.matrix, conditions, signal.measure) {
                                              levels(factor(conditions))[1])], 
             1, mean)/apply(log2.pseudocounts.diff[, which(conditions == 
                                                             levels(factor(conditions))[1])], 
-                           1, sd)
+                           1, stats::sd)
     signal2 <- 
       apply(log2.pseudocounts.diff[, which(conditions == 
                                              levels(factor(conditions))[2])], 
             1, mean)/apply(log2.pseudocounts.diff[, which(conditions == 
                                                             levels(factor(conditions))[2])], 
-                           1, sd)
+                           1, stats::sd)
   } else if (signal.measure == "mean") {
     signal1 <- apply(log2.pseudocounts.diff[, which(conditions == 
                                                       levels(factor(conditions))[1])], 
@@ -1778,8 +1789,9 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-        cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+                  cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
@@ -2014,8 +2026,8 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    par(mfrow = c(nbr.rows, nbr.cols), mar = c(9, 6, 4, 2), mgp = c(4, 1, 0), 
-        cex.axis = 1.5, las = 1, cex.main = 1.75, cex.lab = 2)
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), mar = c(9, 6, 4, 2), mgp = c(4, 1, 0), 
+                  cex.axis = 1.5, las = 1, cex.main = 1.75, cex.lab = 2)
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
                           setup.parameters$incl.de.methods[k])
@@ -2052,17 +2064,17 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         w <- split(score, total.outliers)
         names(w)[1] <- "x"
         
-        do.call(vioplot, c(lapply(w, na.omit), 
+        do.call(vioplot, c(lapply(w, stats::na.omit), 
                            list(horizontal = FALSE, names = names(table(total.outliers))),
                            col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]))
-        title(main = setup.parameters$incl.de.methods[k], 
-              xlab = "Total number of outliers", 
-              ylab = "Score")
+        graphics::title(main = setup.parameters$incl.de.methods[k], 
+                        xlab = "Total number of outliers", 
+                        ylab = "Score")
                 
-        axis(1, at = seq_len(length(unique(total.outliers))), 
-             labels = paste("n =", table(total.outliers)[match(levels(factor(total.outliers)), 
-                                                               names(table(total.outliers)))]), 
-             tick = FALSE, line = 1, lwd = 0)
+        graphics::axis(1, at = seq_len(length(unique(total.outliers))), 
+                       labels = paste("n =", table(total.outliers)[match(levels(factor(total.outliers)), 
+                                                                         names(table(total.outliers)))]), 
+                       tick = FALSE, line = 1, lwd = 0)
         
       }
     }
@@ -2367,7 +2379,7 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
   xmin <- ifelse(is.null(the.xmin), xmin.def, the.xmin)
   
   if (any(!is.na(the.result)) && !all(the.result == -1000)) {
-    par(mar = c(5, max(nchar(the.methods)), 4, 2))
+    graphics::par(mar = c(5, max(nchar(the.methods)), 4, 2))
     if (any(!is.na(result.table$nbr.samples))) {
       f2.temp <- factor(paste(result.table$nbr.samples, "samples per condition"),
                         levels = paste(sort(as.numeric(unique(result.table$nbr.samples)), 
@@ -2472,13 +2484,15 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     for (j in seq_len(length(curr.methods))) {
       for (k in seq_len(length(curr.methods))) {
         if (any(!is.na(sel.nbrsamples))) {
-          Spearman.correlation[j, k] <- cor(all.scores[[sel.nbrsamples[i]]][[curr.methods[j]]],
-                                            all.scores[[sel.nbrsamples[i]]][[curr.methods[k]]],
-                                            method = 'spearman', use = 'na.or.complete')
+          Spearman.correlation[j, k] <- 
+            stats::cor(all.scores[[sel.nbrsamples[i]]][[curr.methods[j]]],
+                       all.scores[[sel.nbrsamples[i]]][[curr.methods[k]]],
+                       method = 'spearman', use = 'na.or.complete')
         } else {
-          Spearman.correlation[j, k] <- cor(all.scores[[curr.methods[j]]],
-                                            all.scores[[curr.methods[k]]],
-                                            method = 'spearman', use = 'na.or.complete')
+          Spearman.correlation[j, k] <- 
+            stats::cor(all.scores[[curr.methods[j]]],
+                       all.scores[[curr.methods[k]]],
+                       method = 'spearman', use = 'na.or.complete')
         }
       }
     }
@@ -2486,14 +2500,14 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     print(Spearman.correlation)
     
     if (nrow(Spearman.correlation) > 2) {
-      hc <- hclust(as.dist(1 - Spearman.correlation), method = 'average')
+      hc <- stats::hclust(stats::as.dist(1 - Spearman.correlation), method = 'average')
       print(levelplot(Spearman.correlation[hc$order, hc$order], xlab = '', ylab = '',
                       column.values = nrow(Spearman.correlation):1,
                       at = seq(-1, 1, length = 200),
                       scales = list(y = list(labels = curr.methods[hc$order], 
                                              at = nrow(Spearman.correlation):1),
                                     x = list(rot = 90)), 
-                      col.regions = heat.colors(200), 
+                      col.regions = grDevices::heat.colors(200), 
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)
@@ -2506,7 +2520,7 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
                       scales = list(y = list(labels = curr.methods, 
                                              at = nrow(Spearman.correlation):1),
                                     x = list(rot = 90)), 
-                      col.regions = heat.colors(200), 
+                      col.regions = grDevices::heat.colors(200), 
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)
@@ -2605,13 +2619,13 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
       print(Sorensen.index)
       Sorensen.noNA <- Sorensen.index
       Sorensen.noNA[is.na(Sorensen.index)] <- 0
-      hc <- hclust(as.dist(1 - Sorensen.noNA))
+      hc <- stats::hclust(stats::as.dist(1 - Sorensen.noNA))
       print(levelplot(Sorensen.index[hc$order, hc$order], xlab = '', ylab = '',
                       column.values = nrow(Sorensen.index):1, at = seq(0, 1, length = 100),
                       scales = list(y = list(labels=curr.methods[hc$order], 
                                              at=nrow(Sorensen.index):1),
                                     x = list(rot = 90)), 
-                      col.regions = heat.colors(100), 
+                      col.regions = grDevices::heat.colors(100), 
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)

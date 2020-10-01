@@ -75,6 +75,7 @@ test_that("generateSyntheticData works", {
   tdir <- tempdir()
   
   ## No DEGs
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 0, 
@@ -99,6 +100,7 @@ test_that("generateSyntheticData works", {
                      variable.annotations(tmp)$differential.expression), 0)
                
   ## Specify effect sizes individually
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -128,8 +130,8 @@ test_that("generateSyntheticData works", {
   expect_equal(sum(variable.annotations(tmp)$upregulation + 
                      variable.annotations(tmp)$downregulation), 10)
   
-  
   ## Different dispersions between groups
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -148,6 +150,7 @@ test_that("generateSyntheticData works", {
                      variable.annotations(tmp)$downregulation), 10)
   
   ## Not overdispersed
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -185,7 +188,8 @@ test_that("generateSyntheticData works", {
   expect_error(summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp.rds")),
                "output.file must be an .html file.")
   summarizeSyntheticDataSet(tmp, file.path(tdir, "tmp_summaryrep.html"))
-  expect_equal(file.exists(file.path(tdir, "tmp_summaryrep.html")), TRUE)
+  expect_equal(file.exists(normalizePath(file.path(tdir, "tmp_summaryrep.html"), 
+                                         winslash = "/")), TRUE)
 })
 
 test_that("help functions work", {
@@ -199,6 +203,7 @@ test_that("help functions work", {
   expect_equal(shorten.method.names(c("AUC", "ROC, all replicates")),
                c("auc", "rocall"))
   
+  set.seed(1)
   tmp <- generateSyntheticData(
     dataset = "B_625_625", n.vars = 50, 
     samples.per.cond = 5, n.diffexp = 10,
@@ -242,7 +247,7 @@ test_that("runDiffExp works", {
   
   expect_equal(checkDataObject(testdat), "Data object looks ok.")
   
-  tmp <- readRDS(file.path(tdir, "B_625_625_5spc_repl1.rds"))
+  tmp <- readRDS(normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
   expect_is(tmp, "compData")
   expect_is(count.matrix(tmp), "matrix")
   expect_equal(nrow(count.matrix(tmp)), 500)
@@ -280,14 +285,14 @@ test_that("runDiffExp works", {
   expect_equal(method.names(tmp), list())
 
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "baySeq",
     Rmdfunction = "baySeq.createRmd",
     output.directory = tdir, norm.method = "edgeR",
     equaldisp = TRUE
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "DESeq2",
     Rmdfunction = "DESeq2.createRmd",
     output.directory = tdir, fit.type = "parametric",
@@ -296,27 +301,27 @@ test_that("runDiffExp works", {
     impute.outliers = TRUE
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "DSS",
     Rmdfunction = "DSS.createRmd",
     output.directory = tdir, norm.method = "quantile",
     disp.trend = FALSE
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "EBSeq",
     Rmdfunction = "EBSeq.createRmd",
     output.directory = tdir, norm.method = "median"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "edgeR.exact",
     Rmdfunction = "edgeR.exact.createRmd",
     output.directory = tdir, norm.method = "TMM",
     trend.method = "movingave", disp.type = "tagwise"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "edgeR.GLM",
     Rmdfunction = "edgeR.GLM.createRmd",
     output.directory = tdir, norm.method = "TMM",
@@ -324,32 +329,32 @@ test_that("runDiffExp works", {
     trended = TRUE
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "logcpm.limma",
     Rmdfunction = "logcpm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "NBPSeq",
     Rmdfunction = "NBPSeq.createRmd",
     output.directory = tdir, norm.method = "TMM",
     disp.method = "NBP"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "NOISeq",
     Rmdfunction = "NOISeq.prenorm.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "sqrtcpm.limma",
     Rmdfunction = "sqrtcpm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "TCC",
     Rmdfunction = "TCC.createRmd",
     output.directory = tdir, norm.method = "tmm",
@@ -357,19 +362,19 @@ test_that("runDiffExp works", {
     normFDR = 0.1, floorPDEG = 0.05
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "ttest",
     Rmdfunction = "ttest.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "voom.limma",
     Rmdfunction = "voom.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
   runDiffExp(
-    data.file = file.path(tdir, "B_625_625_5spc_repl1.rds"), 
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "voom.ttest",
     Rmdfunction = "voom.ttest.createRmd",
     output.directory = tdir, norm.method = "TMM"
@@ -381,14 +386,15 @@ test_that("runDiffExp works", {
                "voom.ttest")
 
   ## Test show() method
-  m <- methods[4]
-  tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
+  m <- "EBSeq"
+  tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
+                               winslash = "/"))
   show(tmp)
   count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
   show(tmp)
   
   for (m in methods) {
-    tmp <- readRDS(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")))
+    tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
     
     expect_is(tmp, "compData")
     expect_is(result.table(tmp), "data.frame")
@@ -406,16 +412,18 @@ test_that("runDiffExp works", {
   
   for (m in methods) {
     generateCodeHTMLs(
-      file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), tdir
+      normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
+                    winslash = "/"), normalizePath(tdir)
     )
-    expect_true(file.exists(file.path(tdir, paste0("B_625_625_5spc_repl1_", 
-                                                   m, "_code.html"))))
+    expect_true(file.exists(normalizePath(file.path(
+      tdir, paste0("B_625_625_5spc_repl1_", 
+                   m, "_code.html")), winslash = "/")))
   }
 
   ## Comparison report
-  file.table <- data.frame(input.files = file.path(
+  file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")))
+                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")), winslash = "/"))
   parameters <- NULL
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)

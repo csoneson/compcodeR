@@ -37,6 +37,7 @@ listcreateRmd <- function() {
 #'            output.directory = tmpdir, norm.method = "median")
 #' }
 #' )
+#' @importFrom utils packageVersion
 EBSeq.createRmd <- function(data.path, result.path, codefile, 
                             norm.method) {
   codefile <- file(codefile, open = 'w')
@@ -71,7 +72,7 @@ EBSeq.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('EBSeq,', packageVersion('EBSeq'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'EBSeq', 'full.name' = '", paste('EBSeq.', packageVersion('EBSeq'), '.', norm.method, sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'EBSeq', 'full.name' = '", paste('EBSeq.', utils::packageVersion('EBSeq'), '.', norm.method, sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')", 
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -107,6 +108,7 @@ EBSeq.createRmd <- function(data.path, result.path, codefile,
 #'            Rmdfunction = "edgeR.exact.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM", 
 #'            trend.method = "movingave", disp.type = "tagwise")
+#' @importFrom utils packageVersion
 edgeR.exact.createRmd <- function(data.path, result.path, codefile, 
                                   norm.method, trend.method, disp.type) {
   ## Write the code for applying edgeR exact test to an Rmd file
@@ -149,7 +151,7 @@ edgeR.exact.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('edgeR,', packageVersion('edgeR'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'edgeR', 'full.name' = '", paste('edgeR.', packageVersion('edgeR'), '.exact.', norm.method, '.', trend.method, '.', disp.type, sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'edgeR', 'full.name' = '", paste('edgeR.', utils::packageVersion('edgeR'), '.exact.', norm.method, '.', trend.method, '.', disp.type, sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -187,6 +189,7 @@ edgeR.exact.createRmd <- function(data.path, result.path, codefile,
 #'            output.directory = tmpdir, norm.method = "TMM",
 #'            disp.type = "tagwise", disp.method = "CoxReid", 
 #'            trended = TRUE)
+#' @importFrom utils packageVersion
 edgeR.GLM.createRmd <- function(data.path, result.path, codefile, 
                                 norm.method, disp.type, disp.method, trended) {
   codefile <- file(codefile, open = "w")
@@ -232,7 +235,7 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'edgeR', 'full.name' = '", paste('edgeR.', packageVersion('edgeR'), '.GLM.', norm.method, '.', as.vector(ifelse(trended == TRUE, 'trend', 'notrend')), '.', disp.method, '.', disp.type, sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'edgeR', 'full.name' = '", paste('edgeR.', utils::packageVersion('edgeR'), '.GLM.', norm.method, '.', as.vector(ifelse(trended == TRUE, 'trend', 'notrend')), '.', disp.method, '.', disp.type, sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -275,6 +278,7 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
 #'            output.directory = tmpdir, fit.type = "parametric",
 #'            test = "Wald")
 #' })
+#' @importFrom utils packageVersion
 DESeq2.createRmd <- function(data.path, result.path, codefile, 
                              fit.type, test, beta.prior = TRUE, 
                              independent.filtering = TRUE, cooks.cutoff = TRUE, 
@@ -307,7 +311,7 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('DESeq2,', packageVersion('DESeq2'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'DESeq2', 'full.name' = '", paste('DESeq2.', packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'DESeq2', 'full.name' = '", paste('DESeq2.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  
@@ -342,6 +346,7 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma", 
 #'            Rmdfunction = "voom.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
+#' @importFrom utils packageVersion
 voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom + limma", codefile)
@@ -370,7 +375,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.', packageVersion('limma'), '.limma.', norm.method, sep = ''), "')", sep = ''),
+                     paste('voom.', utils::packageVersion('limma'), '.limma.', norm.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -416,6 +421,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #'            output.directory = tmpdir, norm.method = "edgeR",
 #'            equaldisp = TRUE, sample.size = 10)
 #' })
+#' @importFrom utils packageVersion
 baySeq.createRmd <- function(data.path, result.path, codefile, 
                              norm.method, equaldisp, sample.size = 5000, 
                              estimation = "QL", pET = "BIC") {
@@ -443,7 +449,7 @@ baySeq.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('baySeq,', packageVersion('baySeq'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'baySeq', 'full.name' = '", paste('baySeq.', packageVersion('baySeq'), '.', norm.method, '.', ifelse(equaldisp == TRUE, 'equaldisp', 'nonequaldisp'), '.samplesize', sample.size, '.', estimation, '.', pET, sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'baySeq', 'full.name' = '", paste('baySeq.', utils::packageVersion('baySeq'), '.', norm.method, '.', ifelse(equaldisp == TRUE, 'equaldisp', 'nonequaldisp'), '.samplesize', sample.size, '.', estimation, '.', pET, sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -482,6 +488,7 @@ baySeq.createRmd <- function(data.path, result.path, codefile,
 #'            Rmdfunction = "voom.ttest.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
+#' @importFrom utils packageVersion
 voom.ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom (t-test)", codefile)
@@ -510,7 +517,7 @@ voom.ttest.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'), ';', 'genefilter,', packageVersion('genefilter'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.', packageVersion('limma'), '.ttest.', norm.method, sep = ''), "')", sep = ''),
+                     paste('voom.', utils::packageVersion('limma'), '.ttest.', norm.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -547,6 +554,7 @@ voom.ttest.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "logcpm.limma", 
 #'            Rmdfunction = "logcpm.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
+#' @importFrom utils packageVersion
 logcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### log(cpm) + limma", codefile)
@@ -575,7 +583,7 @@ logcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'logcpm.limma', 'full.name' = '", 
-                     paste('logcpm.limma.', packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
+                     paste('logcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -612,6 +620,7 @@ logcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "sqrtcpm.limma", 
 #'            Rmdfunction = "sqrtcpm.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
+#' @importFrom utils packageVersion
 sqrtcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### sqrt(cpm) + limma", codefile)
@@ -640,7 +649,7 @@ sqrtcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.metho
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtcpm.limma', 'full.name' = '", 
-                     paste('sqrtcpm.limma.', packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
+                     paste('sqrtcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -678,6 +687,7 @@ sqrtcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.metho
 #'            Rmdfunction = "ttest.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
+#' @importFrom utils packageVersion
 ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### t-test", codefile)
@@ -703,7 +713,7 @@ ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('edgeR,', packageVersion('edgeR'), ';', 'genefilter,', packageVersion('genefilter'))", 
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'ttest', 'full.name' = 'ttest.", packageVersion('genefilter'), '.', norm.method, "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'ttest', 'full.name' = 'ttest.", utils::packageVersion('genefilter'), '.', norm.method, "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -745,6 +755,7 @@ ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
 #'            Rmdfunction = "NOISeq.prenorm.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
+#' @importFrom utils packageVersion
 NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.method) {
   codefile <- file(codefile, open = 'w')
   cdata <- readRDS(data.path)
@@ -774,7 +785,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "package.version(cdata) <- paste('NOISeq,', packageVersion('NOISeq'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NOISeq', 'full.name' = '", 
-                     paste('NOISeq.', packageVersion('NOISeq'), '.', norm.method, sep = ''), "')", sep = ''),
+                     paste('NOISeq.', utils::packageVersion('NOISeq'), '.', norm.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -815,6 +826,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
 #'            Rmdfunction = "NBPSeq.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM", disp.method = "NBP")
 #' })
+#' @importFrom utils packageVersion
 NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp.method) {
   codefile <- file(codefile, open = 'w')
   writeLines("### NBPSeq", codefile)
@@ -842,7 +854,7 @@ NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp
                "package.version(cdata) <- paste('NBPSeq,', packageVersion('NBPSeq'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NBPSeq', 'full.name' = '", 
-                     paste('NBPSeq.', packageVersion('NBPSeq'), '.', norm.method, '.', disp.method, sep = ''), "')", sep = ''),
+                     paste('NBPSeq.', utils::packageVersion('NBPSeq'), '.', norm.method, '.', disp.method, sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -879,6 +891,7 @@ NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp
 #'            output.directory = tmpdir, norm.method = "quantile", 
 #'            disp.trend = TRUE)
 #' })
+#' @importFrom utils packageVersion
 DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.trend) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DSS", codefile)
@@ -909,7 +922,7 @@ DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.tr
                "package.version(cdata) <- paste('DSS,', packageVersion('DSS'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'DSS', 'full.name' = '", 
-                     paste('DSS.', packageVersion('DSS'), '.', norm.method, '.', ifelse(disp.trend, 'trend', 'notrend'), sep = ''), "')", sep = ''),
+                     paste('DSS.', utils::packageVersion('DSS'), '.', norm.method, '.', ifelse(disp.trend, 'trend', 'notrend'), sep = ''), "')", sep = ''),
              "is.valid <- check_compData_results(cdata)",
              "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -951,6 +964,7 @@ DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.tr
 #'            output.directory = tmpdir, norm.method = "tmm", 
 #'            test.method = "edger")
 #' })
+#' @importFrom utils packageVersion
 TCC.createRmd <- function(data.path, result.path, codefile, norm.method, 
                           test.method, iteration = 3, 
                           normFDR = 0.1, floorPDEG = 0.05) {
@@ -984,7 +998,7 @@ TCC.createRmd <- function(data.path, result.path, codefile, norm.method,
                "package.version(cdata) <- paste('TCC,', packageVersion('TCC'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'TCC', 'full.name' = '", 
-                     paste('TCC.', packageVersion('TCC'), '.', norm.method, '.', test.method, '.iter', iteration, '.normFDR', normFDR, '.floorPDEG', floorPDEG, sep = ''), "')", sep = ''),
+                     paste('TCC.', utils::packageVersion('TCC'), '.', norm.method, '.', test.method, '.iter', iteration, '.normFDR', normFDR, '.floorPDEG', floorPDEG, sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)

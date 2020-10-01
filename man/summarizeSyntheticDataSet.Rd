@@ -19,8 +19,10 @@ tmpdir <- normalizePath(tempdir(), winslash = "/")
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
                                     samples.per.cond = 5, n.diffexp = 100, 
                                     output.file = file.path(tmpdir, "mydata.rds"))
-summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
-                          output.filename = file.path(tmpdir, "mydata_check.html"))
+if (interactive()) {
+  summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
+                            output.filename = file.path(tmpdir, "mydata_check.html"))
+}
 }
 \author{
 Charlotte Soneson

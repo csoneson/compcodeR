@@ -14,6 +14,8 @@ services:
 
 before_install:
   - export DISPLAY=:99.0
+  - Rscript -e 'install.packages("BiocManager")'
+  - Rscript -e 'BiocManager::install(c("rpanel", "DSS"))'
 
 r_packages:
   - covr
