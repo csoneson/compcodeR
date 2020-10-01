@@ -109,20 +109,14 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
               gsub(".rds", paste("_", result.extent, ".rds", sep = ""), 
                    data.file.name)),
     winslash = "/")
-  print(result.file)
-  print(file.exists(result.file))
-  print(dir(dirname(result.file)))
-  
+
   ## Create the .Rmd file with the differential expression code
   eval(parse(text = Rmdfunction))(data.file, result.file, code.file, ...)
   input.Rmd <- code.file
-  print(readLines(input.Rmd))
-  
+
   ## Run the differential expression analysis
   knit(input = input.Rmd, output = str_replace(code.file, ".Rmd", ".md"))
-  print(file.exists(result.file))
-  print(dir(dirname(result.file)))
-  
+
   ## Add the code to the result object
   temp.file <- readRDS(result.file)
   if (is.list(temp.file)) temp.file <- convertListTocompData(temp.file)
