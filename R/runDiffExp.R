@@ -116,6 +116,7 @@ runDiffExp <- function(data.file, result.extent, Rmdfunction,
   ## Create the .Rmd file with the differential expression code
   eval(parse(text = Rmdfunction))(data.file, result.file, code.file, ...)
   input.Rmd <- code.file
+  print(readLines(input.Rmd))
   
   ## Run the differential expression analysis
   knit(input = input.Rmd, output = str_replace(code.file, ".Rmd", ".md"))
