@@ -401,7 +401,7 @@ test_that("runDiffExp works", {
     expect_equal(nrow(result.table(tmp)), 500)
     expect_is(code(tmp), "character")
     expect_is(analysis.date(tmp), "character")
-    expect_is(package.version(tmp), "character")
+    expect_is(compcodeR:::package.version(tmp), "character")
     expect_is(method.names(tmp), "list")
     expect_named(method.names(tmp), c("short.name", "full.name"))
     
@@ -423,7 +423,8 @@ test_that("runDiffExp works", {
   ## Comparison report
   file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 c("voom.limma", "voom.ttest", "EBSeq"), ".rds")), winslash = "/"))
+                 c("voom.limma", "voom.ttest", "EBSeq", "DESeq2"),
+                 ".rds")), winslash = "/"))
   parameters <- NULL
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)
