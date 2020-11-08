@@ -1357,8 +1357,9 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
           the.scores <- result.table(X)$score
           if (!all(variable.annotations(X)$differential.expression == 0)) {
             incl.legend <- TRUE
-            the.prediction <- prediction(the.scores,
-                                         variable.annotations(X)$differential.expression)
+            idx_not_na <- which(!is.na(the.scores))
+            the.prediction <- prediction(the.scores[idx_not_na],
+                                         variable.annotations(X)$differential.expression[idx_not_na])
             the.performance <- performance(the.prediction,
                                            measure = 'tpr',
                                            x.measure = 'fpr')
@@ -2116,7 +2117,9 @@ createResultTable <- function(setup.parameters) {
     if (!all(variable.annotations(X)$differential.expression == 0)) {
       if ('auc' %in% setup.parameters$comparisons) {
         the.scores <- result.table(X)$score
-        the.prediction <- prediction(the.scores, variable.annotations(X)$differential.expression)
+        idx_not_na <- which(!is.na(the.scores))
+        the.prediction <- prediction(the.scores[idx_not_na], 
+                                     variable.annotations(X)$differential.expression[idx_not_na])
         auc.vec[i] <- unlist(performance(the.prediction, measure = 'auc')@y.values)
       }
       
