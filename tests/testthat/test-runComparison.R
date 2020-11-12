@@ -300,13 +300,15 @@ test_that("runDiffExp works", {
     independent.filtering = TRUE, cooks.cutoff = TRUE,
     impute.outliers = TRUE
   )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "DSS",
-    Rmdfunction = "DSS.createRmd",
-    output.directory = tdir, norm.method = "quantile",
-    disp.trend = FALSE
-  )
+  if (require("DSS")) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "DSS",
+      Rmdfunction = "DSS.createRmd",
+      output.directory = tdir, norm.method = "quantile",
+      disp.trend = FALSE
+    )
+  }
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "EBSeq",
@@ -380,10 +382,13 @@ test_that("runDiffExp works", {
     output.directory = tdir, norm.method = "TMM"
   )
 
-  methods <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR.exact",
+  methods <- c("baySeq", "DESeq2", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq", 
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
+  if (require("DSS")) {
+    methods <- c(methods, "DSS")
+  }
 
   ## Test show() method
   m <- "EBSeq"
