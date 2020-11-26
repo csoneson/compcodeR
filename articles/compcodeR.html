@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.27.2</span>
       </span>
     </div>
 
@@ -67,7 +67,7 @@
       <h1 data-toc-skip>Comparing methods for differential expression analysis of RNAseq data with the compcodeR package</h1>
                         <h4 class="author">Charlotte Soneson</h4>
             
-            <h4 class="date">2020-10-01</h4>
+            <h4 class="date">2020-11-26</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/master/vignettes/compcodeR.Rmd"><code>vignettes/compcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>compcodeR.Rmd</code></div>
@@ -76,8 +76,8 @@
 
     
     
-<div class="sourceCode" id="cb1"><pre class="downlit">
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR">compcodeR</a></span><span class="op">)</span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR">compcodeR</a></span><span class="op">)</span>
 <span class="co">#&gt; Loading required package: sm</span>
 <span class="co">#&gt; Warning in fun(libname, pkgname): no display name and</span>
 <span class="co">#&gt; no $DISPLAY environment variable</span>
@@ -87,31 +87,31 @@
 <span class="co">#&gt;   reorder.factor gdata</span>
 <span class="co">#&gt; Warning: replacing previous import</span>
 <span class="co">#&gt; 'gdata::reorder.factor' by 'gplots::reorder.factor'</span>
-<span class="co">#&gt; when loading 'compcodeR'</span></pre></div>
+<span class="co">#&gt; when loading 'compcodeR'</span></code></pre></div>
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p><em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> is an R package that provides an interface to several popular methods for differential expression analysis of RNAseq data and contains functionality for comparing the outcomes and performances of several differential expression methods applied to the same data set. The package also contains a function for generating synthetic RNAseq counts, using the simulation framework described in more detail in <span class="citation">Soneson and Delorenzi (2013)</span>.</p>
-<p>This vignette provides a tutorial on how to use the different functionalities of the <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package.</p>
+<p><em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> is an R package that provides an interface to several popular methods for differential expression analysis of RNAseq data and contains functionality for comparing the outcomes and performances of several differential expression methods applied to the same data set. The package also contains a function for generating synthetic RNAseq counts, using the simulation framework described in more detail in <span class="citation">Soneson and Delorenzi (2013)</span>.</p>
+<p>This vignette provides a tutorial on how to use the different functionalities of the <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package.</p>
 <p>Currently, the differential expression interfaces provided in the package are restricted to comparisons between two conditions. However, many of the comparison functions are more general and can also be applied to test results from other contrast types, as well as to test results from other data types than RNAseq.</p>
-<p><strong>Important!</strong> Since <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> provides interfaces to differential expression analysis methods implemented in other R packages, take care to cite the appropriate references if you use any of the interface functions (see the reference manual for more information). Also be sure to always check the code that was used to run the differential expression analysis, using e.g. the <code><a href="../reference/generateCodeHTMLs.html">generateCodeHTMLs()</a></code> function (see <a href="#performing-differential-expression-analysis">below</a> for more information) to make sure that parameters etc. agree with your intentions and that there were no errors or serious warnings. These interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations, and the user should make sure that the analysis is performed in the way they intend. For instructions on how to add your own DE method, see <a href="#providing-your-own-differential-expression-code">below</a>.</p>
+<p><strong>Important!</strong> Since <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> provides interfaces to differential expression analysis methods implemented in other R packages, take care to cite the appropriate references if you use any of the interface functions (see the reference manual for more information). Also be sure to always check the code that was used to run the differential expression analysis, using e.g. the <code><a href="../reference/generateCodeHTMLs.html">generateCodeHTMLs()</a></code> function (see <a href="#performing-differential-expression-analysis">below</a> for more information) to make sure that parameters etc. agree with your intentions and that there were no errors or serious warnings. These interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations, and the user should make sure that the analysis is performed in the way they intend. For instructions on how to add your own DE method, see <a href="#providing-your-own-differential-expression-code">below</a>.</p>
 </div>
 <div id="the-compdata-class" class="section level1">
 <h1 class="hasAnchor">
 <a href="#the-compdata-class" class="anchor"></a>The <code>compData</code> class</h1>
-<p>Within the <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package (version &gt;= 0.2.0), data sets and results are represented as objects of the <code>compData</code> class. The functions in the package are still compatible with the list-based representation used in version 0.1.0, but we strongly encourage users to use the <code>compData</code> class, and all results generated by the package will be given in this format. If you have a data or result object generated with <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> version 0.1.0, you can convert it to a <code>compData</code> object using the <code>convertListTocompData</code> function.</p>
+<p>Within the <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package (version &gt;= 0.2.0), data sets and results are represented as objects of the <code>compData</code> class. The functions in the package are still compatible with the list-based representation used in version 0.1.0, but we strongly encourage users to use the <code>compData</code> class, and all results generated by the package will be given in this format. If you have a data or result object generated with <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> version 0.1.0, you can convert it to a <code>compData</code> object using the <code>convertListTocompData</code> function.</p>
 <p>A <code>compData</code> object has at least three slots, containing the count matrix, sample annotations and a list containing at least an identifying name and a unique ID for the data set. It can also contain variable annotations, such as information regarding genes that are known to be differentially expressed. After performing a differential expression analysis, the <code>compData</code> object contains additional information, such as which method was used to perform the analysis, which settings were used and the gene-wise results from the analysis. More detailed information about the <code>compData</code> class are available in the sections on <a href="#the-data-object">the data object</a> and <a href="#the-result-object">the result object</a>.</p>
 </div>
 <div id="a-sample-workflow" class="section level1">
 <h1 class="hasAnchor">
 <a href="#a-sample-workflow" class="anchor"></a>A sample workflow</h1>
-<p>This section contains a sample workflow showing the main functionalities of the <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package. We start by <a href="#simulating-data">generating a synthetic count data set</a>, to which we then <a href="#performing-differential-expression-analysis">apply three different differential expression methods</a>. Finally, we <a href="#comparing-results-from-several-differential-expression-methods">compare the outcome</a> of the three methods and generate a report summarizing the results.</p>
+<p>This section contains a sample workflow showing the main functionalities of the <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package. We start by <a href="#simulating-data">generating a synthetic count data set</a>, to which we then <a href="#performing-differential-expression-analysis">apply three different differential expression methods</a>. Finally, we <a href="#comparing-results-from-several-differential-expression-methods">compare the outcome</a> of the three methods and generate a report summarizing the results.</p>
 <div id="simulating-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#simulating-data" class="anchor"></a>Simulating data</h2>
 <p>The simulations are performed following the description by <span class="citation">Soneson and Delorenzi (2013)</span>. As an example, we use the <code>generateSyntheticData</code> function to generate a synthetic count data set containing 12,500 genes and two groups of 5 samples each, where 10% of the genes are simulated to be differentially expressed between the two groups (equally distributed between up- and downregulated in group 2 compared to group 1). Furthermore, the counts for all genes are simulated from a Negative Binomial distribution with the same dispersion in the two sample groups, and no outlier counts are introduced. We filter the data set by excluding only the genes with zero counts in all samples (i.e., those for which the total count is 0). This simulation setting corresponds to the one denoted <span class="math inline">\(B_{625}^{625}\)</span> in <span class="citation">Soneson and Delorenzi (2013)</span>. The following code creates a <code>compData</code> object containing the simulated data set and saves it to a file named <code>"B_625_625_5spc_repl1.rds"</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit">
-<span class="va">B_625_625</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"B_625_625"</span>, n.vars <span class="op">=</span> <span class="fl">12500</span>, 
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">B_625_625</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"B_625_625"</span>, n.vars <span class="op">=</span> <span class="fl">12500</span>, 
                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">1250</span>, 
                                    repl.id <span class="op">=</span> <span class="fl">1</span>, seqdepth <span class="op">=</span> <span class="fl">1e7</span>, 
                                    fraction.upregulated <span class="op">=</span> <span class="fl">0.5</span>, 
@@ -119,11 +119,11 @@
                                    filter.threshold.total <span class="op">=</span> <span class="fl">1</span>, 
                                    filter.threshold.mediancpm <span class="op">=</span> <span class="fl">0</span>, 
                                    fraction.non.overdispersed <span class="op">=</span> <span class="fl">0</span>, 
-                                   output.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span><span class="op">)</span></pre></div>
+                                   output.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span><span class="op">)</span></code></pre></div>
 <p>The <code>summarizeSyntheticDataSet</code> function provides functionality to check some aspects of the simulated data by generating a report summarizing the parameters that were used for the simulation, as well as including some diagnostic plots. The report contains two MA-plots, showing the estimated average expression level and the log-fold change for all genes, indicating either the truly differentially expressed genes or the total number of outliers introduced for each gene. It also shows the log-fold changes estimated from the simulated data versus those underlying the simulation. The input to the <code>summarizeSyntheticDataSet</code> function can be either a <code>compData</code> object or the path to a file containing such an object.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit">
-<span class="fu"><a href="../reference/summarizeSyntheticDataSet.html">summarizeSyntheticDataSet</a></span><span class="op">(</span>data.set <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, 
-                          output.filename <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1_datacheck.html"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/summarizeSyntheticDataSet.html">summarizeSyntheticDataSet</a></span><span class="op">(</span>data.set <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, 
+                          output.filename <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1_datacheck.html"</span><span class="op">)</span></code></pre></div>
 <p>Figure 1 shows two of the figures generated by this function. The top panel shows an MA plot with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts.</p>
 <div class="figure" style="text-align: center">
 <img src="compcodeR_check_figure/maplot-trueDEstatus.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status."><img src="compcodeR_check_figure/logfoldchanges.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status."><p class="caption">
@@ -134,9 +134,9 @@ Example figures from the summarization report generated for a simulated data set
 <div id="performing-differential-expression-analysis" class="section level2">
 <h2 class="hasAnchor">
 <a href="#performing-differential-expression-analysis" class="anchor"></a>Performing differential expression analysis</h2>
-<p>We will now apply some of the interfaced differential expression methods to find genes that are differentially expressed between the two conditions in the simulated data set. This is done through the <code>runDiffExp</code> function, which is the main interface for performing differential expression analyses in <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>. The code below applies three differential expression methods to the data set generated above: the <code>voom</code> transformation from the <em><a href="https://bioconductor.org/packages/3.12/limma">limma</a></em> package (combined with <code>limma</code> for differential expression), the exact test from the <em><a href="https://bioconductor.org/packages/3.12/edgeR">edgeR</a></em> package, and a regular t-test applied directly on the count level data.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit">
-<span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, 
+<p>We will now apply some of the interfaced differential expression methods to find genes that are differentially expressed between the two conditions in the simulated data set. This is done through the <code>runDiffExp</code> function, which is the main interface for performing differential expression analyses in <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>. The code below applies three differential expression methods to the data set generated above: the <code>voom</code> transformation from the <em><a href="https://bioconductor.org/packages/3.13/limma">limma</a></em> package (combined with <code>limma</code> for differential expression), the exact test from the <em><a href="https://bioconductor.org/packages/3.13/edgeR">edgeR</a></em> package, and a regular t-test applied directly on the count level data.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, 
            result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, 
            output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, 
@@ -145,10 +145,10 @@ Example figures from the summarization report generated for a simulated data set
            trend.method <span class="op">=</span> <span class="st">"movingave"</span>, disp.type <span class="op">=</span> <span class="st">"tagwise"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"B_625_625_5spc_repl1.rds"</span>, result.extent <span class="op">=</span> <span class="st">"ttest"</span>, 
            Rmdfunction <span class="op">=</span> <span class="st">"ttest.createRmd"</span>, 
-           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></pre></div>
+           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></code></pre></div>
 <p>The code needed to perform each of the analyses is provided in the <code>*.createRmd</code> functions. To obtain a list of all available <code>*.createRmd</code> functions (and hence of the available differential expression methods), we can use the <code><a href="../reference/listcreateRmd.html">listcreateRmd()</a></code> function. Example calls are also provided in the reference manual (see the help pages for the <code>runDiffExp</code> function).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit">
-<span class="fu"><a href="../reference/listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span>
 <span class="co">#&gt;  [1] "baySeq.createRmd"        </span>
 <span class="co">#&gt;  [2] "DESeq2.createRmd"        </span>
 <span class="co">#&gt;  [3] "DSS.createRmd"           </span>
@@ -162,20 +162,20 @@ Example figures from the summarization report generated for a simulated data set
 <span class="co">#&gt; [11] "TCC.createRmd"           </span>
 <span class="co">#&gt; [12] "ttest.createRmd"         </span>
 <span class="co">#&gt; [13] "voom.limma.createRmd"    </span>
-<span class="co">#&gt; [14] "voom.ttest.createRmd"</span></pre></div>
+<span class="co">#&gt; [14] "voom.ttest.createRmd"</span></code></pre></div>
 <p>You can also <a href="#providing-your-own-differential-expression-code">apply your own differential expression method</a> to the simulated data.</p>
 </div>
 <div id="comparing-results-from-several-differential-expression-methods" class="section level2">
 <h2 class="hasAnchor">
 <a href="#comparing-results-from-several-differential-expression-methods" class="anchor"></a>Comparing results from several differential expression methods</h2>
-<p>Once we have obtained the results of the differential expression analyses (either by the methods interfaced by <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> or in other ways), we can compare the results and generate an HTML report summarizing the results from the different methods from many different aspects (see below for an <a href="#the-evaluation-metrics">overview of the comparison metrics</a>). In <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>, there are two ways of invoking the comparison functionality; either directly from the command line or via a graphical user interface (GUI). The GUI is mainly included to avoid long function calls and provide a clear overview of the available methods and parameter choices. To use the GUI the R package <em><a href="https://CRAN.R-project.org/package=rpanel">rpanel</a></em> must be installed (which assumes that BWidget is available). Moreover, the GUI may have rendering problems on certain platforms, particularly on small screens and if many methods are to be compared. Below, we will show how to perform the comparison using both approaches.</p>
+<p>Once we have obtained the results of the differential expression analyses (either by the methods interfaced by <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> or in other ways), we can compare the results and generate an HTML report summarizing the results from the different methods from many different aspects (see below for an <a href="#the-evaluation-metrics">overview of the comparison metrics</a>). In <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>, there are two ways of invoking the comparison functionality; either directly from the command line or via a graphical user interface (GUI). The GUI is mainly included to avoid long function calls and provide a clear overview of the available methods and parameter choices. To use the GUI the R package <em><a href="https://CRAN.R-project.org/package=rpanel">rpanel</a></em> must be installed (which assumes that BWidget is available). Moreover, the GUI may have rendering problems on certain platforms, particularly on small screens and if many methods are to be compared. Below, we will show how to perform the comparison using both approaches.</p>
 <div id="the-graphical-user-interface" class="section level3">
 <h3 class="hasAnchor">
 <a href="#the-graphical-user-interface" class="anchor"></a>The graphical user interface</h3>
 <p>First, we consider the <code>runComparisonGUI</code> function, to which we provide a list of directories containing our result files, and the directory where the final report will be generated. Since the three result files above were saved in the current working directory, we can run the following code to perform the comparison:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit">
-<span class="fu"><a href="../reference/runComparisonGUI.html">runComparisonGUI</a></span><span class="op">(</span>input.directories <span class="op">=</span> <span class="st">"."</span>, 
-                 output.directory <span class="op">=</span> <span class="st">"."</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/runComparisonGUI.html">runComparisonGUI</a></span><span class="op">(</span>input.directories <span class="op">=</span> <span class="st">"."</span>, 
+                 output.directory <span class="op">=</span> <span class="st">"."</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
 <p>This opens a graphical user interface (Figure 2) where we can select which of the data files available in the input directories that should be included as a basis for the comparison, and which comparisons to perform. Through this interface, we can also set p-value cutoffs for significance and other parameters that will govern the behaviour of the comparison.</p>
 <p><strong>Important!</strong> When you have modified a value in one of the textboxes (p-value cutoffs etc.), press Return on your keyboard to confirm the assignment of the new value to the parameter. Always check in the resulting comparison report that the correct values were recognized and used for the comparisons.</p>
 <div class="figure" style="text-align: center">
@@ -183,19 +183,19 @@ Example figures from the summarization report generated for a simulated data set
 Screenshot of the graphical user interface used to select data set (left) and set parameters (right) for the comparison of differential expression methods. The available choices for the Data set, DE methods, Number of samples and Replicates are automatically generated from the compData objects available in the designated input directories. Only one data set can be used for the comparison. In the lower part of the window we can set (adjusted) p-value thresholds for each comparison method separately. For example, we can evaluate the true FDR at one adjusted p-value threshold, and estimate the TPR for another adjusted p-value threshold. We can also set the maximal number of top-ranked variables that will be considered for the false discovery curves.
 </p>
 </div>
-<p>After the selections have been made, the function will perform the comparisons and generate an HTML report, which is saved in the designated output directory and automatically named <code>compcodeR_report_&lt;timestamp&gt;.html</code>. Please note that depending on the number of compared methods and the number of included data sets, this step may take several minutes. <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> will notify you when the report is ready (with a message <strong>Done!</strong> in the console).</p>
-<p><strong>Note!</strong> Depending on the platform you use to run R, you may see a prompt (<span class="math inline">\("&gt;"\)</span>) in the console before the analysis is done. However, <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> will always notify you when it is finished, by typing <strong>Done!</strong> in the console.</p>
+<p>After the selections have been made, the function will perform the comparisons and generate an HTML report, which is saved in the designated output directory and automatically named <code>compcodeR_report_&lt;timestamp&gt;.html</code>. Please note that depending on the number of compared methods and the number of included data sets, this step may take several minutes. <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> will notify you when the report is ready (with a message <strong>Done!</strong> in the console).</p>
+<p><strong>Note!</strong> Depending on the platform you use to run R, you may see a prompt (<span class="math inline">\("&gt;"\)</span>) in the console before the analysis is done. However, <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> will always notify you when it is finished, by typing <strong>Done!</strong> in the console.</p>
 <p>The comparison function will also generate a subdirectory called <code>compcodeR_code</code>, where the R code used to perform each of the comparisons is detailed in HTML reports, and another subdirectory called <code>compcodeR_figure</code>, where the plots generated in the comparison are saved. The code HTML reports can also be generated manually for a given result file (given that the <code>code</code> component is present in the <code>compData</code> object), using the function <code>generateCodeHTMLs</code>. For example, to generate a report containing the code that was run to perform the t-test above, as well as the output from the R console, we can write:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit">
-<span class="fu"><a href="../reference/generateCodeHTMLs.html">generateCodeHTMLs</a></span><span class="op">(</span><span class="st">"B_625_625_5spc_repl1_ttest.rds"</span>, <span class="st">"."</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="../reference/generateCodeHTMLs.html">generateCodeHTMLs</a></span><span class="op">(</span><span class="st">"B_625_625_5spc_repl1_ttest.rds"</span>, <span class="st">"."</span><span class="op">)</span></code></pre></div>
 <p>These reports are useful to check that there were no errors or warnings when running the differential expression analyses.</p>
 </div>
 <div id="direct-command-line-call" class="section level3">
 <h3 class="hasAnchor">
 <a href="#direct-command-line-call" class="anchor"></a>Direct command-line call</h3>
 <p>Next, we show how to run the comparison by calling the function <code>runComparison</code> directly. In this case, we need to supply the function with a list of result files to use as a basis for the comparison. We can also provide a list of parameters (p-value thresholds, the differential expression methods to include in the comparison, etc.). The default values of these parameters are outlined in the reference manual. The following code provides an example, given the data generated above.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit">
-<span class="va">file.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>input.files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"B_625_625_5spc_repl1_voom.limma.rds"</span>, 
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">file.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>input.files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"B_625_625_5spc_repl1_voom.limma.rds"</span>, 
                                          <span class="st">"B_625_625_5spc_repl1_ttest.rds"</span>, 
                                          <span class="st">"B_625_625_5spc_repl1_edgeR.exact.rds"</span><span class="op">)</span>, 
                          stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
@@ -206,30 +206,30 @@ Screenshot of the graphical user interface used to select data set (left) and se
                    fdc.maxvar <span class="op">=</span> <span class="fl">1500</span>, overlap.threshold <span class="op">=</span> <span class="fl">0.05</span>, 
                    fracsign.threshold <span class="op">=</span> <span class="fl">0.05</span>, 
                    comparisons <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"auc"</span>, <span class="st">"fdr"</span>, <span class="st">"tpr"</span>, <span class="st">"ma"</span>, <span class="st">"correlation"</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="../reference/runComparison.html">runComparison</a></span><span class="op">(</span>file.table <span class="op">=</span> <span class="va">file.table</span>, parameters <span class="op">=</span> <span class="va">parameters</span>, output.directory <span class="op">=</span> <span class="st">"."</span><span class="op">)</span></pre></div>
-<p>By setting <code>incl.nbr.samples</code>, <code>incl.replicates</code> and <code>incl.de.methods</code> to <code>NULL</code>, we ask <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> to include all results provided in the <code>file.table</code>. By providing a vector of values for each of these variables, it is possible to limit the selection to a subset of the provided files. Please note that the values given to <code>incl.replicates</code> and <code>incl.nbr.samples</code> are matched with values of the <code>info.parameters$repl.id</code> and <code>info.parameters$samples.per.cond</code> slots in the data/result objects, and that the values given to <code>incl.de.methods</code> are matched with values stored in the <code>method.names$full.name</code> slot of the result objects. If the values do not match, the corresponding result object will not be considered in the comparison. Consult the package manual for the full list of comparison methods available for use with the <code>runComparison</code> function. Setting <code>parameters = NULL</code> implies that all results provided in the <code>file.table</code> are used, and that all parameter values are set to their defaults (see the reference manual). Note that only one dataset identifier can be provided to the comparison (that is, <code>parameters$incl.dataset</code> must be a single string).</p>
+<span class="fu"><a href="../reference/runComparison.html">runComparison</a></span><span class="op">(</span>file.table <span class="op">=</span> <span class="va">file.table</span>, parameters <span class="op">=</span> <span class="va">parameters</span>, output.directory <span class="op">=</span> <span class="st">"."</span><span class="op">)</span></code></pre></div>
+<p>By setting <code>incl.nbr.samples</code>, <code>incl.replicates</code> and <code>incl.de.methods</code> to <code>NULL</code>, we ask <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> to include all results provided in the <code>file.table</code>. By providing a vector of values for each of these variables, it is possible to limit the selection to a subset of the provided files. Please note that the values given to <code>incl.replicates</code> and <code>incl.nbr.samples</code> are matched with values of the <code>info.parameters$repl.id</code> and <code>info.parameters$samples.per.cond</code> slots in the data/result objects, and that the values given to <code>incl.de.methods</code> are matched with values stored in the <code>method.names$full.name</code> slot of the result objects. If the values do not match, the corresponding result object will not be considered in the comparison. Consult the package manual for the full list of comparison methods available for use with the <code>runComparison</code> function. Setting <code>parameters = NULL</code> implies that all results provided in the <code>file.table</code> are used, and that all parameter values are set to their defaults (see the reference manual). Note that only one dataset identifier can be provided to the comparison (that is, <code>parameters$incl.dataset</code> must be a single string).</p>
 </div>
 </div>
 </div>
 <div id="using-your-own-data" class="section level1">
 <h1 class="hasAnchor">
 <a href="#using-your-own-data" class="anchor"></a>Using your own data</h1>
-<p>The <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package provides a straightforward function for simulating count data (<code>generateSyntheticData</code>). However, it is easy to apply the interfaced differential expression methods to your own data, given that it is provided in a <code>compData</code> object (see <a href="#the-data-object">below</a> for a description of the data format). You can use the function <code>check_compData</code> to check that your object satisfies the necessary criteria to be fed into the differential expression methods.</p>
+<p>The <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package provides a straightforward function for simulating count data (<code>generateSyntheticData</code>). However, it is easy to apply the interfaced differential expression methods to your own data, given that it is provided in a <code>compData</code> object (see <a href="#the-data-object">below</a> for a description of the data format). You can use the function <code>check_compData</code> to check that your object satisfies the necessary criteria to be fed into the differential expression methods.</p>
 <p>To create a <code>compData</code> object from a count matrix and a data frame with sample annotations, you can use the function <code>compData</code>. The following code provides a minimal example. Note that you need to provide a <code>dataset</code> name (a ‘description’ of the simulation settings) as well as a unique data set identifier <code>uID</code>, which has to be unique for each <code>compData</code> object (e.g., for each simulation instance, even if the same simulation parameters are used).</p>
-<div class="sourceCode" id="cb9"><pre class="downlit">
-<span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">4000</span><span class="op">)</span><span class="op">)</span>, <span class="fl">1000</span>, <span class="fl">4</span><span class="op">)</span>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html">runif</a></span><span class="op">(</span><span class="fl">4000</span><span class="op">)</span><span class="op">)</span>, <span class="fl">1000</span>, <span class="fl">4</span><span class="op">)</span>
 <span class="va">sample.annot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="va">info.parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mytestdata"</span>, uID <span class="op">=</span> <span class="st">"123456"</span><span class="op">)</span>
 <span class="va">cpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/compData.html">compData</a></span><span class="op">(</span>count.matrix <span class="op">=</span> <span class="va">count.matrix</span>, 
                 sample.annotations <span class="op">=</span> <span class="va">sample.annot</span>, 
                 info.parameters <span class="op">=</span> <span class="va">info.parameters</span><span class="op">)</span>
 <span class="fu"><a href="../reference/check_compData.html">check_compData</a></span><span class="op">(</span><span class="va">cpd</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span></pre></div>
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
 </div>
 <div id="providing-your-own-differential-expression-code" class="section level1">
 <h1 class="hasAnchor">
 <a href="#providing-your-own-differential-expression-code" class="anchor"></a>Providing your own differential expression code</h1>
-<p>The <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package provides an interface for calling some of the most commonly used differential expression methods developed for RNAseq data. However, it is easy to incorporate your own favorite method. In principle, this can be done in one of two ways:</p>
+<p>The <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package provides an interface for calling some of the most commonly used differential expression methods developed for RNAseq data. However, it is easy to incorporate your own favorite method. In principle, this can be done in one of two ways:</p>
 <ul>
 <li>
 <p>Write a <code>XXX.createRmd</code> function (where <code>XXX</code> corresponds to your method), similar to the ones provided in the package, which creates a <code>.Rmd</code> file containing the code that is run to perform the differential expression analysis. Then call this function through the <code>runDiffExp</code> function. When implementing your function, make sure that the output is a <code>compData</code> object, structured as described <a href="#the-result-object">below</a>. The <code>*.createRmd</code> functions provided in the package take the following input arguments:</p>
@@ -243,18 +243,18 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <li>any arguments for setting parameters of the differential expression analysis.</li>
 </ul>
 </li>
-<li><p>Run the differential expression analysis completely outside the <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package, and save the result in a <code>compData</code> object with the slots described <a href="#the-result-object">below</a>.</p></li>
+<li><p>Run the differential expression analysis completely outside the <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package, and save the result in a <code>compData</code> object with the slots described <a href="#the-result-object">below</a>.</p></li>
 </ul>
-<p>You can use the <code>check_compData_results</code> function to check if your object satisfies the necessary conditions for being used as the output of a differential expression analysis and compared to results obtained by other methods with <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>.</p>
+<p>You can use the <code>check_compData_results</code> function to check if your object satisfies the necessary conditions for being used as the output of a differential expression analysis and compared to results obtained by other methods with <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>.</p>
 </div>
 <div id="the-format-of-the-data-and-result-objects" class="section level1">
 <h1 class="hasAnchor">
 <a href="#the-format-of-the-data-and-result-objects" class="anchor"></a>The format of the data and result objects</h1>
-<p>This section details the format of the data and result objects generated and used by the <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> package. Both objects are of the <code>compData</code> class. The format guidelines below must be be followed if you apply the functions in the package to a data set of your own, or to differential expression results generated outside the package. Note that for most of the functionality of the package, the objects should be saved separately to files with a <code>.rds</code> extension, and the path of this object is provided to the functions.</p>
+<p>This section details the format of the data and result objects generated and used by the <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> package. Both objects are of the <code>compData</code> class. The format guidelines below must be be followed if you apply the functions in the package to a data set of your own, or to differential expression results generated outside the package. Note that for most of the functionality of the package, the objects should be saved separately to files with a <code>.rds</code> extension, and the path of this object is provided to the functions.</p>
 <div id="the-data-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-data-object" class="anchor"></a>The data object</h2>
-<p>The <code>compData</code> data object used by <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> is an S4 object with the following slots:</p>
+<p>The <code>compData</code> data object used by <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> is an S4 object with the following slots:</p>
 <ul>
 <li><p><code>count.matrix</code> [<code>class matrix</code>] (<strong>mandatory</strong>) – the count matrix, with rows representing genes and columns representing samples.</p></li>
 <li>
@@ -304,12 +304,12 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <li>
 <code>effect.size</code> [<code>class numeric</code>] – the degree of differential expression, i.e., a measure of the minimal effect size. Alternatively, a vector of provided effect sizes for each of the variables.</li>
 <li>
-<code>uID</code> [<code>class character</code>] (<strong>mandatory</strong>) – a unique identification number given to each data set. For the data sets simulated with <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>, it consists of a sequence of 10 randomly generated alpha-numeric characters.</li>
+<code>uID</code> [<code>class character</code>] (<strong>mandatory</strong>) – a unique identification number given to each data set. For the data sets simulated with <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>, it consists of a sequence of 10 randomly generated alpha-numeric characters.</li>
 </ul>
 </li>
 <li><p><code>filtering</code> [<code>class character</code>] – a summary of the filtering that has been applied to the data.</p></li>
 <li>
-<p><code>variable.annotations</code> [<code>class data.frame</code>] – annotations for each of the variables in the data set. Each row corresponds to one variable, and each column to one annotation. No annotation is mandatory, however some of them are necessary if the differential expression results for the data are going to be used for certain comparison tasks. The data sets simulated within <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> have the following named variable annotations:</p>
+<p><code>variable.annotations</code> [<code>class data.frame</code>] – annotations for each of the variables in the data set. Each row corresponds to one variable, and each column to one annotation. No annotation is mandatory, however some of them are necessary if the differential expression results for the data are going to be used for certain comparison tasks. The data sets simulated within <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> have the following named variable annotations:</p>
 <ul>
 <li>
 <code>truedispersions.S1</code> [<code>class numeric</code>] – the true dispersions used in the simulations of the counts for the samples in condition 1.</li>
@@ -336,9 +336,9 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <li>
 <code>n.single.outliers.down.S2</code> [<code>class numeric</code>] – the number of extremely low single outliers introduced for each gene in condition 2.</li>
 <li>
-<code>M.value</code> [<code>class numeric</code>] – the estimated log2-fold change between conditions 1 and 2 for each gene. These values were estimated using the <em><a href="https://bioconductor.org/packages/3.12/edgeR">edgeR</a></em> package.</li>
+<code>M.value</code> [<code>class numeric</code>] – the estimated log2-fold change between conditions 1 and 2 for each gene. These values were estimated using the <em><a href="https://bioconductor.org/packages/3.13/edgeR">edgeR</a></em> package.</li>
 <li>
-<code>A.value</code> [<code>class numeric</code>] – the estimated average expression in conditions 1 and 2 for each gene. These values were estimated using the <em><a href="https://bioconductor.org/packages/3.12/edgeR">edgeR</a></em> package.</li>
+<code>A.value</code> [<code>class numeric</code>] – the estimated average expression in conditions 1 and 2 for each gene. These values were estimated using the <em><a href="https://bioconductor.org/packages/3.13/edgeR">edgeR</a></em> package.</li>
 <li>
 <code>truelog2foldchanges</code> [<code>class numeric</code>] – the “true” log2-fold changes between conditions 1 and 2 for each gene, based on the parameters used for simulation.</li>
 <li>
@@ -351,13 +351,13 @@ Screenshot of the graphical user interface used to select data set (left) and se
 </li>
 </ul>
 <p>To apply the functions of the package to a <code>compData</code> object of the type detailed above, it needs to be saved to a file with extension <code>.rds</code>. To save the object <code>cpd</code> to the file <code>saveddata.rds</code>, simply type</p>
-<div class="sourceCode" id="cb10"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">cpd</span>, <span class="st">"saveddata.rds"</span><span class="op">)</span></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html">saveRDS</a></span><span class="op">(</span><span class="va">cpd</span>, <span class="st">"saveddata.rds"</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="the-result-object" class="section level2">
 <h2 class="hasAnchor">
 <a href="#the-result-object" class="anchor"></a>The result object</h2>
-<p>When applying one of the differential expression methods interfaced through <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>, the <code>compData</code> object is extended with some additional slots. These are described below.</p>
+<p>When applying one of the differential expression methods interfaced through <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>, the <code>compData</code> object is extended with some additional slots. These are described below.</p>
 <ul>
 <li><p><code>analysis.date</code> [<code>class character</code>] – the date and time when the differential expression analysis was performed.</p></li>
 <li><p><code>package.version</code> [<code>class character</code>] – the version of the packages used in the differential expression analysis.</p></li>
@@ -372,7 +372,7 @@ Screenshot of the graphical user interface used to select data set (left) and se
 </li>
 <li><p><code>code</code> [<code>class character</code>] – the code that was used to run the differential expression analysis, in R markdown (.Rmd) format.</p></li>
 <li>
-<p><code>result.table</code> [<code>class data.frame</code>] (<strong>mandatory</strong>) – a data frame containing the results of the differential expression analysis. Each row corresponds to one gene, and each column to a value generated by the analysis. The precise columns will depend on the method applied. The following columns are used by at least one of the methods interfaced by <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em>:</p>
+<p><code>result.table</code> [<code>class data.frame</code>] (<strong>mandatory</strong>) – a data frame containing the results of the differential expression analysis. Each row corresponds to one gene, and each column to a value generated by the analysis. The precise columns will depend on the method applied. The following columns are used by at least one of the methods interfaced by <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em>:</p>
 <ul>
 <li>
 <code>pvalue</code> [<code>class numeric</code>] – the nominal p-values.</li>
@@ -406,7 +406,7 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <div id="the-evaluation-metrics" class="section level1">
 <h1 class="hasAnchor">
 <a href="#the-evaluation-metrics" class="anchor"></a>The evaluation metrics</h1>
-<p>This section provides an overview of the methods that are implemented in <em><a href="https://bioconductor.org/packages/3.12/compcodeR">compcodeR</a></em> for comparing differential expression results obtained by different methods. The selection of which methods to apply is made through a graphical user interface that is opened when the <code>runComparisonGUI</code> function is called (see Figure 2). Alternatively, the selection of methods can be supplied to the <code>runComparison</code> function directly, to circumvent the GUI.</p>
+<p>This section provides an overview of the methods that are implemented in <em><a href="https://bioconductor.org/packages/3.13/compcodeR">compcodeR</a></em> for comparing differential expression results obtained by different methods. The selection of which methods to apply is made through a graphical user interface that is opened when the <code>runComparisonGUI</code> function is called (see Figure 2). Alternatively, the selection of methods can be supplied to the <code>runComparison</code> function directly, to circumvent the GUI.</p>
 <div id="roc-one-replicateall-replicates" class="section level2">
 <h2 class="hasAnchor">
 <a href="#roc-one-replicateall-replicates" class="anchor"></a>ROC (one replicate/all replicates)</h2>
@@ -505,15 +505,15 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <div id="session-info" class="section level1">
 <h1 class="hasAnchor">
 <a href="#session-info" class="anchor"></a>Session info</h1>
-<div class="sourceCode" id="cb11"><pre class="downlit">
-<span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R version 4.0.2 (2020-06-22)</span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co">#&gt; R Under development (unstable) (2020-11-25 r79505)</span>
 <span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span>
-<span class="co">#&gt; Running under: macOS Catalina 10.15.6</span>
+<span class="co">#&gt; Running under: macOS Catalina 10.15.7</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Matrix products: default</span>
-<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib</span>
-<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib</span>
+<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib</span>
+<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; locale:</span>
 <span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
@@ -523,44 +523,44 @@ Screenshot of the graphical user interface used to select data set (left) and se
 <span class="co">#&gt; [6] methods   base     </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] compcodeR_1.25.3 sm_2.2-5.6       BiocStyle_2.17.1</span>
+<span class="co">#&gt; [1] compcodeR_1.27.2 sm_2.2-5.6       BiocStyle_2.19.1</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; loaded via a namespace (and not attached):</span>
 <span class="co">#&gt;  [1] Rcpp_1.0.5          locfit_1.5-9.4     </span>
 <span class="co">#&gt;  [3] lattice_0.20-41     zoo_1.8-8          </span>
 <span class="co">#&gt;  [5] gtools_3.8.2        assertthat_0.2.1   </span>
-<span class="co">#&gt;  [7] rprojroot_1.3-2     digest_0.6.25      </span>
-<span class="co">#&gt;  [9] R6_2.4.1            backports_1.1.10   </span>
-<span class="co">#&gt; [11] fBasics_3042.89.1   evaluate_0.14      </span>
-<span class="co">#&gt; [13] highr_0.8           ggplot2_3.3.2      </span>
-<span class="co">#&gt; [15] pillar_1.4.6        gplots_3.1.0       </span>
-<span class="co">#&gt; [17] rlang_0.4.7         spatial_7.3-12     </span>
-<span class="co">#&gt; [19] gdata_2.18.0        rpart_4.1-15       </span>
-<span class="co">#&gt; [21] rmarkdown_2.4       pkgdown_1.6.1.9000 </span>
+<span class="co">#&gt;  [7] rprojroot_2.0.2     digest_0.6.27      </span>
+<span class="co">#&gt;  [9] R6_2.5.0            fBasics_3042.89.1  </span>
+<span class="co">#&gt; [11] evaluate_0.14       highr_0.8          </span>
+<span class="co">#&gt; [13] ggplot2_3.3.2       pillar_1.4.7       </span>
+<span class="co">#&gt; [15] gplots_3.1.0        rlang_0.4.9        </span>
+<span class="co">#&gt; [17] spatial_7.3-12      gdata_2.18.0       </span>
+<span class="co">#&gt; [19] rpart_4.1-15        rmarkdown_2.5      </span>
+<span class="co">#&gt; [21] pkgdown_1.6.1.9000  textshaping_0.2.1  </span>
 <span class="co">#&gt; [23] desc_1.2.0          stringr_1.4.0      </span>
-<span class="co">#&gt; [25] munsell_0.5.0       compiler_4.0.2     </span>
-<span class="co">#&gt; [27] xfun_0.18           pkgconfig_2.0.3    </span>
+<span class="co">#&gt; [25] munsell_0.5.0       compiler_4.1.0     </span>
+<span class="co">#&gt; [27] xfun_0.19           pkgconfig_2.0.3    </span>
 <span class="co">#&gt; [29] systemfonts_0.3.2   stable_1.1.4       </span>
-<span class="co">#&gt; [31] htmltools_0.5.0     tcltk_4.0.2        </span>
-<span class="co">#&gt; [33] tibble_3.0.3        bookdown_0.20      </span>
-<span class="co">#&gt; [35] edgeR_3.31.4        stabledist_0.7-1   </span>
-<span class="co">#&gt; [37] crayon_1.3.4        MASS_7.3-51.6      </span>
-<span class="co">#&gt; [39] bitops_1.0-6        grid_4.0.2         </span>
+<span class="co">#&gt; [31] htmltools_0.5.0     tcltk_4.1.0        </span>
+<span class="co">#&gt; [33] tibble_3.0.4        bookdown_0.21      </span>
+<span class="co">#&gt; [35] edgeR_3.33.0        stabledist_0.7-1   </span>
+<span class="co">#&gt; [37] crayon_1.3.4        MASS_7.3-53        </span>
+<span class="co">#&gt; [39] bitops_1.0-6        grid_4.1.0         </span>
 <span class="co">#&gt; [41] gtable_0.3.0        lifecycle_0.2.0    </span>
-<span class="co">#&gt; [43] magrittr_1.5        scales_1.1.1       </span>
-<span class="co">#&gt; [45] KernSmooth_2.23-17  statip_0.2.3       </span>
+<span class="co">#&gt; [43] magrittr_2.0.1      scales_1.1.1       </span>
+<span class="co">#&gt; [45] KernSmooth_2.23-18  statip_0.2.3       </span>
 <span class="co">#&gt; [47] stringi_1.5.3       ROCR_1.0-11        </span>
 <span class="co">#&gt; [49] fs_1.5.0            rmutil_1.1.5       </span>
-<span class="co">#&gt; [51] limma_3.45.14       timeDate_3043.102  </span>
-<span class="co">#&gt; [53] ellipsis_0.3.1      ragg_0.3.1         </span>
-<span class="co">#&gt; [55] vctrs_0.3.4         vioplot_0.3.5      </span>
-<span class="co">#&gt; [57] modeest_2.4.0       tools_4.0.2        </span>
+<span class="co">#&gt; [51] limma_3.47.1        timeDate_3043.102  </span>
+<span class="co">#&gt; [53] ellipsis_0.3.1      ragg_0.4.0         </span>
+<span class="co">#&gt; [55] vctrs_0.3.5         vioplot_0.3.5      </span>
+<span class="co">#&gt; [57] modeest_2.4.0       tools_4.1.0        </span>
 <span class="co">#&gt; [59] glue_1.4.2          markdown_1.1       </span>
 <span class="co">#&gt; [61] yaml_2.2.1          clue_0.3-57        </span>
-<span class="co">#&gt; [63] colorspace_1.4-1    cluster_2.1.0      </span>
+<span class="co">#&gt; [63] colorspace_2.0-0    cluster_2.1.0      </span>
 <span class="co">#&gt; [65] BiocManager_1.30.10 caTools_1.18.0     </span>
 <span class="co">#&gt; [67] timeSeries_3062.100 memoise_1.1.0      </span>
-<span class="co">#&gt; [69] knitr_1.30</span></pre></div>
+<span class="co">#&gt; [69] knitr_1.30</span></code></pre></div>
 </div>
 <div id="references" class="section level1 unnumbered">
 <h1 class="hasAnchor">
