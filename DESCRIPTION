@@ -24,7 +24,6 @@ Imports:
     lattice (>= 0.16),
     gplots,
     gtools,
-    gdata,
     caTools,
     grid,
     KernSmooth,
