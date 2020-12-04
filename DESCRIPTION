@@ -14,10 +14,9 @@ Description: This package provides extensive functionality for
     for setting up and running a user-defined differential analysis 
     workflow within the framework of the package.
 Depends:
-    R (>= 3.0.2)
+    R (>= 4.0),
     sm
 Imports:
-    sm,
     tcltk,
     knitr (>= 1.2),
     markdown,
@@ -41,7 +40,7 @@ Imports:
     utils,
     ape,
     phylolm,
-    matrixStats
+    matrixStats,
     grDevices,
     graphics
 Suggests:

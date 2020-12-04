@@ -39,7 +39,7 @@
 #' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
 #' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.
 #' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. 
-#' @param lengths.phylo Should the length be simulated using a phylogenetic Poisson Log-Normal model on the tree (with a BM process) ? Default to TRUE.
+#' @param lengths.phylo Should the length be simulated using a phylogenetic Poisson Log-Normal model on the tree (with a BM process) ? Default to TRUE is a tree is provided.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -89,7 +89,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   ## Checks for phylogenetic tree
   use_tree <- !is.null(tree) # If tree is specified, use it.
   if (lengths.phylo && !use_tree) {
-    warning("No tree is provided. Setting 'lengths.phylo' to FALSE")
+    # warning("No tree is provided. Setting 'lengths.phylo' to FALSE")
     lengths.phylo <- FALSE
   }
   
@@ -441,8 +441,8 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Create a sample annotation data frame
 	sample.annotations <- data.frame(condition = condition, 
-	                                 depth.factor = nfacts,
-	                                 id.species = id.species)
+	                                 depth.factor = nfacts)
+	if (use_tree) sample.annotations$id.species = id.species
 	  
 	### Include information about the parameters
 	info.parameters <- list('n.diffexp' = n.diffexp, 

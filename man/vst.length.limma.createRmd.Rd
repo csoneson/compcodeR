@@ -34,7 +34,7 @@ For more information about the methods and the interpretation of the parameters,
 }
 \examples{
 try(
-if (require(DESeq)) {
+if (require(limma)) {
 tmpdir <- normalizePath(tempdir(), winslash = "/")
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
                                     samples.per.cond = 5, n.diffexp = 100, 

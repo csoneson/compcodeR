@@ -195,7 +195,7 @@ test_that("generateSyntheticData works", {
 test_that("help functions work", {
   listcreateRmd()
   
-  expect_error(checkRange("hello", "name", 0, 1), "Illegal value")
+  expect_warning(expect_error(checkRange("hello", "name", 0, 1), "Illegal value"), "NAs introduced by coercion")
   expect_equal(checkRange(-1, "name", 0, 1), 0)
   expect_equal(checkRange(2, "name", 0, 1), 1)
   expect_equal(checkRange("-1", "name", 0, 1), 0)
