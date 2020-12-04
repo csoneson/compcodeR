@@ -2,17 +2,20 @@ Package: phylocompcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-Version: 1.25.1.9999
+Version: 1.27.2.9999
 Authors@R: c(person("Charlotte", "Soneson", role = c("aut", "cre"), 
     email = "charlottesoneson@gmail.com", comment = c(ORCID = "0000-0003-3833-2169")))
 Description: This package provides extensive functionality for
     comparing results obtained by different methods for
     differential expression analysis of RNAseq data. It also
-    contains functions for simulating count data and interfaces to
-    several packages for performing the differential expression
-    analysis.
+    contains functions for simulating count data. Finally, it provides 
+    convenient interfaces to several packages for performing the 
+    differential expression analysis. These can also be used as templates
+    for setting up and running a user-defined differential analysis 
+    workflow within the framework of the package.
 Depends:
     R (>= 3.0.2)
+    sm
 Imports:
     sm,
     tcltk,
@@ -39,10 +42,11 @@ Imports:
     ape,
     phylolm,
     matrixStats
+    grDevices,
+    graphics
 Suggests:
     BiocStyle,
     EBSeq,
-    DESeq,
     DESeq2 (>= 1.1.31),
     baySeq (>= 2.2.0),
     genefilter,

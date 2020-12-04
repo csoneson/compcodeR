@@ -7,6 +7,7 @@
 #' mydata <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
 #'                                 samples.per.cond = 5, n.diffexp = 1250)
 #' mydata
+#' @importFrom utils head
 setMethod(
   f = "show",  # name of function
   signature = "compData",  # class of each argument. other ex: signature = c(x = , y = )
@@ -39,7 +40,7 @@ setMethod(
     cat(paste("Number of known truly differentially expressed genes:", nbr.diffexp, "\n"))
     cat(paste(diffexp.statement, "\n\n"))
     cat("count.matrix:\n")
-    print(head(object@count.matrix[, 1:min(ncol(object@count.matrix), 6)]))
+    print(utils::head(object@count.matrix[, seq_len(min(ncol(object@count.matrix), 6))]))
     nbrleftoutrows <- max(c(0, nrow(object@count.matrix) - 6))
     nbrleftoutcols <- max(c(0, ncol(object@count.matrix) - 6))
     if (nbrleftoutrows > 0 & nbrleftoutcols > 0) {
@@ -50,7 +51,7 @@ setMethod(
       cat(paste("+", nbrleftoutrows, "cols...\n\n"))
     }
     cat("sample.annotations:\n")
-    print(head(object@sample.annotations))
+    print(utils::head(object@sample.annotations))
     nbrleftoutrows <- max(c(0, nrow(object@sample.annotations) - 6))
     if (nbrleftoutrows > 0) {
       cat(paste("+", nbrleftoutrows, "rows...\n\n"))
@@ -58,7 +59,7 @@ setMethod(
       cat("\n")
     }
     cat("variable.annotations:\n")
-    print(head(object@variable.annotations))
+    print(utils::head(object@variable.annotations))
     nbrleftoutrows <- max(c(0, nrow(object@variable.annotations) - 6))
     if (nbrleftoutrows > 0) {
       cat(paste("+", nbrleftoutrows, "rows...\n\n"))
@@ -68,7 +69,7 @@ setMethod(
     
     if (length(object@method.names) != 0) {
       cat("Differential expression results:\n\n")
-      print(head(object@result.table))
+      print(utils::head(object@result.table))
       nbrleftoutrows <- max(c(0, nrow(object@result.table) - 6))
       if (nbrleftoutrows > 0) {
         cat(paste("+", nbrleftoutrows, "rows...\n\n"))

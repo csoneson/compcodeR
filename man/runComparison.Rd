@@ -100,7 +100,9 @@ parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "my
                    fracsign.threshold = 0.05, mcc.threshold = 0.05, 
                    nbrtpfp.threshold = 0.05, 
                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
-runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
+if (interactive()) {
+  runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
+}
 }
 \author{
 Charlotte Soneson

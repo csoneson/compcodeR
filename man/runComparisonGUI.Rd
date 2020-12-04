@@ -34,7 +34,7 @@ This function provides a GUI to the main function for performing comparisons amo
 This function requires that the \code{rpanel} package is installed. If this package can not be installed, please use the \code{\link{runComparison}} function directly.
 }
 \examples{
-\dontrun{
+if (interactive()) {
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
                                     samples.per.cond = 5, n.diffexp = 1250, 
                                     output.file = "mydata.rds")

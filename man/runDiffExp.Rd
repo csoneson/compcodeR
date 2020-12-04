@@ -27,7 +27,7 @@ runDiffExp(
 \item{...}{Additional arguments that will be passed to the \code{Rmdfunction}, such as parameter choices for the differential expression method.}
 }
 \description{
-The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method.
+The main function for running differential expression analysis (comparing two conditions), using one of the methods interfaced through \code{compcodeR} or a user-defined method. Note that the interface functions are provided for convenience and as templates for other, user-defined workflows, and there is no guarantee that the included differential expression code is kept up-to-date with the latest recommendations and best practices for running each of the interfaced methods, or that the chosen settings are suitable in all situations. The user should make sure that the analysis is performed in the way they intend, and check the code that was run, using e.g. the \code{generateCodeHTMLs()} function.
 }
 \examples{
 tmpdir <- normalizePath(tempdir(), winslash = "/")
@@ -39,21 +39,13 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.li
            Rmdfunction = "voom.limma.createRmd", 
            output.directory = tmpdir, norm.method = "TMM")
 
-\dontrun{
+if (interactive()) {
 ## The following list covers the currently available 
-differential expression methods:
+## differential expression methods:
 runDiffExp(data.file = "mydata.rds", result.extent = "baySeq", 
            Rmdfunction = "baySeq.createRmd",
            output.directory = ".", norm.method = "edgeR", 
            equaldisp = TRUE)
-runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.GLM", 
-           Rmdfunction = "DESeq.GLM.createRmd",
-           output.directory = ".", sharing.mode = "maximum", 
-           disp.method = "pooled", fit.type = "parametric")
-runDiffExp(data.file = "mydata.rds", result.extent = "DESeq.nbinom", 
-           Rmdfunction = "DESeq.nbinom.createRmd",
-           output.directory = ".", sharing.mode = "maximum", 
-           disp.method = "pooled", fit.type = "parametric")
 runDiffExp(data.file = "mydata.rds", result.extent = "DESeq2", 
            Rmdfunction = "DESeq2.createRmd",
            output.directory = ".", fit.type = "parametric", 
@@ -103,12 +95,6 @@ runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma",
 runDiffExp(data.file = "mydata.rds", result.extent = "voom.ttest", 
            Rmdfunction = "voom.ttest.createRmd",
            output.directory = ".", norm.method = "TMM")
-runDiffExp(data.file = "mydata.rds", result.extent = "vst.limma", 
-           Rmdfunction = "vst.limma.createRmd",
-           output.directory = ".", fit.type = "parametric")
-runDiffExp(data.file = "mydata.rds", result.extent = "vst.ttest", 
-           Rmdfunction = "vst.ttest.createRmd",
-           output.directory = ".", fit.type = "parametric")
 }
 }
 \author{

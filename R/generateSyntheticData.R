@@ -162,7 +162,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   if (length(effect.size) == 1) {
     n.upregulated <- floor(fraction.upregulated * n.diffexp)
     if (fraction.upregulated != 0 & n.diffexp != 0) {
-      genes.upreg <- 1:n.upregulated
+      genes.upreg <- seq_len(n.upregulated)
     } else {
       genes.upreg <- NULL
     }
@@ -171,7 +171,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     } else {
       genes.downreg <- NULL
     }
-    genes.nonreg <- setdiff(1:n.vars, union(genes.upreg, genes.downreg))
+    genes.nonreg <- setdiff(seq_len(n.vars), union(genes.upreg, genes.downreg))
   } else {
     if (length(effect.size) != n.vars) {
       stop("The length of the effect.size vector must be the same as the number of simulated genes.")
@@ -203,7 +203,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     phi.estimates <- mu.phi.estimates$pickrell.cheung.phi
     
     ### Sample a mu and a phi for each gene in condition S1
-    to.include <- sample(1:length(mu.estimates), n.vars, 
+    to.include <- sample(seq_len(length(mu.estimates)), n.vars, 
                          replace = ifelse(n.vars > length(mu.estimates), TRUE, FALSE))
     truedispersions.S1 <- phi.estimates[to.include]
     truemeans.S1 <- mu.estimates[to.include]
@@ -223,15 +223,15 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   }
 	
 	### Generate sequencing depths (nfacts * Nk)
-	nfacts <- runif(2 * samples.per.cond, min = minfact, max = maxfact)
+	nfacts <- stats::runif(2 * samples.per.cond, min = minfact, max = maxfact)
 	seq.depths <- nfacts * seqdepth
 
 	### If not all genes are overdispersed, let some of them be Poisson distributed (dispersion = 0)
 	overdispersed <- rep(1, n.vars)
 	if (fraction.non.overdispersed > 0) {
-		overdispersed[genes.upreg[1:round(fraction.non.overdispersed * length(genes.upreg))]] <- 0
-		overdispersed[genes.downreg[1:round(fraction.non.overdispersed * length(genes.downreg))]] <- 0
-		overdispersed[genes.nonreg[1:round(fraction.non.overdispersed * length(genes.nonreg))]] <- 0
+		overdispersed[genes.upreg[seq_len(round(fraction.non.overdispersed * length(genes.upreg)))]] <- 0
+		overdispersed[genes.downreg[seq_len(round(fraction.non.overdispersed * length(genes.downreg)))]] <- 0
+		overdispersed[genes.nonreg[seq_len(round(fraction.non.overdispersed * length(genes.nonreg)))]] <- 0
 	}
 
 	### Find rates of mapping to each gene in each condition
@@ -239,12 +239,12 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	prob.S2 <- rep(0, length(prob.S1))
 	
   if (length(effect.size) == 1) {
-    for (i in 1:n.vars) {
+    for (i in seq_len(n.vars)) {
       if (i %in% genes.upreg) {
-        prob.S2[i] <- (effect.size + rexp(1, rate = 1)) * prob.S1[i]
+        prob.S2[i] <- (effect.size + stats::rexp(1, rate = 1)) * prob.S1[i]
       } else {
         if (i %in% genes.downreg) {
-          prob.S2[i] <- 1/(effect.size + rexp(1, rate = 1)) * prob.S1[i]
+          prob.S2[i] <- 1/(effect.size + stats::rexp(1, rate = 1)) * prob.S1[i]
         } else {
           prob.S2[i] <- prob.S1[i]
         }
@@ -263,12 +263,13 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   if (is.character(dispersions)) {
     truedispersions.S2 <- truedispersions.S1
     if (between.group.diffdisp == TRUE) {
-      for (i in 1:length(truedispersions.S2)) {
+      for (i in seq_len(length(truedispersions.S2))) {
         sample.base <- phi.estimates[abs(log10(mu.estimates) - 
                                            log10(prob.S2[i])) < 0.05]
         if (length(sample.base) < 50) {
-          sample.base <- phi.estimates[order(abs(log10(mu.estimates) - 
-                                                   log10(prob.S2[i])))][1:500]
+          sample.base <- 
+            phi.estimates[order(abs(log10(mu.estimates) - 
+                                      log10(prob.S2[i])))][seq_len(500)]
         }
         truedispersions.S2[i] <- sample(sample.base, 1)
       }
@@ -313,15 +314,15 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	random.outliers <- matrix(0, nrow(Z), ncol(Z))
 	random.outliers.factor <- matrix(1, nrow(Z), ncol(Z))
 	if (random.outlier.high.prob != 0 | random.outlier.low.prob != 0) {
-		for (i in 1:nrow(Z)) {
-			for (j in 1:ncol(Z)) {
-        tmp <- runif(1)
+		for (i in seq_len(nrow(Z))) {
+			for (j in seq_len(ncol(Z))) {
+        tmp <- stats::runif(1)
 				if (tmp < random.outlier.high.prob) {
           random.outliers[i, j] <- 1
-          random.outliers.factor[i, j] <- runif(1, min = 5, max = 10)
+          random.outliers.factor[i, j] <- stats::runif(1, min = 5, max = 10)
 				} else if (tmp < random.outlier.low.prob + random.outlier.high.prob) {
           random.outliers[i, j] <- (-1)
-          random.outliers.factor[i, j] <- 1/runif(1, min = 5, max = 10)
+          random.outliers.factor[i, j] <- 1/stats::runif(1, min = 5, max = 10)
 				}
 			}
 		}
@@ -333,26 +334,26 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	single.outliers <- matrix(0, nrow(Z), ncol(Z))
   single.outliers.factor <- matrix(1, nrow(Z), ncol(Z))
 	if (single.outlier.high.prob != 0 | single.outlier.low.prob != 0) {
-		has.single.outlier[genes.upreg[1:floor((single.outlier.high.prob + 
-                                              single.outlier.low.prob) * 
-                                             length(genes.upreg))]] <- 1
-		has.single.outlier[genes.downreg[1:floor((single.outlier.high.prob + 
-                                                single.outlier.low.prob) * 
-                                               length(genes.downreg))]] <- 1
-		has.single.outlier[genes.nonreg[1:floor((single.outlier.high.prob + 
-                                               single.outlier.low.prob) * 
-                                              length(genes.nonreg))]] <- 1
+	  has.single.outlier[genes.upreg[seq_len(floor((single.outlier.high.prob + 
+	                                                  single.outlier.low.prob) * 
+	                                                 length(genes.upreg)))]] <- 1
+	  has.single.outlier[genes.downreg[seq_len(floor((single.outlier.high.prob + 
+	                                                    single.outlier.low.prob) * 
+	                                                   length(genes.downreg)))]] <- 1
+	  has.single.outlier[genes.nonreg[seq_len(floor((single.outlier.high.prob + 
+	                                                   single.outlier.low.prob) * 
+	                                                  length(genes.nonreg)))]] <- 1
 			
-		for (i in 1:nrow(Z)) {
+		for (i in seq_len(nrow(Z))) {
 			if (has.single.outlier[i] == 1) {
-				the.sample <- sample(1:(ncol(Z)), 1)
-        if (runif(1) < (single.outlier.high.prob/(single.outlier.high.prob + 
+				the.sample <- sample(seq_len(ncol(Z)), 1)
+        if (stats::runif(1) < (single.outlier.high.prob/(single.outlier.high.prob + 
                                                     single.outlier.low.prob))) {
 					single.outliers[i, the.sample] <- 1
-          single.outliers.factor[i, the.sample] <- runif(1, min = 5, max = 10)
+          single.outliers.factor[i, the.sample] <- stats::runif(1, min = 5, max = 10)
 				} else {
 					single.outliers[i, the.sample] <- (-1)
-          single.outliers.factor[i, the.sample] <- 1/runif(1, min = 5, max = 10)
+          single.outliers.factor[i, the.sample] <- 1/stats::runif(1, min = 5, max = 10)
 				}
 			}
 		}
@@ -360,7 +361,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	}
 	
 	### Assign variable names to rows
-	rownames(Z) <- 1:n.vars
+	rownames(Z) <- seq_len(n.vars)
 	
 	### Find number of outliers (random, single, up, down) in each group
 	n.random.outliers.up.S1 <- apply(random.outliers[, S1] > 0, 1, sum)
@@ -483,7 +484,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Filter the data with respect to median cpm
 	cpm <- sweep(Z.T, 2, apply(Z.T, 2, sum), '/') * 1e6
-	m <- apply(cpm, 1, median)
+	m <- apply(cpm, 1, stats::median)
 	keep.C <- which(m >= filter.threshold.mediancpm)
 	Z.TC <- Z.T[keep.C, ]
 	variable.annotations.TC <- variable.annotations.T[keep.C, ]
@@ -491,7 +492,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
   ### Generate sample and variable names
   rownames(Z.TC) <- paste("g", 1:nrow(Z.TC), sep = "")
-  if (!use_tree) colnames(Z.TC) <- paste("sample", 1:ncol(Z.TC), sep = "")
+  if (!use_tree) colnames(Z.TC) <- paste("sample", seq_len(ncol(Z.TC)), sep = "")
   rownames(sample.annotations) <- colnames(Z.TC)
   rownames(variable.annotations.TC) <- rownames(Z.TC)
   if (length(length_matrix) != 0) {
@@ -760,8 +761,10 @@ computeFactorLengths <- function(length_matrix, prob.S1, sum.S1) {
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
-#'                           output.filename = file.path(tmpdir, "mydata_check.html"))
+#' if (interactive()) {
+#'   summarizeSyntheticDataSet(data.set = file.path(tmpdir, "mydata.rds"), 
+#'                             output.filename = file.path(tmpdir, "mydata_check.html"))
+#' }
 summarizeSyntheticDataSet <- function(data.set, output.filename) {
   
   ## Check that the output.filename ends with .html
@@ -782,13 +785,13 @@ summarizeSyntheticDataSet <- function(data.set, output.filename) {
   opts_chunk$set(fig.path = file.path(output.directory, "compcodeR_check_figure/"))
   opts_chunk$set(fig.width = 9, fig.height = 7)
   
-  if (class(data.set) == "character" && 
+  if (is.character(data.set) && 
         substr(data.set, nchar(data.set) - 3, nchar(data.set)) == ".rds") {
     dataset.filename <- data.set
     data.set <- readRDS(data.set)
     writeLines(paste("Data set from file:", dataset.filename), codefile)
   }
-  if (class(data.set) == "compData") {
+  if (is(data.set, "compData")) {
     data.set <- data.set
   } else if (is.list(data.set)) {
     data.set <- convertListTocompData(data.set)
@@ -799,7 +802,7 @@ summarizeSyntheticDataSet <- function(data.set, output.filename) {
   ## Print the data parameters
   writeLines(c("```{r settings, echo = FALSE}",
                "print(noquote(lapply(info.parameters(data.set), function(x) {
-if (length(x) > 25) x <- noquote(c(x[1:25], '...'))
+if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                x})), sep = '\n')",
                "```"), codefile)
   
