@@ -19,6 +19,6 @@ The multiplying factor.
 \description{
 Power of the Student t-test between the two conditions for an independent
 Gaussian vector of data, with unit effect size (expectation) and variance.
-WARNING: This is only valid when \code{id.condition} has exactelly two factors.
+WARNING: This is only valid when \code{id.condition} has exactly two factors.
 }
 \keyword{internal}

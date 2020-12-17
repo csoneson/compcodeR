@@ -23,7 +23,7 @@ Under the alternative hypothesis, multiplying factor for the non-central Student
 distribution parameter, compared to the case where samples are iid and of equal size.
 If the factor is above 1.0, then the problem is "easier" than this the null problem.
 If it is below 1.0, then the problem is "harder".
-WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactelly two factors.
+WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactly two factors.
 Otherwise, this is just the square root of the non-central Fisher factor (see \code{\link{deltaFisher}}).
 }
 \keyword{internal}

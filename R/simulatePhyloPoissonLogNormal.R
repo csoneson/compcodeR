@@ -516,7 +516,7 @@ deltaFisher <- function(tree, id.condition, model, selection.strength) {
 #' distribution parameter, compared to the case where samples are iid and of equal size.
 #' If the factor is above 1.0, then the problem is "easier" than this the null problem.
 #' If it is below 1.0, then the problem is "harder".
-#' WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactelly two factors.
+#' WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactly two factors.
 #' Otherwise, this is just the square root of the non-central Fisher factor (see \code{\link{deltaFisher}}).
 #' 
 #' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
@@ -582,7 +582,7 @@ vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, l
 #' @description 
 #' Power of the Student t-test between the two conditions for an independent
 #' Gaussian vector of data, with unit effect size (expectation) and variance.
-#' WARNING: This is only valid when \code{id.condition} has exactelly two factors.
+#' WARNING: This is only valid when \code{id.condition} has exactly two factors.
 #' 
 #' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
 #' @param id.condition A named vector giving the state of each tip (sample).

@@ -16,7 +16,7 @@ writeNormalization(
 
 \item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 
-\item{dataTransformation}{one of "log2", "log2+1" or "sqrt." Data transformation to apply to the normalized data.}
+\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.}
 
 \item{codefile}{}
 }

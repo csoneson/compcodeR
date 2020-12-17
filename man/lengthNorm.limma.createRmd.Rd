@@ -27,7 +27,7 @@ lengthNorm.limma.createRmd(
 
 \item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 
-\item{dataTransformation}{one of "log2", "log2+1" or "sqrt". Data transformation to apply to the normalized data.}
+\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.

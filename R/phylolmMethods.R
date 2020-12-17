@@ -457,7 +457,7 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
-#' @param dataTransformation one of "log2", "log2+1" or "sqrt". Data transformation to apply to the normalized data.
+#' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
 #' 
 #' @details 
@@ -600,7 +600,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 #' Generate a \code{.Rmd} file containing code to normalize data.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
-#' @param dataTransformation one of "log2", "log2+1" or "sqrt." Data transformation to apply to the normalized data.
+#' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.
 #' @param codefile 
 #' 
 #' @details 
@@ -617,7 +617,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 writeNormalization <- function(norm.method, lengthNormalization, dataTransformation, codefile) {
   writeLines(c("", "# Normalisation"),codefile)
   lengthNormalization <- match.arg(lengthNormalization, c("RPKM", "TPM", "none", "gwRPKM"))
-  dataTransformation <- match.arg(dataTransformation, c("log2", "log2+1", "sqrt"))
+  dataTransformation <- match.arg(dataTransformation, c("log2", "asin(sqrt)", "sqrt"))
   if (lengthNormalization == "none" || lengthNormalization == "asPredictor") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf"),
@@ -666,8 +666,8 @@ writeNormalization <- function(norm.method, lengthNormalization, dataTransformat
     writeLines(c("", "# Transformation"),codefile)
     if (dataTransformation == "log2") {
       writeLines("data.trans <- log2(data.norm)", codefile)
-    } else if (dataTransformation == "log2+1") {
-      writeLines("data.trans <- log2(data.norm + 1)", codefile)
+    } else if (dataTransformation == "asin(sqrt)") {
+      writeLines("data.trans <- asin(sqrt(data.norm))", codefile)
     } else if (dataTransformation == "sqrt") {
       writeLines("data.trans <- sqrt(data.norm)", codefile)
     }
