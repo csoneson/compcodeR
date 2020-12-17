@@ -365,7 +365,8 @@ extract_results_phylolm <- function(phylo_lm_obj) {
 #' @keywords internal
 #' 
 phylolm_analysis <- function(dat, design_data, design_formula, tree, model, measurement_error, ...) {
-  data_reg <- cbind(data.frame(expr = dat), design_data)
+  data_reg <- design_data
+  data_reg$expr <- dat
   levels(data_reg$condition) <- c(1, 2)
   res <- try(extract_results_phylolm(phylolm::phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),
                                                       data = data_reg,
@@ -627,7 +628,7 @@ writeNormalization <- function(norm.method, lengthNormalization, dataTransformat
     } else {
       writeLines("data.norm <- sweep(count.matrix(cdata), 2, lib.size, '/')", codefile)
     }
-    writeLines("data.norm <- data.norm * 1e6", codefile)
+    if (dataTransformation != "asin(sqrt)") writeLines("data.norm <- data.norm * 1e6", codefile)
   } else if (lengthNormalization == "TPM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata) / length.matrix(cdata)) * nf"),
@@ -637,7 +638,7 @@ writeNormalization <- function(norm.method, lengthNormalization, dataTransformat
     } else {
       writeLines("data.norm <- sweep((count.matrix(cdata)) / length.matrix(cdata), 2, lib.size, '/')", codefile)
     }
-    writeLines("data.norm <- data.norm * 1e6", codefile)
+    if (dataTransformation != "asin(sqrt)") writeLines("data.norm <- data.norm * 1e6", codefile)
   } else if (lengthNormalization == "RPKM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf"),
@@ -647,7 +648,7 @@ writeNormalization <- function(norm.method, lengthNormalization, dataTransformat
     } else {
       writeLines("data.norm <- sweep((count.matrix(cdata)) / length.matrix(cdata), 2, lib.size, '/')", codefile)
     }
-    writeLines("data.norm <- data.norm * 1e9", codefile)
+    if (dataTransformation != "asin(sqrt)") writeLines("data.norm <- data.norm * 1e9", codefile)
   } else if (lengthNormalization == "gwRPKM") {
     if (dataTransformation != "log2") stop("gwRPKM normalisation is only available for the log2 transformation.")
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
