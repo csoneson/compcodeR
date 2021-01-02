@@ -508,7 +508,7 @@ checkClass <- function(object, objname, trueclass) {
 #nocov start
 runComparisonGUI <- function(input.directories, output.directory, recursive, 
                              out.width = NULL, upper.limits = NULL, lower.limits = NULL) {
-  if (!require(rpanel)) stop("To use the GUI you must install the rpanel package. If it is not possible to install the package on your system, please use the runComparison() function instead.")
+  if (!requireNamespace("rpanel")) stop("To use the GUI you must install the rpanel package. If it is not possible to install the package on your system, please use the runComparison() function instead.")
   checkClass(input.directories, "input.directories", "character")
   checkClass(output.directory, "output.directory", "character")
   checkClass(recursive, "recursive", "logical")
