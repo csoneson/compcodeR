@@ -604,3 +604,143 @@ vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
   pow <- pt(qq, d2, ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
   pow
 }
+
+#' @title Effective Sample Size
+#'
+#' @description 
+#' Sample size so that the variance of the estimator is sigma^2 / nEff.
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' @param model The trait evolution model. One of "BM" or "OU".
+#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
+#' 
+#' @return The effective sample size.
+#' 
+#' @keywords internal
+#' 
+nEffNaive <- function(tree, id.condition, model, selection.strength) {
+  if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
+  if (is.null(tree)) {
+    n <- length(id.condition)
+    id_cond_uni <- id.condition
+    Vinv <- diag(1, n)
+  } else {
+    # Check vector order
+    id.condition <- checkParamVector(id.condition, "id.condition", tree)
+    # tree
+    tree_uni <- prune_tree_one_obs(tree)
+    id_cond_uni <- id.condition[tree_uni$tip.label]
+    n <- length(tree_uni$tip.label)
+    if (model == "OU") model <- "OUfixedRoot"
+    V <- ape::vcv(phylolm::transf.branch.lengths(tree_uni, model = model, list(alpha = selection.strength))$tree)
+    Vinv <- try(solve(V))
+    if (inherits(Vinv, 'try-error')) Vinv <- ginv(V)
+  }
+  # Intercept
+  X <- rep(1, n)
+  # Model matrix
+  Z <- stats::model.matrix(~factor(id_cond_uni))[, -1, drop = FALSE]
+  # Variance of the condition
+  X <- cbind(X, Z)
+  nEff <- 1 / solve(t(X) %*% Vinv %*% X)[2, 2]
+  return(nEff)
+}
+
+nEffSchur <- function(tree, id.condition, model, selection.strength) {
+  if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
+  if (is.null(tree)) {
+    n <- length(id.condition)
+    id_cond_uni <- id.condition
+    Vinv <- diag(1, n)
+  } else {
+    # Check vector order
+    id.condition <- checkParamVector(id.condition, "id.condition", tree)
+    # tree
+    tree_uni <- prune_tree_one_obs(tree)
+    id_cond_uni <- id.condition[tree_uni$tip.label]
+    n <- length(tree_uni$tip.label)
+    if (model == "OU") model <- "OUfixedRoot"
+    V <- ape::vcv(phylolm::transf.branch.lengths(tree_uni, model = model, list(alpha = selection.strength))$tree)
+    Vinv <- try(solve(V))
+    if (inherits(Vinv, 'try-error')) Vinv <- ginv(V)
+  }
+  # Intercept
+  X <- rep(1, n)
+  # Model matrix
+  Z <- stats::model.matrix(~factor(id_cond_uni))[, -1, drop = FALSE]
+  # Variance of the condition
+  X <- cbind(X, Z)
+  M <- t(X) %*% Vinv %*% X
+  nEff <- det(M) / M[1,1]
+  return(nEff)
+}
+
+nEffPhylolm <- function(tree, id.condition, model, selection.strength) {
+  if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
+  if (is.null(tree)) return(nEffNaive(tree, id.condition, model, selection.strength))
+  # Check vector order
+  id.condition <- checkParamVector(id.condition, "id.condition", tree)
+  # tree
+  tree_uni <- prune_tree_one_obs(tree)
+  id_cond_uni <- id.condition[tree_uni$tip.label]
+  n <- length(tree_uni$tip.label)
+  # phylolm
+  e1 <- rnorm(n)
+  names(e1) <- tree_uni$tip.label
+  if (model == "OU") model <- "OUfixedRoot"
+  tree_trans <- phylolm::transf.branch.lengths(tree_uni, model = model, list(alpha = selection.strength))$tree
+  phyfit <- phylolm::phylolm(e1 ~ 1 + as.factor(id_cond_uni), phy = tree_trans)
+  nEff <- 1 / (phyfit$vcov[2, 2] / phyfit$sigma2 / n * (n - 2))
+  return(nEff)
+}
+
+#' @title Effective Sample Size Ratio
+#'
+#' @description 
+#' Ratio between the tree sample size and the sample size of the equivalent problem
+#' with independent measures. A result larger than one indicates a problem that is
+#' made "easier" by the tree structure. Note that it strongly depends on the 
+#' tip conditions (see examples).
+#' 
+#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
+#' @param id.condition A named vector giving the state of each tip (sample).
+#' @param model The trait evolution model. One of "BM" or "OU".
+#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
+#' 
+#' @return The ratio of sample sizes.
+#' 
+#' @examples 
+#' set.seed(1289)
+#' ## Ballanced tree
+#' ntips <- 2^5
+#' tree <- ape::compute.brlen(ape::stree(ntips, "balanced"))
+#' ## Alt cond : nEff greater than 1
+#' id_cond <- rep(rep(0:1, each = 2), ntips / 4)
+#' names(id_cond) <- tree$tip.label
+#' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
+#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' ## Bloc cond : nEff smaller than 1
+#' id_cond <- rep(0:1, each = ntips / 2)
+#' names(id_cond) <- tree$tip.label
+#' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
+#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' 
+#' @keywords internal
+#' 
+nEffRatio <- function(tree, id.condition, model, selection.strength) {
+  if (is.null(tree)) {
+    n <- length(id.condition)
+  } else {
+    n <- length(prune_tree_one_obs(tree)$tip.label)
+  }
+  return(nEffNaive(tree, id.condition, model, selection.strength) / (n / 4))
+}
+
+prune_tree_one_obs <- function(tree) {
+  C <- ape::cophenetic.phylo(tree)
+  C <- apply(C, c(1, 2), function(x) isTRUE(all.equal(x, 0)))
+  duplicated_species <- colnames(C)[duplicated(C)]
+  tree_unique <- ape::drop.tip(tree, duplicated_species)
+  return(tree_unique)
+}

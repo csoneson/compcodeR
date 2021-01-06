@@ -460,9 +460,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'repl.id' = repl.id, 'dataset' = dataset, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
 	                        'minfact' = minfact, 'maxfact' = maxfact,
-	                        'studentFactor' = deltaStudent(tree, id.condition, model_process, selection.strength),
-	                        'unitTtestPower95' = vanillaPowerStudent(tree, id.condition, model_process, selection.strength, 0.95),
-	                        'unitTtestPower95Ind' = vanillaPowerStudentInd(tree, id.condition, 0.95))
+	                        'nEff' = nEffNaive(tree, id.condition, model_process, selection.strength),
+	                        'nEffRatio' = nEffRatio(tree, id.condition, model_process, selection.strength))
+	                        # 'studentFactor' = deltaStudent(tree, id.condition, model_process, selection.strength),
+	                        # 'unitTtestPower95' = vanillaPowerStudent(tree, id.condition, model_process, selection.strength, 0.95),
+	                        # 'unitTtestPower95Ind' = vanillaPowerStudentInd(tree, id.condition, 0.95))
 	if (use_tree) {
 	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree))
 	  sample.annotations$id.condition <-  id.condition
