@@ -481,6 +481,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	s <- apply(Z, 1, sum)
 	keep.T <- which(s >= filter.threshold.total)
 	Z.T <- Z[keep.T, ]
+	length_matrix.T <- length_matrix[keep.T, ]
 	variable.annotations.T <- variable.annotations[keep.T, ]
   filtering <- paste('total count >=', filter.threshold.total)
 	
@@ -489,6 +490,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	m <- apply(cpm, 1, stats::median)
 	keep.C <- which(m >= filter.threshold.mediancpm)
 	Z.TC <- Z.T[keep.C, ]
+	length_matrix.TC <- length_matrix.T[keep.C, ]
 	variable.annotations.TC <- variable.annotations.T[keep.C, ]
   filtering <- paste(filtering, "; ", paste('median cpm >=', filter.threshold.mediancpm))
 	
@@ -497,9 +499,9 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   if (!use_tree) colnames(Z.TC) <- paste("sample", seq_len(ncol(Z.TC)), sep = "")
   rownames(sample.annotations) <- colnames(Z.TC)
   rownames(variable.annotations.TC) <- rownames(Z.TC)
-  if (length(length_matrix) != 0) {
-    colnames(length_matrix) <- colnames(Z.TC)
-    rownames(length_matrix) <- rownames(Z.TC)
+  if (length(length_matrix.TC) != 0) {
+    colnames(length_matrix.TC) <- colnames(Z.TC)
+    rownames(length_matrix.TC) <- rownames(Z.TC)
   }
   
   data.object <- compData(count.matrix = Z.TC, 
@@ -507,7 +509,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                           sample.annotations = sample.annotations, 
                           filtering = filtering, 
                           info.parameters = info.parameters,
-                          length.matrix = length_matrix)
+                          length.matrix = length_matrix.TC)
   
   ## Save results
   if (!is.null(output.file)) {
