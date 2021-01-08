@@ -254,6 +254,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     prob.S2 <- c(effect.size) * prob.S1
   }
 	true.log2foldchange <- log2(prob.S2/prob.S1)
+	# true.sqrtfoldchange <- sqrt(prob.S2) - sqrt(prob.S1)
 	sum.S1 <- sum(prob.S1)
 	sum.S2 <- sum(prob.S2)
 	
@@ -386,24 +387,53 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Normalize using lengths
 	if (use_lengths) {
-	  get_log2_gwRMKP <- function(log2_pseudocounts, lengths) {
-	    fun <- function(i) {
-	      ff <- lm(log2_pseudocounts[i, ] ~ log2(lengths)[i, ])
-	      if (is.na(ff$coefficients[2])) return(log2_pseudocounts[i, ]) ## All lengths are the same
-	      return(log2_pseudocounts[i, ] - ff$coefficients[2] * log2(lengths)[i, ])
-	      # ll <- log2(lengths)[i, ] - min(log2(lengths[i, ]))
-	      # return(resid(lm(log2_pseudocounts[i, ] ~ ll - 1)))
-	    }
-	    res <- t(sapply(1:nrow(log2_pseudocounts), fun))
-	    # res[is.na(res)] <- log2_pseudocounts[is.na(res)]
-	    return(res)
-	  }
-	  # log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
-	  log2.pseudocounts.lengths <- get_log2_gwRMKP(log2.pseudocounts, length_matrix)
-	  M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
-	    apply(log2.pseudocounts.lengths[, S1], 1, mean)
-	  A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
-	                    apply(log2.pseudocounts.lengths[, S1], 1, mean))
+	  # get_log2_gwRMKP <- function(log2_pseudocounts, lengths) {
+	  #   fun <- function(i) {
+	  #     ff <- lm(log2_pseudocounts[i, ] ~ log2(lengths)[i, ])
+	  #     if (is.na(ff$coefficients[2])) return(log2_pseudocounts[i, ]) ## All lengths are the same
+	  #     return(log2_pseudocounts[i, ] - ff$coefficients[2] * log2(lengths)[i, ])
+	  #     # ll <- log2(lengths)[i, ] - min(log2(lengths[i, ]))
+	  #     # return(resid(lm(log2_pseudocounts[i, ] ~ ll - 1)))
+	  #   }
+	  #   res <- t(sapply(1:nrow(log2_pseudocounts), fun))
+	  #   # res[is.na(res)] <- log2_pseudocounts[is.na(res)]
+	  #   return(res)
+	  # }
+	  # # log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
+	  # log2.pseudocounts.lengths <- get_log2_gwRMKP(log2.pseudocounts, length_matrix)
+	  # M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
+	  #   apply(log2.pseudocounts.lengths[, S1], 1, mean)
+	  # A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
+	  #                   apply(log2.pseudocounts.lengths[, S1], 1, mean))
+	  
+	  ## sqrtTPM
+# 	  nf <- edgeR::calcNormFactors(countsLengths, method = '", norm.method, "')", sep = ''),
+#                "lib.size <- colSums(countsLengths) * nf",
+#                "sqrtTPM.data <- t(sqrt(t(countsLengths)/lib.size))"
+	  
+	  # nf.l <- calcNormFactors(Z / length_matrix)
+	  # norm.factors.l <- colSums(Z / length_matrix) * nf.l
+	  # sqrt.tpm <- t(sqrt(t(Z / length_matrix) / norm.factors.l))
+	  # M.value.sqrtTPM <- apply(sqrt.tpm[, S2], 1, mean) - apply(sqrt.tpm[, S1], 1, mean)
+	  # A.value.sqrtTPM <- 0.5*(apply(sqrt.tpm[, S2], 1, mean) + apply(sqrt.tpm[, S1], 1, mean))
+	  
+	  ## TPM
+	  nf.TPM <- calcNormFactors(Z / length_matrix)
+	  norm.factors.TPM <- nf.TPM * colSums(Z / length_matrix)
+	  common.libsize.TPM <- exp(mean(log(colSums(Z / length_matrix))))
+	  pseudocounts.TPM <- sweep((Z + 0.5) / length_matrix, 2, norm.factors.TPM, '/') * common.libsize.TPM
+	  log2.pseudocounts.TPM <- log2(pseudocounts.TPM)
+	  M.value.TPM <- apply(log2.pseudocounts.TPM[, S2], 1, mean) - apply(log2.pseudocounts.TPM[, S1], 1, mean)
+	  A.value.TPM <- 0.5*(apply(log2.pseudocounts.TPM[, S2], 1, mean) + apply(log2.pseudocounts.TPM[, S1], 1, mean))
+	  
+	  # ## RPKM
+	  # nf.RPKM <- calcNormFactors(Z)
+	  # norm.factors.RPKM <- nf.RPKM * colSums(Z)
+	  # common.libsize.RPKM <- exp(mean(log(colSums(Z))))
+	  # pseudocounts.RPKM <- sweep((Z + 0.5) / length_matrix, 2, norm.factors.RPKM, '/') * common.libsize.RPKM
+	  # log2.pseudocounts.RPKM <- log2(pseudocounts.RPKM)
+	  # M.value.RPKM <- apply(log2.pseudocounts.RPKM[, S2], 1, mean) - apply(log2.pseudocounts.RPKM[, S1], 1, mean)
+	  # A.value.RPKM <- 0.5*(apply(log2.pseudocounts.RPKM[, S2], 1, mean) + apply(log2.pseudocounts.RPKM[, S1], 1, mean))
 	}
 	
 	# ### Phylogenetic MA values
@@ -429,6 +459,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                   M.value = M.value, 
 	                                   A.value = A.value, 
 	                                   truelog2foldchanges = true.log2foldchange, 
+	                                   # truesqrtfoldchanges = true.sqrtfoldchange, 
 	                                   upregulation = upregulation, 
 	                                   downregulation = downregulation, 
 	                                   differential.expression = differential.expression)
@@ -472,8 +503,14 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	if (use_lengths) {
 	  variable.annotations$lengths.relmeans <- lengths.relmeans
 	  variable.annotations$lengths.dispersions <- lengths.dispersions
-	  variable.annotations$M.value.lengths <- M.value.lengths
-	  variable.annotations$A.value.lengths <- A.value.lengths
+	  # variable.annotations$M.value.lengths <- M.value.lengths
+	  # variable.annotations$A.value.lengths <- A.value.lengths
+	  # variable.annotations$M.value.sqrtTPM <- M.value.sqrtTPM
+	  # variable.annotations$A.value.sqrtTPM <- A.value.sqrtTPM
+	  variable.annotations$M.value.TPM <- M.value.TPM
+	  variable.annotations$A.value.TPM <- A.value.TPM
+	  # variable.annotations$M.value.RPKM <- M.value.RPKM
+	  # variable.annotations$A.value.RPKM <- A.value.RPKM
 	  # info.parameters <- c(info.parameters, list('length.matrix' = length_matrix))
 	}
 	
@@ -836,10 +873,25 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "```"), codefile)
   
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    writeLines("### MA plot, length normalized, colored by true differential expression status", codefile)
-    writeLines(c("```{r maplot-trueDEstatus-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-                 "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+    # writeLines("### MA plot, log2 gwRPKM normalized, colored by true differential expression status", codefile)
+    # writeLines(c("```{r maplot-trueDEstatus-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+    #              "```"), codefile)
+    
+    # writeLines("### MA plot, sqrt TPM normalized, colored by true differential expression status", codefile)
+    # writeLines(c("```{r maplot-trueDEstatus-sqrtTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "ggplot(variable.annotations(data.set), aes(x = A.value.sqrtTPM, y = M.value.sqrtTPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+    #              "```"), codefile)
+    
+    writeLines("### MA plot, log2 TPM normalized, colored by true differential expression status", codefile)
+    writeLines(c("```{r maplot-trueDEstatus-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "ggplot(variable.annotations(data.set), aes(x = A.value.TPM, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
                  "```"), codefile)
+    
+    # writeLines("### MA plot, log2 RPKM normalized, colored by true differential expression status", codefile)
+    # writeLines(c("```{r maplot-trueDEstatus-logRPKM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "ggplot(variable.annotations(data.set), aes(x = A.value.RPKM, y = M.value.RPKM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+    #              "```"), codefile)
   }
 
   ## Colored by number of outlier counts
@@ -848,12 +900,12 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = total.nbr.outliers)) + geom_point()",
                "```"), codefile)
   
-  if (length(length.matrix(data.set)) != 0) { # There are lengths
-    writeLines("### MA plot, length normalized, colored by total number of outliers", codefile)
-    writeLines(c("```{r maplot-nbroutliers-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-                 "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = total.nbr.outliers)) + geom_point()",
-                 "```"), codefile)
-  }
+  # if (length(length.matrix(data.set)) != 0) { # There are lengths
+  #   writeLines("### MA plot, length normalized, colored by total number of outliers", codefile)
+  #   writeLines(c("```{r maplot-nbroutliers-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+  #                "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = total.nbr.outliers)) + geom_point()",
+  #                "```"), codefile)
+  # }
   
   ## Plots of estimated log2-fold change (M-value) vs true log2-fold change, colored by true differential expression status
   writeLines("### True log2-fold change vs estimated log2-fold change (M-value)", codefile)
@@ -863,11 +915,29 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "```"), codefile)
   
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    writeLines("### True log2-fold change vs estimated length normalized log2-fold change (M-value)", codefile)
-    writeLines(c("```{r logfoldchanges-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    # writeLines("### True log2-fold change vs estimated length normalized log2-fold change (M-value)", codefile)
+    # writeLines(c("```{r logfoldchanges-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
+    #              "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+    #              "```"), codefile)
+    
+    # writeLines("### True sqrt-fold change vs estimated TPM sqrt-fold change (M-value)", codefile)
+    # writeLines(c("```{r logfoldchanges-sqrtTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "if (!is.null(variable.annotations(data.set)$truesqrtfoldchanges)) {",
+    #              "ggplot(variable.annotations(data.set), aes(x = truesqrtfoldchanges, y = M.value.sqrtTPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+    #              "```"), codefile)
+    
+    writeLines("### True log2-fold change vs estimated TPM log2-fold change (M-value)", codefile)
+    writeLines(c("```{r logfoldchanges-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
-                 "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+                 "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                  "```"), codefile)
+    
+    # writeLines("### True log2-fold change vs estimated RPKM log2-fold change (M-value)", codefile)
+    # writeLines(c("```{r logfoldchanges-logRPKM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+    #              "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
+    #              "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.RPKM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+    #              "```"), codefile)
   }
   
   ## Phylogenetic heatmap
