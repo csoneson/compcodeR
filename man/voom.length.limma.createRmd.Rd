@@ -10,7 +10,8 @@ voom.length.limma.createRmd(
   codefile,
   norm.method,
   extraDesignFactors = NULL,
-  lengthNormalization = "RPKM"
+  lengthNormalization = "RPKM",
+  blockFactor = NULL
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ voom.length.limma.createRmd(
 \item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
 
 \item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
+
+\item{blockFactor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.

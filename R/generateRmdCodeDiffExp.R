@@ -525,6 +525,7 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
 #'
 #' @details 
 #' The \code{length.matrix} field of the \code{compData}
@@ -558,7 +559,9 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
 #' 
-voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method, extraDesignFactors = NULL, lengthNormalization = "RPKM") {
+voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method,
+                                        extraDesignFactors = NULL, lengthNormalization = "RPKM",
+                                        blockFactor = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("### voom + limma", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -590,21 +593,20 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   
-  writeLines(c("", "# Normalisation and fit"),
-             codefile)
+  writeLines(c("", "# Normalisation"), codefile)
   
   lengthNormalization <- match.arg(lengthNormalization, c("gwRPKM", "RPKM", "TPM", "none"))
   if (lengthNormalization == "none") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf)"), 
+                 "lib_size <- colSums(count.matrix(cdata)) * nf"),
                codefile)
   } else if (lengthNormalization == "TPM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata) / length.matrix(cdata)) * nf * t(length.matrix(cdata)))"), 
+                 "lib_size <- colSums(count.matrix(cdata) / length.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
                codefile)
   } else if (lengthNormalization == "RPKM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata)))"), 
+                 "lib_size <- colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
                codefile)
   } else if (lengthNormalization == "gwRPKM") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
@@ -612,12 +614,29 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                  "y <- t(log2(t(count.matrix(cdata)+0.5)/(lib.size+1)*1e6))",
                  "length_factor <- sapply(1:nrow(y), function(i) lm(y[i, ] ~ log2(length.matrix(cdata))[i, ])$coefficients[2])",
                  "length_factor <- sweep(length.matrix(cdata), 1, length_factor, '^')",
-                 "voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = colSums(count.matrix(cdata)) * nf * t(length_factor))"),
+                 "lib_size <- colSums(count.matrix(cdata)) * nf * t(length_factor)"),
                codefile)
   }
-  writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
-               "voom.fitlimma <- limma::lmFit(voom.data, design = design)", 
-               "voom.fitbayes <- limma::eBayes(voom.fitlimma)", 
+  writeLines(c("voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = lib_size)"),
+             codefile)
+  if (!is.null(blockFactor)) {
+    if (length(blockFactor) > 1) stop("Only on factor can be taken for block definition.")
+    writeLines(c("# Fitting Block correlations",
+                 paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
+                 "corfit <- duplicateCorrelation(voom.data, design = design, block = block)",
+                 "voom.data <- limma::voom(count.matrix(cdata), design = design, block = block, correlation = corfit$consensus, lib.size = lib_size)"), 
+               codefile)
+    writeLines(c("", "# Fit"), codefile)
+    writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
+                 "voom.fitlimma <- limma::lmFit(voom.data, design = design, correlation = corfit$consensus, block = block)"),
+               codefile)
+  } else {
+    writeLines(c("", "# Fit"), codefile)
+    writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
+                 "voom.fitlimma <- limma::lmFit(voom.data, design = design)"),
+               codefile)
+  }
+  writeLines(c("voom.fitbayes <- limma::eBayes(voom.fitlimma)", 
                "voom.pvalues <- voom.fitbayes$p.value[, ncol(voom.fitbayes$p.value)]", 
                "voom.adjpvalues <- p.adjust(voom.pvalues, method = 'BH')", 
                "voom.logFC <- voom.fitbayes$coefficients[, ncol(voom.fitbayes$coefficients)]", 
@@ -628,7 +647,12 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.length.', utils::packageVersion('limma'), '.limma.', norm.method, "lengthNorm.", lengthNormalization, ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."), sep = ''), "')", sep = ''),
+                     paste('voom.length.', utils::packageVersion('limma'),
+                           '.limma.', norm.method,
+                           ".lengthNorm.", lengthNormalization,
+                           ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."),
+                           ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
+                           sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
@@ -756,7 +780,8 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
-#'
+#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
+#' 
 #' @details 
 #' The \code{length.matrix} field of the \code{compData} object 
 #' is used to normalize the counts, by computing the square root of the TPM.
@@ -787,7 +812,8 @@ voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.m
 lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
                                        extraDesignFactors = NULL,
                                        lengthNormalization = "RPKM",
-                                       dataTransformation = "log2") {
+                                       dataTransformation = "log2",
+                                       blockFactor = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("###  limma + length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -819,12 +845,23 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   
-  writeLines(c("", "# Normalisation"), codefile)
   writeNormalization(norm.method, lengthNormalization, dataTransformation, codefile)
   
-  writeLines(c("", "# Fit"), codefile)
-  writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design)", 
-               "length.fitbayes <- limma::eBayes(length.fitlimma)", 
+  if (!is.null(blockFactor)) {
+    if (length(blockFactor) > 1) stop("Only on factor can be taken for block definition.")
+    writeLines(c("# Fitting Block correlations",
+                 paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
+                 "corfit <- duplicateCorrelation(data.trans, design = design, block = block, ndups = 1)"),
+               codefile)
+    writeLines(c("", "# Fit"), codefile)
+    writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design, correlation = corfit$consensus, block = block)"),
+               codefile)
+  } else {
+    writeLines(c("", "# Fit"), codefile)
+    writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design)"),
+               codefile)
+  }
+  writeLines(c("length.fitbayes <- limma::eBayes(length.fitlimma)", 
                "length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]", 
                "length.adjpvalues <- p.adjust(length.pvalues, method = 'BH')", 
                "length.logFC <- length.fitbayes$coefficients[, ncol(length.fitbayes$coefficients)]", 
@@ -836,9 +873,10 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
                      paste('length.', utils::packageVersion('limma'), '.limma.', norm.method,
-                           "lengthNorm.", lengthNormalization, '.',
+                           ".lengthNorm.", lengthNormalization, '.',
                            "dataTrans.", dataTransformation,
                            ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
+                           ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
