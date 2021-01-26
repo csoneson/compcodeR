@@ -513,154 +513,154 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
   close(codefile)
 }
 
-#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with voom+limma
-#' 
-#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the voom transformation (from the limma package) followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
-#' 
-#' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
-#' 
-#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
-#' @param result.path The path to the file where the result object will be saved.
-#' @param codefile The path to the file where the code will be written.
-#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
-#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
-#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
-#'
-#' @details 
-#' The \code{length.matrix} field of the \code{compData}
-#' object are used in the \code{voom} method to normalize the counts. 
-#' \describe{
-#' \item{\code{none}:}{No length normalization.}
-#' \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
-#' \item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
-#' \item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
-#' }
-#' 
-#' @export 
-#' @author Charlotte Soneson
-#' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
-#' @references 
-#' Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
-#' 
-#'  Law CW, Chen Y, Shi W and Smyth GK (2014): voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biology 15, R29
-#' @examples
-#' try(
-#' if (require(limma)) {
-#' tmpdir <- normalizePath(tempdir(), winslash = "/")
-#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-#'                                     samples.per.cond = 5, n.diffexp = 100, 
-#'                                     id.species = factor(1:10),
-#'                                     lengths.relmeans = rpois(1000, 1000),
-#'                                     lengths.dispersions = rgamma(1000, 1, 1),
-#'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.length.limma", 
-#'            Rmdfunction = "voom.length.limma.createRmd", 
-#'            output.directory = tmpdir, norm.method = "TMM")
-#' })
-#' 
-voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method,
-                                        extraDesignFactors = NULL, lengthNormalization = "RPKM",
-                                        blockFactor = NULL) {
-  codefile <- file(codefile, open = 'w')
-  writeLines("### voom + limma", codefile)
-  writeLines(paste("Data file: ", data.path, sep = ''), codefile)
-  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-               "require(limma)", 
-               "require(edgeR)",
-               paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
-  if (is.list(readRDS(data.path))) {
-    writeLines("cdata <- convertListTocompData(cdata)", codefile)
-  }
-  writeLines(c("is.valid <- check_compData(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
-             codefile)
-  
-  writeLines(c("", "# Design"),codefile)
-  if (is.null(extraDesignFactors)) {
-    writeLines(c(
-      "design_formula <- as.formula(~ condition)",
-      "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
-      codefile)
-  } else {
-    writeLines(c(
-      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
-      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
-      codefile)
-  }
-  writeLines(c(
-    "design_data <- data.frame(apply(design_data, 2, as.factor))",
-    "design <- model.matrix(design_formula, design_data)"),
-    codefile)
-  
-  writeLines(c("", "# Normalisation"), codefile)
-  
-  lengthNormalization <- match.arg(lengthNormalization, c("gwRPKM", "RPKM", "TPM", "none"))
-  if (lengthNormalization == "none") {
-    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "lib_size <- colSums(count.matrix(cdata)) * nf"),
-               codefile)
-  } else if (lengthNormalization == "TPM") {
-    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "lib_size <- colSums(count.matrix(cdata) / length.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
-               codefile)
-  } else if (lengthNormalization == "RPKM") {
-    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "lib_size <- colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
-               codefile)
-  } else if (lengthNormalization == "gwRPKM") {
-    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "lib.size <- colSums(count.matrix(cdata)) * nf",
-                 "y <- t(log2(t(count.matrix(cdata)+0.5)/(lib.size+1)*1e6))",
-                 "length_factor <- sapply(1:nrow(y), function(i) lm(y[i, ] ~ log2(length.matrix(cdata))[i, ])$coefficients[2])",
-                 "length_factor <- sweep(length.matrix(cdata), 1, length_factor, '^')",
-                 "lib_size <- colSums(count.matrix(cdata)) * nf * t(length_factor)"),
-               codefile)
-  }
-  writeLines(c("voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = lib_size)"),
-             codefile)
-  if (!is.null(blockFactor)) {
-    if (length(blockFactor) > 1) stop("Only on factor can be taken for block definition.")
-    writeLines(c("# Fitting Block correlations",
-                 paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
-                 "corfit <- duplicateCorrelation(voom.data, design = design, block = block)",
-                 "voom.data <- limma::voom(count.matrix(cdata), design = design, block = block, correlation = corfit$consensus, lib.size = lib_size)"), 
-               codefile)
-    writeLines(c("", "# Fit"), codefile)
-    writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
-                 "voom.fitlimma <- limma::lmFit(voom.data, design = design, correlation = corfit$consensus, block = block)"),
-               codefile)
-  } else {
-    writeLines(c("", "# Fit"), codefile)
-    writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
-                 "voom.fitlimma <- limma::lmFit(voom.data, design = design)"),
-               codefile)
-  }
-  writeLines(c("voom.fitbayes <- limma::eBayes(voom.fitlimma)", 
-               "voom.pvalues <- voom.fitbayes$p.value[, ncol(voom.fitbayes$p.value)]", 
-               "voom.adjpvalues <- p.adjust(voom.pvalues, method = 'BH')", 
-               "voom.logFC <- voom.fitbayes$coefficients[, ncol(voom.fitbayes$coefficients)]", 
-               "voom.score <- 1 - voom.pvalues", 
-               "result.table <- data.frame('pvalue' = voom.pvalues, 'adjpvalue' = voom.adjpvalues, 'logFC' = voom.logFC, 'score' = voom.score)",
-               "rownames(result.table) <- rownames(count.matrix(cdata))", 
-               "result.table(cdata) <- result.table",
-               "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
-               "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
-                     paste('voom.length.', utils::packageVersion('limma'),
-                           '.limma.', norm.method,
-                           ".lengthNorm.", lengthNormalization,
-                           ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."),
-                           ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
-                           sep = ''), "')", sep = ''),
-               "is.valid <- check_compData_results(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
-               paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
-  writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
-  writeLines("sessionInfo()", codefile)
-  writeLines("```", codefile)
-  close(codefile)
-}
+# Generate a \code{.Rmd} file containing code to perform differential expression analysis with voom+limma
+# 
+# A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the voom transformation (from the limma package) followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+# 
+# For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+# 
+# @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+# @param result.path The path to the file where the result object will be saved.
+# @param codefile The path to the file where the code will be written.
+# @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+# @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+# @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+# @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
+#
+# @details 
+# The \code{length.matrix} field of the \code{compData}
+# object are used in the \code{voom} method to normalize the counts. 
+# \describe{
+# \item{\code{none}:}{No length normalization.}
+# \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
+# \item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
+# \item{\code{gwRPKM}:}{The log2 CPM computed by \code{voom} is regressed against the log2 lengths for each genes, and then the contribution of the length is substracted from the score.}
+# }
+# 
+# @export 
+# @author Charlotte Soneson
+# @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
+# @references 
+# Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
+# 
+#  Law CW, Chen Y, Shi W and Smyth GK (2014): voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biology 15, R29
+# @examples
+# try(
+# if (require(limma)) {
+# tmpdir <- normalizePath(tempdir(), winslash = "/")
+# mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#                                     samples.per.cond = 5, n.diffexp = 100, 
+#                                     id.species = factor(1:10),
+#                                     lengths.relmeans = rpois(1000, 1000),
+#                                     lengths.dispersions = rgamma(1000, 1, 1),
+#                                     output.file = file.path(tmpdir, "mydata.rds"))
+# runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.length.limma", 
+#            Rmdfunction = "voom.length.limma.createRmd", 
+#            output.directory = tmpdir, norm.method = "TMM")
+# })
+# 
+# voom.length.limma.createRmd <- function(data.path, result.path, codefile, norm.method,
+#                                         extraDesignFactors = NULL, lengthNormalization = "RPKM",
+#                                         blockFactor = NULL) {
+#   codefile <- file(codefile, open = 'w')
+#   writeLines("### voom + limma", codefile)
+#   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
+#   writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+#                "require(limma)", 
+#                "require(edgeR)",
+#                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
+#   if (is.list(readRDS(data.path))) {
+#     writeLines("cdata <- convertListTocompData(cdata)", codefile)
+#   }
+#   writeLines(c("is.valid <- check_compData(cdata)",
+#                "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+#              codefile)
+#   
+#   writeLines(c("", "# Design"),codefile)
+#   if (is.null(extraDesignFactors)) {
+#     writeLines(c(
+#       "design_formula <- as.formula(~ condition)",
+#       "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
+#       codefile)
+#   } else {
+#     writeLines(c(
+#       paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+#       paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+#       codefile)
+#   }
+#   writeLines(c(
+#     "design_data <- data.frame(apply(design_data, 2, as.factor))",
+#     "design <- model.matrix(design_formula, design_data)"),
+#     codefile)
+#   
+#   writeLines(c("", "# Normalisation"), codefile)
+#   
+#   lengthNormalization <- match.arg(lengthNormalization, c("gwRPKM", "RPKM", "TPM", "none"))
+#   if (lengthNormalization == "none") {
+#     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+#                  "lib_size <- colSums(count.matrix(cdata)) * nf"),
+#                codefile)
+#   } else if (lengthNormalization == "TPM") {
+#     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
+#                  "lib_size <- colSums(count.matrix(cdata) / length.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
+#                codefile)
+#   } else if (lengthNormalization == "RPKM") {
+#     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+#                  "lib_size <- colSums(count.matrix(cdata)) * nf * t(length.matrix(cdata))"), 
+#                codefile)
+#   } else if (lengthNormalization == "gwRPKM") {
+#     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
+#                  "lib.size <- colSums(count.matrix(cdata)) * nf",
+#                  "y <- t(log2(t(count.matrix(cdata)+0.5)/(lib.size+1)*1e6))",
+#                  "length_factor <- sapply(1:nrow(y), function(i) lm(y[i, ] ~ log2(length.matrix(cdata))[i, ])$coefficients[2])",
+#                  "length_factor <- sweep(length.matrix(cdata), 1, length_factor, '^')",
+#                  "lib_size <- colSums(count.matrix(cdata)) * nf * t(length_factor)"),
+#                codefile)
+#   }
+#   writeLines(c("voom.data <- limma::voom(count.matrix(cdata), design = design, lib.size = lib_size)"),
+#              codefile)
+#   if (!is.null(blockFactor)) {
+#     if (length(blockFactor) > 1) stop("Only on factor can be taken for block definition.")
+#     writeLines(c("# Fitting Block correlations",
+#                  paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
+#                  "corfit <- duplicateCorrelation(voom.data, design = design, block = block)",
+#                  "voom.data <- limma::voom(count.matrix(cdata), design = design, block = block, correlation = corfit$consensus, lib.size = lib_size)"), 
+#                codefile)
+#     writeLines(c("", "# Fit"), codefile)
+#     writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
+#                  "voom.fitlimma <- limma::lmFit(voom.data, design = design, correlation = corfit$consensus, block = block)"),
+#                codefile)
+#   } else {
+#     writeLines(c("", "# Fit"), codefile)
+#     writeLines(c("voom.data$genes <- rownames(count.matrix(cdata))", 
+#                  "voom.fitlimma <- limma::lmFit(voom.data, design = design)"),
+#                codefile)
+#   }
+#   writeLines(c("voom.fitbayes <- limma::eBayes(voom.fitlimma)", 
+#                "voom.pvalues <- voom.fitbayes$p.value[, ncol(voom.fitbayes$p.value)]", 
+#                "voom.adjpvalues <- p.adjust(voom.pvalues, method = 'BH')", 
+#                "voom.logFC <- voom.fitbayes$coefficients[, ncol(voom.fitbayes$coefficients)]", 
+#                "voom.score <- 1 - voom.pvalues", 
+#                "result.table <- data.frame('pvalue' = voom.pvalues, 'adjpvalue' = voom.adjpvalues, 'logFC' = voom.logFC, 'score' = voom.score)",
+#                "rownames(result.table) <- rownames(count.matrix(cdata))", 
+#                "result.table(cdata) <- result.table",
+#                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
+#                "analysis.date(cdata) <- date()",
+#                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
+#                      paste('voom.length.', utils::packageVersion('limma'),
+#                            '.limma.', norm.method,
+#                            ".lengthNorm.", lengthNormalization,
+#                            ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), "."),
+#                            ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
+#                            sep = ''), "')", sep = ''),
+#                "is.valid <- check_compData_results(cdata)",
+#                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+#                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
+#   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
+#   writeLines("sessionInfo()", codefile)
+#   writeLines("```", codefile)
+#   close(codefile)
+# }
 
 # Generate a \code{.Rmd} file containing code to perform differential expression analysis with sqrtTPM+limma
 #
@@ -877,6 +877,122 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                            "dataTrans.", dataTransformation,
                            ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
                            ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
+                           sep = ''), "')", sep = ''),
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
+  writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
+  writeLines("sessionInfo()", codefile)
+  writeLines("```", codefile)
+  close(codefile)
+}
+
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with sqrtTPM+limma
+#' 
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the sqrt(TPM) transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' 
+#' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+#' 
+#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param result.path The path to the file where the result object will be saved.
+#' @param codefile The path to the file where the code will be written.
+#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+#' @param model The model for trait evolution on the tree. Default to "BM".
+#' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
+#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+#' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
+#' @param ... Further arguments to be passed to function \code{\link[phylolimma]{phylolimma}}.
+#' 
+#' @details 
+#' The \code{length.matrix} field of the \code{compData} object 
+#' is used to normalize the counts, by computing the square root of the TPM.
+#' 
+#' @export 
+#' @author Charlotte Soneson
+#' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
+#' @references 
+#' Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
+#'
+#' Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604. 
+#' 
+#' @examples
+#' try(
+#' if (require(limma)) {
+#' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#'                                     id.species = factor(1:10),
+#'                                     lengths.relmeans = rpois(1000, 1000),
+#'                                     lengths.dispersions = rgamma(1000, 1, 1),
+#'                                     output.file = file.path(tmpdir, "mydata.rds"))
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
+#'            Rmdfunction = "length.limma.createRmd", 
+#'            output.directory = tmpdir, norm.method = "TMM")
+#' })
+#' 
+lengthNorm.phylolimma.createRmd <- function(data.path, result.path, codefile, norm.method, 
+                                            model = "BM", measurement_error = TRUE,
+                                            extraDesignFactors = NULL,
+                                            lengthNormalization = "RPKM",
+                                            dataTransformation = "log2",
+                                            ...) {
+  codefile <- file(codefile, open = 'w')
+  writeLines("###  phylolimma + length", codefile)
+  writeLines(paste("Data file: ", data.path, sep = ''), codefile)
+  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+               "require(phylolimma)", 
+               "require(edgeR)",
+               paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
+  if (is.list(readRDS(data.path))) {
+    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+  }
+  writeLines(c("is.valid <- check_compData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+             codefile)
+  writeLines(c("tree <- getTree(cdata)"),codefile)
+  
+  writeLines(c("", "# Design"),codefile)
+  if (is.null(extraDesignFactors)) {
+    writeLines(c(
+      "design_formula <- as.formula(~ condition)",
+      "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
+      codefile)
+  } else {
+    writeLines(c(
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      codefile)
+  }
+  writeLines(c(
+    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design <- model.matrix(design_formula, design_data)"),
+    codefile)
+  
+  writeNormalization_phylolimma(norm.method, lengthNormalization, dataTransformation, codefile)
+  
+  writeLines(c("", "# Fit"), codefile)
+  extra_args <- eval(substitute(alist(...)))
+  extra_args <- sapply(extra_args, function(x) paste(" = ", x))
+  extra_args <- paste(names(extra_args), extra_args, collapse = ", ")
+  writeLines(paste0("length.fitlimma <- phylolimma::phylolmFit(data.trans, design = design, phy = tree, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, ")"),
+             codefile)
+  
+  writeLines(c("length.fitbayes <- limma::eBayes(length.fitlimma)", 
+               "length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]", 
+               "length.adjpvalues <- p.adjust(length.pvalues, method = 'BH')", 
+               "length.logFC <- length.fitbayes$coefficients[, ncol(length.fitbayes$coefficients)]", 
+               "length.score <- 1 - length.pvalues", 
+               "result.table <- data.frame('pvalue' = length.pvalues, 'adjpvalue' = length.adjpvalues, 'logFC' = length.logFC, 'score' = length.score)",
+               "rownames(result.table) <- rownames(count.matrix(cdata))", 
+               "result.table(cdata) <- result.table",
+               "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
+               "analysis.date(cdata) <- date()",
+               paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
+                     paste('length.', utils::packageVersion('phylolimma'), '.phylolimma.', norm.method,
+                           ".lengthNorm.", lengthNormalization, '.',
+                           "dataTrans.", dataTransformation,
+                           ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
