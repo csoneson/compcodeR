@@ -8,7 +8,7 @@
 #' @name compcodeR-package
 #' @aliases compcodeR
 #' @docType package
-#' @import tcltk knitr markdown ROCR lattice gplots gtools caTools grid KernSmooth MASS ggplot2 stringr modeest limma edgeR vioplot methods
+#' @import tcltk knitr markdown ROCR lattice gplots gtools caTools grid KernSmooth MASS ggplot2 stringr modeest limma edgeR vioplot methods sm
 #' @title RNAseq data simulation, differential expression analysis and 
 #' performance comparison of differential expression methods
 #' @author Charlotte Soneson
