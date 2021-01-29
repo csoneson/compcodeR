@@ -56,7 +56,7 @@ jobs:
       - name: Set up display (MacOS)
         if: runner.os == 'macOS'
         run: |
-          brew tap homebrew/cask && brew cask install xquartz
+          brew install --cask xquartz
 
       - name: Install remotes
         run: |
