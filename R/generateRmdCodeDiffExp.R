@@ -887,11 +887,11 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
   close(codefile)
 }
 
-#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with sqrtTPM+limma
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with phylolimma
 #' 
-#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the sqrt(TPM) transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalisation and transformation followed by differential expression analysis with phylolimma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
 #' 
-#' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+#' For more information about the methods and the interpretation of the parameters, see the \code{phylolimma} package and the corresponding publications.
 #' 
 #' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
 #' @param result.path The path to the file where the result object will be saved.
@@ -900,13 +900,13 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
 #' @param model The model for trait evolution on the tree. Default to "BM".
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+#' @param lengthNormalization one of "none" (no correction), "TPM" or "RPKM" (default).
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolimma]{phylolimma}}.
 #' 
 #' @details 
 #' The \code{length.matrix} field of the \code{compData} object 
-#' is used to normalize the counts, by computing the square root of the TPM.
+#' is used to normalize the counts, using the normalisation specified by \code{lengthNormalization}.
 #' 
 #' @export 
 #' @author Charlotte Soneson
@@ -918,7 +918,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
 #' 
 #' @examples
 #' try(
-#' if (require(limma)) {
+#' if (require(phylolimma)) {
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
@@ -927,16 +927,16 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
 #'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
-#'            Rmdfunction = "length.limma.createRmd", 
+#'            Rmdfunction = "phylolimma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
 #' 
-lengthNorm.phylolimma.createRmd <- function(data.path, result.path, codefile, norm.method, 
-                                            model = "BM", measurement_error = TRUE,
-                                            extraDesignFactors = NULL,
-                                            lengthNormalization = "RPKM",
-                                            dataTransformation = "log2",
-                                            ...) {
+phylolimma.createRmd <- function(data.path, result.path, codefile, norm.method, 
+                                 model = "BM", measurement_error = TRUE,
+                                 extraDesignFactors = NULL,
+                                 lengthNormalization = "RPKM",
+                                 dataTransformation = "log2",
+                                 ...) {
   codefile <- file(codefile, open = 'w')
   writeLines("###  phylolimma + length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -989,8 +989,10 @@ lengthNorm.phylolimma.createRmd <- function(data.path, result.path, codefile, no
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
-                     paste('length.', utils::packageVersion('phylolimma'), '.phylolimma.', norm.method,
-                           ".lengthNorm.", lengthNormalization, '.',
+                     paste('phylolimma.', utils::packageVersion('phylolimma'), '.', norm.method, '.', 
+                           model, '.',
+                           ifelse(!is.null(measurement_error), 'me', 'nome'), '.',
+                           "lengthNorm.", lengthNormalization, '.',
                            "dataTrans.", dataTransformation,
                            ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
