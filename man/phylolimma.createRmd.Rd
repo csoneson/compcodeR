@@ -14,6 +14,7 @@ phylolimma.createRmd(
   extraDesignFactors = NULL,
   lengthNormalization = "RPKM",
   dataTransformation = "log2",
+  use_eBayes = TRUE,
   ...
 )
 }
@@ -35,6 +36,8 @@ phylolimma.createRmd(
 \item{lengthNormalization}{one of "none" (no correction), "TPM" or "RPKM" (default).}
 
 \item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
+
+\item{use_eBayes}{boolean, whether to use \code{\link[limma]{eBayes}} to moderate the t.values. Default to TRUE.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolimma]{phylolimma}}.}
 }
