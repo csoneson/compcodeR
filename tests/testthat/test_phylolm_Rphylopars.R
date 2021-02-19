@@ -91,6 +91,9 @@ test_that("Rphylopars vs phylolm", {
   ## Both are equal
   expect_equivalent(lambda_ou_error, fit_lambda$optpar, tolerance = 1e-5)
   
+  ## Variances
+  expect_equivalent(fit_ou$sigma2 / (2 * fit_ou$optpar) + fit_ou$sigma2_error / max(ape::vcv(tree_ou)), fit_lambda$sigma2, tolerance = 1e-4)
+  
   ## Transform again
   tree_ou_lambda <- phylolm::transf.branch.lengths(tree_ou, "lambda", parameters = list(lambda = lambda_ou_error))
   tree_ou_lambda <- tree_ou_lambda$tree
@@ -100,6 +103,9 @@ test_that("Rphylopars vs phylolm", {
   
   ## Same likelihood
   expect_equal(fit_bm$logLik, fit_ou$logLik)
+  
+  ## Variances
+  expect_equivalent(fit_bm$sigma2, fit_lambda$sigma2, tolerance = 1e-4)
   
   ##############################################################################
   ### delta - lambda transform
