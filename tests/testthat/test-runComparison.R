@@ -229,6 +229,15 @@ test_that("help functions work", {
 })
 
 test_that("runDiffExp works", {
+  ## Skip if suggested packages are not installed
+  skip_if_not_installed("baySeq")
+  skip_if_not_installed("DESeq2")
+  skip_if_not_installed("EBSeq")
+  skip_if_not_installed("NBPSeq")
+  skip_if_not_installed("NOISeq")
+  skip_if_not_installed("TCC")
+  skip_if_not_installed("genefilter")
+  
   tdir <- tempdir()
   set.seed(1)  ## note that with other seeds, the number of genes 
                ## passing the filtering threshold could be different
@@ -456,8 +465,10 @@ test_that("runDiffExp works", {
 })
 
 test_that("runDiffExp works - with lengths", {
+  ## Skip if suggested packages are not installed
   skip_if_not_installed("phylolimma")
-  skip_if_not_installed("phylolm")
+  skip_if_not_installed("DESeq2")
+  
   tdir <- tempdir()
   set.seed(1)  ## note that with other seeds, the number of genes 
                ## passing the filtering threshold could be different
