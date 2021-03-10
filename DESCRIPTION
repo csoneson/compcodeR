@@ -58,7 +58,6 @@ Suggests:
     ggtree,
     tidytree,
     compcodeR,
-    Rphylopars,
     phylolimma
 Enhances: rpanel, DSS
 License: GPL (>= 2)
