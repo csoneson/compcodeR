@@ -456,6 +456,8 @@ test_that("runDiffExp works", {
 })
 
 test_that("runDiffExp works - with lengths", {
+  skip_if_not_installed("phylolimma")
+  skip_if_not_installed("phylolm")
   tdir <- tempdir()
   set.seed(1)  ## note that with other seeds, the number of genes 
                ## passing the filtering threshold could be different
