@@ -387,36 +387,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	
 	### Normalize using lengths
 	if (use_lengths) {
-	  # get_log2_gwRMKP <- function(log2_pseudocounts, lengths) {
-	  #   fun <- function(i) {
-	  #     ff <- lm(log2_pseudocounts[i, ] ~ log2(lengths)[i, ])
-	  #     if (is.na(ff$coefficients[2])) return(log2_pseudocounts[i, ]) ## All lengths are the same
-	  #     return(log2_pseudocounts[i, ] - ff$coefficients[2] * log2(lengths)[i, ])
-	  #     # ll <- log2(lengths)[i, ] - min(log2(lengths[i, ]))
-	  #     # return(resid(lm(log2_pseudocounts[i, ] ~ ll - 1)))
-	  #   }
-	  #   res <- t(sapply(1:nrow(log2_pseudocounts), fun))
-	  #   # res[is.na(res)] <- log2_pseudocounts[is.na(res)]
-	  #   return(res)
-	  # }
-	  # # log2.pseudocounts.lengths <- log2(pseudocounts / length_matrix)
-	  # log2.pseudocounts.lengths <- get_log2_gwRMKP(log2.pseudocounts, length_matrix)
-	  # M.value.lengths <- apply(log2.pseudocounts.lengths[, S2], 1, mean) - 
-	  #   apply(log2.pseudocounts.lengths[, S1], 1, mean)
-	  # A.value.lengths <- 0.5*(apply(log2.pseudocounts.lengths[, S2], 1, mean) + 
-	  #                   apply(log2.pseudocounts.lengths[, S1], 1, mean))
-	  
-	  ## sqrtTPM
-# 	  nf <- edgeR::calcNormFactors(countsLengths, method = '", norm.method, "')", sep = ''),
-#                "lib.size <- colSums(countsLengths) * nf",
-#                "sqrtTPM.data <- t(sqrt(t(countsLengths)/lib.size))"
-	  
-	  # nf.l <- calcNormFactors(Z / length_matrix)
-	  # norm.factors.l <- colSums(Z / length_matrix) * nf.l
-	  # sqrt.tpm <- t(sqrt(t(Z / length_matrix) / norm.factors.l))
-	  # M.value.sqrtTPM <- apply(sqrt.tpm[, S2], 1, mean) - apply(sqrt.tpm[, S1], 1, mean)
-	  # A.value.sqrtTPM <- 0.5*(apply(sqrt.tpm[, S2], 1, mean) + apply(sqrt.tpm[, S1], 1, mean))
-	  
 	  ## TPM
 	  nf.TPM <- calcNormFactors(Z / length_matrix)
 	  norm.factors.TPM <- nf.TPM * colSums(Z / length_matrix)
@@ -425,23 +395,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	  log2.pseudocounts.TPM <- log2(pseudocounts.TPM)
 	  M.value.TPM <- apply(log2.pseudocounts.TPM[, S2], 1, mean) - apply(log2.pseudocounts.TPM[, S1], 1, mean)
 	  A.value.TPM <- 0.5*(apply(log2.pseudocounts.TPM[, S2], 1, mean) + apply(log2.pseudocounts.TPM[, S1], 1, mean))
-	  
-	  # ## RPKM
-	  # nf.RPKM <- calcNormFactors(Z)
-	  # norm.factors.RPKM <- nf.RPKM * colSums(Z)
-	  # common.libsize.RPKM <- exp(mean(log(colSums(Z))))
-	  # pseudocounts.RPKM <- sweep((Z + 0.5) / length_matrix, 2, norm.factors.RPKM, '/') * common.libsize.RPKM
-	  # log2.pseudocounts.RPKM <- log2(pseudocounts.RPKM)
-	  # M.value.RPKM <- apply(log2.pseudocounts.RPKM[, S2], 1, mean) - apply(log2.pseudocounts.RPKM[, S1], 1, mean)
-	  # A.value.RPKM <- 0.5*(apply(log2.pseudocounts.RPKM[, S2], 1, mean) + apply(log2.pseudocounts.RPKM[, S1], 1, mean))
 	}
-	
-	# ### Phylogenetic MA values
-	# if (use_tree) {
-	#   phyloMA <- phylo_M_A_values(log2.pseudocounts, condition, tree)
-	#   phylo.M.value <- phyloMA$M.value
-	#   phylo.A.value <- phyloMA$A.value
-	# }
 	
 	### Create an annotation data frame
 	variable.annotations <- data.frame(truedispersions.S1 = truedispersions.S1, 
@@ -464,11 +418,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                   downregulation = downregulation, 
 	                                   differential.expression = differential.expression)
 	rownames(variable.annotations) <- rownames(Z)
-	
-	# if (use_tree) {
-	#   variable.annotations$phylo.M.value <- phylo.M.value
-	#   variable.annotations$phylo.A.value <- phylo.A.value
-	# }
 	
 	### Create a sample annotation data frame
 	sample.annotations <- data.frame(condition = condition, 
@@ -497,21 +446,14 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        # 'unitTtestPower95' = vanillaPowerStudent(tree, id.condition, model_process, selection.strength, 0.95),
 	                        # 'unitTtestPower95Ind' = vanillaPowerStudentInd(tree, id.condition, 0.95))
 	if (use_tree) {
-	  info.parameters <- c(info.parameters, list('tree' = tree, 'prop.var.tree' = prop.var.tree))
+	  info.parameters <- c(info.parameters, list('prop.var.tree' = prop.var.tree))
 	  sample.annotations$id.condition <-  id.condition
 	}
 	if (use_lengths) {
 	  variable.annotations$lengths.relmeans <- lengths.relmeans
 	  variable.annotations$lengths.dispersions <- lengths.dispersions
-	  # variable.annotations$M.value.lengths <- M.value.lengths
-	  # variable.annotations$A.value.lengths <- A.value.lengths
-	  # variable.annotations$M.value.sqrtTPM <- M.value.sqrtTPM
-	  # variable.annotations$A.value.sqrtTPM <- A.value.sqrtTPM
 	  variable.annotations$M.value.TPM <- M.value.TPM
 	  variable.annotations$A.value.TPM <- A.value.TPM
-	  # variable.annotations$M.value.RPKM <- M.value.RPKM
-	  # variable.annotations$A.value.RPKM <- A.value.RPKM
-	  # info.parameters <- c(info.parameters, list('length.matrix' = length_matrix))
 	}
 	
 	### Filter the data with respect to total count
@@ -553,8 +495,13 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                           variable.annotations = variable.annotations.TC, 
                           sample.annotations = sample.annotations, 
                           filtering = filtering, 
-                          info.parameters = info.parameters,
-                          length.matrix = length_matrix.TC)
+                          info.parameters = info.parameters)
+  
+  if (use_tree || use_lengths) {
+    data.object <- phyloCompDataBis(data.object,
+                                    tree = tree,
+                                    length.matrix = length_matrix.TC)
+  }
   
   ## Save results
   if (!is.null(output.file)) {

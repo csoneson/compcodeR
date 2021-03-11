@@ -76,41 +76,6 @@ check_compData <- function(object) {
         return("If present, rownames of result.table must agree with those of count.matrix.")
       }
     }
-    
-    if (length(count.matrix(object)) != 0 && 
-        length(length.matrix(object)) != 0) {
-      if (ncol(count.matrix(object)) != ncol(length.matrix(object)) || nrow(count.matrix(object)) != nrow(length.matrix(object))) {
-        return("The dimension of count.matrix is different from the dimension of length.matrix.")
-      }
-      if (length(colnames(count.matrix(object))) != 0 && 
-          length(colnames(length.matrix(object))) != 0 && 
-          any(colnames(count.matrix(object)) != 
-              colnames(length.matrix(object)))) {
-        return("The colnames of count.matrix are different from the colnames of length.matrix.")
-      }
-      if (length(rownames(count.matrix(object))) != 0 && 
-          length(rownames(length.matrix(object))) != 0 && 
-          any(rownames(count.matrix(object)) != 
-              rownames(length.matrix(object)))) {
-        return("The rownames of count.matrix are different from the rownames of length.matrix.")
-      }
-    }
-  }
-  
-  ## Tree
-  if (!is.null(object@info.parameters$tree)) {
-    if (length(count.matrix(object)) != 0) {
-      tmp <- checkParamMatrix(count.matrix(object), "count.matrix", object@info.parameters$tree)
-      if (!isTRUE(all.equal(tmp, count.matrix(object)))) return("The colnames of count.matrix are different from the tip labels.")
-    }
-    if (length(length.matrix(object)) != 0) {
-      tmp <- checkParamMatrix(length.matrix(object), "length.matrix", object@info.parameters$tree)
-      if (!isTRUE(all.equal(tmp, length.matrix(object)))) return("The colnames of length.matrix are different from the tip labels.")
-    }
-    if (length(sample.annotations(object)) != 0) {
-      tmp <- checkParamMatrix(sample.annotations(object), "sample.annotations", object@info.parameters$tree, transpose = TRUE)
-      if (!isTRUE(all.equal(tmp, sample.annotations(object)))) return("The rownames of sample.annotations are different from the tip labels.")
-    }
   }
   return(TRUE)
 }
@@ -138,11 +103,11 @@ check_compData <- function(object) {
 #' ## Check an object containing differential expression results
 #' check_compData_results(resdata)
 check_compData_results = function(object) {
-  tmp <- check_compData(object)
+  tmp <- check_phyloCompData(object)
   if (is.character(tmp)) {
     return(tmp)
   } else {
-    if(check_compData(object)) {
+    if(check_phyloCompData(object)) {
       if (length(method.names(object)) == 0) {
         return("Object must contain a list named 'method.names' identifying the differential expression method used.")
       }
@@ -175,7 +140,6 @@ check_compData_results = function(object) {
 #' \item{\code{method.names}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A list, containing the name of the method used for the differential expression analysis. The list should have two entries: \code{full.name} and \code{short.name}, where the \code{full.name} is the full (potentially long) name identifying the method, and \code{short.name} may be an abbreviation. Class \code{list}}
 #' \item{\code{code}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A character string containing the code that was used to run the differential expression analysis. The code should be in R markdown format. Class \code{character}}
 #' \item{\code{result.table}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). Contains the results of the differential expression analysis, in the form of a data frame with one row per gene. Must contain at least one column named \code{score}, where a higher value corresponds to 'more strongly differentially expressed genes'. Class \code{data.frame}}
-#' \item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns.  Class \code{matrix}}
 #' }
 #' 
 #' @section Methods:
@@ -210,9 +174,6 @@ check_compData_results = function(object) {
 #' \item{result.table}{\code{signature(x="compData")}}
 #' \item{result.table<-}{\code{signature(x="compData",value="data.frame")}:
 #' Get or set the result table in a \code{compData} object. \code{value} should be a data frame with one row per gene, and at least a column named 'score'.}
-#' \item{length.matrix}{\code{signature(x="compData")}}
-#' \item{length.matrix<-}{\code{signature(x="compData",value="matrix")}:
-#' Get or set the length matrix in a \code{compData} object. \code{value} should be a numeric matrix.}
 #' }
 #' @section Construction:
 #' An object of the class \code{compData} can be constructed using the \code{\link{compData}} function. 
@@ -232,8 +193,7 @@ setClass(
                                   package.version = "character",
                                   method.names = "list",
                                   code = "character",
-                                  result.table = "data.frame",
-                                  length.matrix = "matrix"),
+                                  result.table = "data.frame"),
   
   validity = check_compData)
 
@@ -266,9 +226,6 @@ setMethod("code", "compData", function(x) x@code)
 
 setGeneric("result.table", function(x, ...) standardGeneric("result.table"))
 setMethod("result.table", "compData", function(x) x@result.table)
-
-setGeneric("length.matrix", function(x) standardGeneric("length.matrix"))
-setMethod("length.matrix", "compData", function(x) x@length.matrix)
 
 setGeneric("count.matrix<-", function(x, value) standardGeneric("count.matrix<-"))
 setReplaceMethod("count.matrix", "compData",
@@ -310,10 +267,6 @@ setReplaceMethod("code", "compData",
 setGeneric("result.table<-", function(x, value) standardGeneric("result.table<-"))
 setReplaceMethod("result.table", "compData",
                  function(x, value) {x@result.table <- value; check_compData_results(x); x})
-
-setGeneric("length.matrix<-", function(x, value) standardGeneric("length.matrix<-"))
-setReplaceMethod("length.matrix", "compData",
-                 function(x, value) {x@length.matrix <- value; check_compData(x); x})
 
 #' Create a \code{compData} object
 #' 
@@ -382,7 +335,6 @@ setReplaceMethod("length.matrix", "compData",
 #' \item \code{dispersion.S1} dispersion estimates in condition S1
 #' \item \code{dispersion.S2} dispersion estimates in condition S2
 #' }
-#' @param length.matrix A length matrix, with genes as rows and observations as columns.
 #' 
 #' @export
 #' @author Charlotte Soneson
@@ -396,21 +348,13 @@ compData <- function(count.matrix, sample.annotations,
                      info.parameters, variable.annotations = data.frame(), 
                      filtering = "no info", analysis.date = "", 
                      package.version = "", method.names = list(), 
-                     code = "", result.table = data.frame(),
-                     length.matrix = matrix(NA_integer_, 0, 0)) {
+                     code = "", result.table = data.frame()) {
   
   count.matrix <- as.matrix(count.matrix)
   mode(count.matrix) <- "numeric"
   
   sample.annotations <- data.frame(sample.annotations, 
                                    stringsAsFactors = FALSE)
-  
-  ## Tree
-  if (!is.null(info.parameters$tree)) {
-    if (length(count.matrix) != 0) count.matrix <- checkParamMatrix(count.matrix, "count.matrix", info.parameters$tree)
-    if (length(length.matrix) != 0) length.matrix <- checkParamMatrix(length.matrix, "length.matrix", info.parameters$tree)
-    if (length(sample.annotations) != 0) sample.annotations <- checkParamMatrix(sample.annotations, "sample.annotations", info.parameters$tree, transpose = TRUE)
-  }
   
   cmpd <- new("compData", count.matrix = count.matrix, 
               sample.annotations = sample.annotations, 
@@ -421,8 +365,7 @@ compData <- function(count.matrix, sample.annotations,
               package.version = package.version, 
               method.names = method.names,
               code = code, 
-              result.table = result.table,
-              length.matrix = length.matrix)
+              result.table = result.table)
   
   validObject(cmpd)
   
@@ -459,8 +402,7 @@ convertListTocompData <- function(inp.list) {
              method.names = as.list(inp.list$method.names), 
              code = as.character(inp.list$code), 
              result.table = as.data.frame(inp.list$result.table,
-                                          stringsAsFactors = FALSE),
-             length.matrix = if (is.null(inp.list$length.matrix)) matrix(NA, 0, 0) else inp.list$length.matrix)
+                                          stringsAsFactors = FALSE))
   }
 }
 
@@ -485,6 +427,273 @@ convertcompDataToList <- function(cpd) {
        package.version = package.version(cpd),
        method.names = method.names(cpd),
        code = code(cpd),
+       result.table = result.table(cpd))
+}
+
+################################################################################
+## PhyloCompData
+################################################################################
+
+#' Check the validity of a \code{phyloCompData} object
+#' 
+#' Check the validity of a \code{phyloCompData} object.
+#' An object that passes the check can be used as the input for the differential expression analysis methods interfaced by \code{compcodeR}.
+#' 
+#' @export 
+#' @author Charlotte Soneson, Paul Bastide
+#' @param object A \code{phyloCompData} object
+#' @examples
+#' mydata <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                 samples.per.cond = 5, n.diffexp = 100,
+#'                                 id.species = factor(1:10),
+#'                                 tree = ape::rphylo(10, 1, 0))
+#' check_phyloCompData(mydata)
+#' 
+check_phyloCompData <- function(object) {
+  cc <- check_compData(object)
+  if (!isTRUE(cc)) return(cc)
+  
+  ## Length matrix
+  if (length(count.matrix(object)) != 0 && 
+      length(length.matrix(object)) != 0) {
+    if (ncol(count.matrix(object)) != ncol(length.matrix(object)) || nrow(count.matrix(object)) != nrow(length.matrix(object))) {
+      return("The dimension of count.matrix is different from the dimension of length.matrix.")
+    }
+    if (length(colnames(count.matrix(object))) != 0 && 
+        length(colnames(length.matrix(object))) != 0 && 
+        any(colnames(count.matrix(object)) != 
+            colnames(length.matrix(object)))) {
+      return("The colnames of count.matrix are different from the colnames of length.matrix.")
+    }
+    if (length(rownames(count.matrix(object))) != 0 && 
+        length(rownames(length.matrix(object))) != 0 && 
+        any(rownames(count.matrix(object)) != 
+            rownames(length.matrix(object)))) {
+      return("The rownames of count.matrix are different from the rownames of length.matrix.")
+    }
+  }
+  
+  ## Tree
+  if (!is.null(phylo.tree(object)) && length(phylo.tree(object)) != 0) {
+    if (!inherits(phylo.tree(object), "phylo")) stop("object 'phy' is not of class 'phylo'.")
+    if (length(count.matrix(object)) != 0) {
+      tmp <- try(checkParamMatrix(count.matrix(object), "count.matrix", phylo.tree(object)),
+                 silent = TRUE)
+      if (inherits(tmp, 'try-error')) return(geterrmessage())
+      # if (!isTRUE(all.equal(tmp, count.matrix(object)))) return("The colnames of count.matrix are different from the tip labels.")
+    }
+    if (length(length.matrix(object)) != 0) {
+      tmp <- try(checkParamMatrix(length.matrix(object), "length.matrix", phylo.tree(object)),
+                 silent = TRUE)
+      if (inherits(tmp, 'try-error')) return(geterrmessage())
+      # if (!isTRUE(all.equal(tmp, length.matrix(object)))) return("The colnames of length.matrix are different from the tip labels.")
+    }
+    if (length(sample.annotations(object)) != 0) {
+      tmp <- try(checkParamMatrix(sample.annotations(object), "sample.annotations", phylo.tree(object), transpose = TRUE),
+                 silent = TRUE)
+      if (inherits(tmp, 'try-error')) return(geterrmessage())
+      # if (!isTRUE(all.equal(tmp, sample.annotations(object)))) return("The rownames of sample.annotations are different from the tip labels.")
+    }
+    if (length(sample.annotations(object)$id.species) != 0) {
+      ids <- sample.annotations(object)$id.species
+      names(ids) <- rownames(sample.annotations(object))
+      tmp <- try(checkSpecies(ids, "id.species", phylo.tree(object), tol = 1e-10, TRUE),
+                 silent = TRUE)
+      if (inherits(tmp, 'try-error')) return(geterrmessage())
+      # if (!isTRUE(all.equal(names(tmp), rownames(sample.annotations(object))))) return("The names of id.species are different from the tip labels.")
+    }
+  }
+  
+  
+  return(TRUE)
+}
+
+#' Class phyloCompData
+#'
+#' The \code{phyloCompData} class extends the \code{\link{compData}} class
+#' with sequence length and phylogeny related information.
+#' 
+#' @section Slots:
+#' \describe{
+#' \item{\code{tree}:}{The phylogenetic tree describing the relationships between samples. Class \code{phylo}}
+#' \item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns.  Class \code{matrix}}
+#' \item{\code{sample.annotations}:}{Should contain an additional column named \code{id.species} of factors giving the species for each sample. If a tree is used, should have names matching the taxa of the tree.}
+#' }
+#' 
+#' @section Methods:
+#' \describe{
+#' \item{phylo.tree}{\code{signature(x="compData")}}
+#' \item{phylo.tree<-}{\code{signature(x="compData",value="phylo")}:
+#' Get or set the tree in a \code{compData} object. \code{value} should be a phylo object.}
+#' \item{length.matrix}{\code{signature(x="compData")}}
+#' \item{length.matrix<-}{\code{signature(x="compData",value="matrix")}:
+#' Get or set the length matrix in a \code{compData} object. \code{value} should be a numeric matrix.}
+#' }
+#' @section Construction:
+#' An object of the class \code{phyloCompData} can be constructed using the \code{\link{phyloCompData}} function. 
+#' @name phyloCompData-class
+#' @rdname phyloCompData-class
+#' @exportClass phyloCompData
+#' @author Charlotte Soneson, Paul Bastide
+setClass(
+  Class = "phyloCompData", 
+  contains = "compData",
+  slots = c(tree = "ANY",
+            length.matrix = "matrix"),
+  validity = check_phyloCompData
+)
+
+setGeneric("phylo.tree", function(x) standardGeneric("phylo.tree"))
+setMethod("phylo.tree", "compData", function(x) NULL)
+setMethod("phylo.tree", "phyloCompData", function(x) x@tree)
+
+setGeneric("phylo.tree<-", function(x, value) standardGeneric("phylo.tree<-"))
+setReplaceMethod("phylo.tree", "compData",
+                 function(x, value) {stop("There is no 'phylo.tree' slot in a 'compData' object. Please use a 'phyloCompData' object.")})
+setReplaceMethod("phylo.tree", "phyloCompData",
+                 function(x, value) {x@tree <- value; check_compData(x); x})
+
+setGeneric("length.matrix", function(x) standardGeneric("length.matrix"))
+setMethod("length.matrix", "compData", function(x) NULL)
+setMethod("length.matrix", "phyloCompData", function(x) x@length.matrix)
+
+setGeneric("length.matrix<-", function(x, value) standardGeneric("length.matrix<-"))
+setReplaceMethod("length.matrix", "compData",
+                 function(x, value) {stop("There is no 'lenght.matrix' slot in a 'compData' object. Please use a 'phyloCompData' object.")})
+setReplaceMethod("length.matrix", "phyloCompData",
+                 function(x, value) {x@length.matrix <- value; check_compData(x); x})
+
+
+#' Create a \code{phyloCompData} object
+#' 
+#' The \code{phyloCompData} class extends the \code{\link{compData}} class
+#' with sequence length and phylogeny related information.
+#' 
+#' @inheritParams compData
+#' @param tree A phylogenetic tree describing the relationships between samples.
+#' @param length.matrix A length matrix, with genes as rows and observations as columns.
+#' 
+#' @export
+#' @author Charlotte Soneson, Paul Bastide
+#' @return A \code{phyloCompData} object.
+#' @examples
+#' count.matrix <- round(matrix(1000*runif(4000), 1000))
+#' sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
+#' info.parameters <- list(dataset = "mydata", uID = "123456")
+#' tree <- ape::rphylo(4, 1, 0)
+#' length.matrix <- round(matrix(1000*runif(4000), 1000))
+#' colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
+#' cpd <- phyloCompData(count.matrix, sample.annotations, info.parameters,
+#'                      tree = tree, length.matrix = length.matrix)
+#'
+phyloCompData <- function(count.matrix, sample.annotations, 
+                          info.parameters, variable.annotations = data.frame(), 
+                          filtering = "no info", analysis.date = "", 
+                          package.version = "", method.names = list(), 
+                          code = "", result.table = data.frame(),
+                          tree = list(),
+                          length.matrix = matrix(NA_integer_, 0, 0)) {
+  
+  if (is.null(tree)) tree <- list()
+  if (length(tree) == 0) attr(tree, "class") <- "phylo"
+  
+  cmpd <- new("phyloCompData", 
+              compData(count.matrix, sample.annotations, info.parameters,
+                       variable.annotations, filtering, analysis.date, 
+                       package.version, method.names, code, result.table),
+              tree = tree,
+              length.matrix = length.matrix)
+  
+  validObject(cmpd)
+  
+  cmpd
+}
+
+#' Create a \code{phyloCompData} object
+#' 
+#' The \code{phyloCompData} class extends the \code{\link{compData}} class
+#' with sequence length and phylogeny related information.
+#' 
+#' @param compDataObject An object of class \code{\link{compData}}.
+#' @param tree A phylogenetic tree describing the relationships between samples.
+#' @param length.matrix A length matrix, with genes as rows and observations as columns.
+#' 
+#' @keywords internal
+#' @author Charlotte Soneson, Paul Bastide
+#' @return A \code{phyloCompData} object.
+#' 
+phyloCompDataBis <- function(compDataObject,
+                             tree = list(),
+                             length.matrix = matrix(NA_integer_, 0, 0)) {
+  
+  if (is.null(tree)) tree <- list()
+  if (length(tree) == 0) attr(tree, "class") <- "phylo"
+  
+  cmpd <- new("phyloCompData", 
+              compDataObject,
+              tree = tree,
+              length.matrix = length.matrix)
+  
+  validObject(cmpd)
+  
+  cmpd
+}
+
+#' Convert a list with data and results to a \code{phyloCompData} object
+#' 
+#' Given a list with data and results (resulting e.g. from \code{compcodeR} version 0.1.0), convert it to a \code{phyloCompData} object.
+#' 
+#' @export
+#' @param inp.list A list with data and results, e.g. generated by \code{compcodeR} version 0.1.0.
+#' @author Charlotte Soneson, Paul Bastide
+#' @examples
+#' count.matrix <- round(matrix(1000*runif(4000), 1000))
+#' sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
+#' info.parameters <- list(dataset = "mydata", uID = "123456")
+#' tree <- ape::rphylo(4, 1, 0)
+#' length.matrix <- round(matrix(1000*runif(4000), 1000))
+#' colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
+#' convertListTophyloCompData(list(count.matrix = count.matrix,
+#'                                 sample.annotations = sample.annotations,
+#'                                 info.parameters = list(dataset = "mydata", 
+#'                                                        uID = "123456"),
+#'                                  tree = tree,
+#'                                  length.matrix = length.matrix))
+#'                                  
+convertListTophyloCompData <- function(inp.list) {
+  compData <- convertListTocompData(inp.list)
+  if (is.null(inp.list$tree)) inp.list$tree <- list()
+  if (length(inp.list$tree) == 0) attr(inp.list$tree, "class") <- "phylo"
+  phyloCompDataBis(compData,
+                   tree = inp.list$tree,
+                   length.matrix = if (is.null(inp.list$length.matrix)) matrix(NA, 0, 0) else inp.list$length.matrix)
+}
+
+#' Convert a \code{phyloCompData} object to a list
+#' 
+#' Given a \code{phyloCompData} object, convert it to a list.
+#' 
+#' @export
+#' @param cpd A \code{phyloCompData} object
+#' @author Charlotte Soneson, Paul Bastide
+#' @examples
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 5, n.diffexp = 100,
+#'                                     id.species = factor(1:10),
+#'                                     tree = ape::rphylo(10, 1, 0))
+#' mydata.list <- convertcompDataToList(mydata.obj)
+#' 
+convertphyloCompDataToList <- function(cpd) {
+  list(count.matrix = count.matrix(cpd),
+       sample.annotations = sample.annotations(cpd),
+       info.parameters = info.parameters(cpd),
+       variable.annotations = variable.annotations(cpd),
+       filtering = filtering(cpd),
+       analysis.data = analysis.date(cpd),
+       package.version = package.version(cpd),
+       method.names = method.names(cpd),
+       code = code(cpd),
        result.table = result.table(cpd),
+       tree = phylo.tree(cpd),
        length.matrix = length.matrix(cpd))
 }

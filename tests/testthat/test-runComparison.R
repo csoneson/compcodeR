@@ -562,7 +562,6 @@ test_that("runDiffExp works - with lengths", {
     use_eBayes = TRUE
   )
   
-  
   methods <- c("DESeq2.length", "lengthNorm.limma", "phylolimma")
 
   ## Test show() method

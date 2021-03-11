@@ -20,7 +20,6 @@ The \code{compData} class is used to store information about the experiment, suc
 \item{\code{method.names}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A list, containing the name of the method used for the differential expression analysis. The list should have two entries: \code{full.name} and \code{short.name}, where the \code{full.name} is the full (potentially long) name identifying the method, and \code{short.name} may be an abbreviation. Class \code{list}}
 \item{\code{code}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). A character string containing the code that was used to run the differential expression analysis. The code should be in R markdown format. Class \code{character}}
 \item{\code{result.table}:}{(If a differential expression analysis has been performed and the results are included in the \code{compData} object). Contains the results of the differential expression analysis, in the form of a data frame with one row per gene. Must contain at least one column named \code{score}, where a higher value corresponds to 'more strongly differentially expressed genes'. Class \code{data.frame}}
-\item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns.  Class \code{matrix}}
 }
 }
 
@@ -57,9 +56,6 @@ Get or set the code slot in a \code{compData} object. \code{value} should be a c
 \item{result.table}{\code{signature(x="compData")}}
 \item{result.table<-}{\code{signature(x="compData",value="data.frame")}:
 Get or set the result table in a \code{compData} object. \code{value} should be a data frame with one row per gene, and at least a column named 'score'.}
-\item{length.matrix}{\code{signature(x="compData")}}
-\item{length.matrix<-}{\code{signature(x="compData",value="matrix")}:
-Get or set the length matrix in a \code{compData} object. \code{value} should be a numeric matrix.}
 }
 }
 

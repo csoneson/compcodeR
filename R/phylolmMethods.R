@@ -1,5 +1,5 @@
 getTree <- function(cdata) {
-  if (is.null(cdata@info.parameters$tree)) {
+  if (is.null(phylo.tree(cdata)) || length(phylo.tree(cdata)) == 0) {
     message("There were no tree in the data object. Using a star tree of unit height in phylolm.")
     ntaxa <- cdata@info.parameters$samples.per.cond * 2
     tree <- ape::stree(ntaxa, "star")
@@ -7,7 +7,7 @@ getTree <- function(cdata) {
     tree$tip.label <- rownames(cdata@sample.annotations)
     return(tree)
   } else {
-    tree <- cdata@info.parameters$tree
+    tree <- phylo.tree(cdata)
     if (!ape::is.ultrametric(tree)) stop("The tree must be ultrametric.")
     return(tree)
   }

@@ -141,8 +141,10 @@ checkParamMatrix <- function(x, name, tree, transpose = FALSE) {
     if (ncol(x) != N) {
       stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
     }
-    if ((is.null(tree$tip.label) || is.null(colnames(x)))){
-      warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
+    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
+    if (is.null(colnames(x))){
+      warning(paste0("Columns of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
+      colnames(x) <- tree$tip.label
     } else {
       if (!all(tree$tip.label == colnames(x))){
         correspondances <- match(tree$tip.label, colnames(x))
@@ -157,8 +159,10 @@ checkParamMatrix <- function(x, name, tree, transpose = FALSE) {
     if (nrow(x) != N) {
       stop(paste0("`", name, "` should have as many rows as the number of taxa in the tree."))
     }
-    if ((is.null(tree$tip.label) || is.null(rownames(x)))){
-      warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
+    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
+    if (is.null(rownames(x))){
+      warning(paste0("Rows of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
+      rownames(x) <- tree$tip.label
     } else {
       if (!all(tree$tip.label == rownames(x))){
         correspondances <- match(tree$tip.label, rownames(x))
@@ -190,8 +194,10 @@ checkParamVector <- function(x, name, tree) {
   if (length(x) != N) {
     stop(paste0("`", name, "` should have the same length as the number of taxa in the tree."))
   }
-  if ((is.null(tree$tip.label) || is.null(names(x)))){
-    warning(paste0("`", name, "` and/or the tips of the phylogeny are not named. Could not check for consistency : please make sure that you gave them in the right order."))
+  if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
+  if (is.null(names(x))){
+    warning(paste0("`", name, "` is not named. I'm naming them, assuming they are in the same order as the tree."))
+    names(x) <- tree$tip.label
   } else {
     if (!all(tree$tip.label == names(x))){
       correspondances <- match(tree$tip.label, names(x))
@@ -219,7 +225,7 @@ checkSpecies <- function(x, name, tree, tol, check.id.species) {
   if (check.id.species) {
     related_matrices <- sapply(x, function(i) i == x)
     if (!all(related_matrices == (ape::cophenetic.phylo(tree) <= tol))) {
-      stop("The provided species do not match with the tree branch lengths. Please check the 'id.species' vector. If you want to skip this check, re-lauch with option 'check.id.species=FALSE'.")
+      stop("The provided species do not match with the tree branch lengths. Please check the 'id.species' vector.")
     }
   }
   return(x)
