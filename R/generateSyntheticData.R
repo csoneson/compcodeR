@@ -37,9 +37,9 @@
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
 #' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
 #' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
-#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation.
-#' @param lengths.dispersions An optional vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. 
-#' @param lengths.phylo Should the length be simulated using a phylogenetic Poisson Log-Normal model on the tree (with a BM process) ? Default to TRUE is a tree is provided.
+#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the mean length values are sampled from values estimated from the Stern & Crandall (2018) data set.
+#' @param lengths.dispersions An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispertion length values are sampled from values estimated from the Stern & Crandall (2018) data set.
+#' @param lengths.phylo If TRUE, the lenghts are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE is a tree is provided.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -58,6 +58,7 @@
 #' 
 #' Robles JA, Qureshi SE, Stephen SJ, Wilson SR, Burden CJ and Taylor JM (2012): Efficient experimental design and analysis strategies for the detection of differential expression using RNA-sequencing. BMC Genomics 13:484
 #' 
+#' Stern DB and Crandall KA (2018): The Evolution of Gene Expression Underlying Vision Loss in Cave Animals. Molecular Biology and Evolution. 35:2005–2014.
 #' @import sm
 #' 
 generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, repl.id = 1, 
@@ -149,6 +150,20 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   }
   use_lengths <- !is.null(lengths.relmeans) # If lengths are specified, use them.
   if (use_lengths) {
+    if (is.character(lengths.relmeans) || is.character(lengths.dispersions)) {  # if they are 'auto'
+      ### Load mu and phi estimates from real data (Stern dataset)
+      length.mu.phi.estimates <- system.file("extdata", "Stern2018.Length.Mu.Phi.Estimates.rds",
+                                             package = "phylocompcodeR")
+      length.mu.phi.estimates <- readRDS(length.mu.phi.estimates)
+      length.mu.estimates <- length.mu.phi.estimates$stern2018.length.mu
+      length.phi.estimates <- length.mu.phi.estimates$stern2018.length.phi
+      
+      ### Sample a mu and a phi for each gene in condition S1
+      to.include <- sample(seq_len(length(length.mu.estimates)), n.vars, 
+                           replace = ifelse(n.vars > length(length.mu.estimates), TRUE, FALSE))
+      if (is.character(lengths.dispersions)) lengths.dispersions <- length.phi.estimates[to.include]
+      if (is.character(lengths.relmeans)) lengths.relmeans <- length.mu.estimates[to.include]
+    } 
     if (length(lengths.relmeans) != n.vars) stop("The length of the 'lengths.relmeans' vector must be the same as the number of simulated genes.")
     if (length(lengths.dispersions) != n.vars) stop("The length of the 'lengths.dispersions' vector must be the same as the number of simulated genes.")
   }

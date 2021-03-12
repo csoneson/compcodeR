@@ -446,7 +446,8 @@ convertcompDataToList <- function(cpd) {
 #' mydata <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                 samples.per.cond = 5, n.diffexp = 100,
 #'                                 id.species = factor(1:10),
-#'                                 tree = ape::rphylo(10, 1, 0))
+#'                                 tree = ape::rphylo(10, 1, 0),
+#'                                 lengths.relmeans = "auto", lengths.dispersions = "auto")
 #' check_phyloCompData(mydata)
 #' 
 check_phyloCompData <- function(object) {

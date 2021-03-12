@@ -13,8 +13,11 @@
 Show method for \code{phyloCompData} object.
 }
 \examples{
-mydata <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
-                                samples.per.cond = 5, n.diffexp = 1250)
+mydata <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+                                samples.per.cond = 5, n.diffexp = 100,
+                                id.species = factor(1:10),
+                                tree = ape::rphylo(10, 1, 0),
+                                lengths.relmeans = "auto", lengths.dispersions = "auto")
 mydata
 }
 \author{

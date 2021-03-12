@@ -95,8 +95,11 @@ setMethod(
 #' @param object A \code{phyloCompData} object
 #' @author Charlotte Soneson, Paul Bastide
 #' @examples 
-#' mydata <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
-#'                                 samples.per.cond = 5, n.diffexp = 1250)
+#' mydata <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                 samples.per.cond = 5, n.diffexp = 100,
+#'                                 id.species = factor(1:10),
+#'                                 tree = ape::rphylo(10, 1, 0),
+#'                                 lengths.relmeans = "auto", lengths.dispersions = "auto")
 #' mydata
 #' @importFrom utils head
 setMethod(
