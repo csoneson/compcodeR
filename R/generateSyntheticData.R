@@ -911,7 +911,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   }
   
   ## Phylogenetic heatmap
-  if (!is.null(data.set@info.parameters$tree)) { # There is a tree
+  if (length(phylo.tree(data.set)) != 0) { # There is a tree
     if (!requireNamespace("ggtree", quietly = TRUE) || !requireNamespace("tidytree", quietly = TRUE)) {
       warning("Packages 'ggtree' and 'tidytree' are needed for phylogenetic heatmap plot. Skipping.", call. = FALSE)
     } else {
@@ -920,7 +920,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                    "library(ggtree)",
                    "library(tidytree)",
                    "",
-                   "tree <- data.set@info.parameters$tree",
+                   "tree <- data.set@tree",
                    "conds <- data.frame(label = rownames(data.set@sample.annotations), condition = as.factor(data.set@sample.annotations$id.condition))",
                    "gt <- ggtree(tree)",
                    "gt <- gt %<+% conds + geom_tippoint(aes(color = condition))",
@@ -950,7 +950,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
     }
   }
   ## Correlation heatmap
-  if (!is.null(data.set@info.parameters$tree)) { # There is a tree
+  if (length(phylo.tree(data.set)) != 0) { # There is a tree
     writeLines("### log2 normalized counts samples correlation heatmap", codefile)
     writeLines(c("```{r maplot-corHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "Z <- data.set@count.matrix",
