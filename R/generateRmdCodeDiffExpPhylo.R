@@ -137,6 +137,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
 #' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
+#' @param trend if \code{use_eBayes=TRUE}, should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
 #' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
 #' 
 #' @details 
@@ -170,6 +171,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                                        extraDesignFactors = NULL,
                                        lengthNormalization = "RPKM",
                                        dataTransformation = "log2",
+                                       trend = FALSE,
                                        blockFactor = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("###  limma + length", codefile)
@@ -218,6 +220,11 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
     writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design)"),
                codefile)
   }
+  if (!trend) {
+    writeLines("length.fitbayes <- limma::eBayes(length.fitlimma)", codefile)
+  } else {
+    writeLines("length.fitbayes <- limma::eBayes(length.fitlimma, trend = TRUE)", codefile)
+  }
   writeLines(c("length.fitbayes <- limma::eBayes(length.fitlimma)", 
                "length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]", 
                "length.adjpvalues <- p.adjust(length.pvalues, method = 'BH')", 
@@ -232,6 +239,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                      paste('length.', utils::packageVersion('limma'), '.limma.', norm.method,
                            ".lengthNorm.", lengthNormalization, '.',
                            "dataTrans.", dataTransformation,
+                           ifelse(trend, '.with_trend', ".no_trend"),
                            ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
                            ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), "."),
                            sep = ''), "')", sep = ''),
@@ -260,6 +268,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
 #' @param lengthNormalization one of "none" (no correction), "TPM" or "RPKM" (default).
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param use_eBayes boolean, whether to use \code{\link[limma]{eBayes}} to moderate the t.values. Default to TRUE.
+#' @param trend if \code{use_eBayes=TRUE}, should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
 #' @param ... Further arguments to be passed to function \code{\link[phylolimma]{phylolimma}}.
 #' 
 #' @details 
@@ -295,6 +304,7 @@ phylolimma.createRmd <- function(data.path, result.path, codefile, norm.method,
                                  lengthNormalization = "RPKM",
                                  dataTransformation = "log2",
                                  use_eBayes = TRUE,
+                                 trend = FALSE,
                                  ...) {
   codefile <- file(codefile, open = 'w')
   writeLines("###  phylolimma + length", codefile)
@@ -338,8 +348,12 @@ phylolimma.createRmd <- function(data.path, result.path, codefile, norm.method,
              codefile)
   
   if (use_eBayes) {
-    writeLines(c("length.fitbayes <- limma::eBayes(length.fitlimma)", 
-                 "length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]"),
+    if (!trend) {
+      writeLines("length.fitbayes <- limma::eBayes(length.fitlimma)", codefile)
+    } else {
+      writeLines("length.fitbayes <- limma::eBayes(length.fitlimma, trend = TRUE)", codefile)
+    }
+    writeLines("length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]",
                codefile) 
   } else {
     writeLines(c("length.t.values <- length.fitlimma$coef[, ncol(length.fitlimma$coef)] / length.fitlimma$stdev.unscaled[, ncol(length.fitlimma$stdev.unscaled)] / length.fitlimma$sigma", 

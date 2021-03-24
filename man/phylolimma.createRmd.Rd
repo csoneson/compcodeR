@@ -15,6 +15,7 @@ phylolimma.createRmd(
   lengthNormalization = "RPKM",
   dataTransformation = "log2",
   use_eBayes = TRUE,
+  trend = FALSE,
   ...
 )
 }
@@ -38,6 +39,8 @@ phylolimma.createRmd(
 \item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
 
 \item{use_eBayes}{boolean, whether to use \code{\link[limma]{eBayes}} to moderate the t.values. Default to TRUE.}
+
+\item{trend}{if \code{use_eBayes=TRUE}, should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolimma]{phylolimma}}.}
 }

@@ -12,6 +12,7 @@ lengthNorm.limma.createRmd(
   extraDesignFactors = NULL,
   lengthNormalization = "RPKM",
   dataTransformation = "log2",
+  trend = FALSE,
   blockFactor = NULL
 )
 }
@@ -29,6 +30,8 @@ lengthNorm.limma.createRmd(
 \item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
 
 \item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
+
+\item{trend}{if \code{use_eBayes=TRUE}, should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.}
 
 \item{blockFactor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).}
 }
