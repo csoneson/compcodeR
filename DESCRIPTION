@@ -2,7 +2,7 @@ Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-Version: 1.27.3
+Version: 1.28.0
 Authors@R: c(person("Charlotte", "Soneson", role = c("aut", "cre"), 
     email = "charlottesoneson@gmail.com", comment = c(ORCID = "0000-0003-3833-2169")))
 Description: This package provides extensive functionality for
