@@ -433,7 +433,7 @@ test_that("NB to PLN phylo - random tree - Not Unit Length", {
   V_ln_pagel <- (params_PLN$log_variance_phylo[1] * tree_height / prop.var.tree) * ape::vcv(phylolm::transf.branch.lengths(tree, model = "lambda", list(lambda = prop.var.tree))$tree)
   for (i in 1:(ntaxa-1)) {
     for (j in (i+1):ntaxa) {
-      expect_equal(V_ln_pagel[i, j], V_ln[i, j], scale = V_ln[i, j])
+      expect_equal(V_ln_pagel[i, j], V_ln[i, j], tolerance = 1e-4)
     }
   }
   
