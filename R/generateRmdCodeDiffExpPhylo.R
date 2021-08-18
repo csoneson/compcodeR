@@ -225,8 +225,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
   } else {
     writeLines("length.fitbayes <- limma::eBayes(length.fitlimma, trend = TRUE)", codefile)
   }
-  writeLines(c("length.fitbayes <- limma::eBayes(length.fitlimma)", 
-               "length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]", 
+  writeLines(c("length.pvalues <- length.fitbayes$p.value[, ncol(length.fitbayes$p.value)]", 
                "length.adjpvalues <- p.adjust(length.pvalues, method = 'BH')", 
                "length.logFC <- length.fitbayes$coefficients[, ncol(length.fitbayes$coefficients)]", 
                "length.score <- 1 - length.pvalues", 
