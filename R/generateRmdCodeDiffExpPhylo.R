@@ -207,7 +207,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
   writeNormalization(norm.method, lengthNormalization, dataTransformation, codefile)
   
   if (!is.null(blockFactor)) {
-    if (length(blockFactor) > 1) stop("Only on factor can be taken for block definition.")
+    if (length(blockFactor) > 1) stop("Only one factor can be taken for block definition.")
     writeLines(c("# Fitting Block correlations",
                  paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
                  "corfit <- duplicateCorrelation(data.trans, design = design, block = block, ndups = 1)"),

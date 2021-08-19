@@ -1,0 +1,320 @@
+---
+title: "Including inter-species measurements in differential expression analysis of RNAseq data with the phylocompcodeR package"
+author: "Paul Bastide & Mélina Gallopin"
+date: "`r Sys.Date()`"
+package: phylocompcodeR
+output: 
+  BiocStyle::html_document:
+      toc: true
+vignette: >
+  %\VignetteIndexEntry{phylocompcodeR}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+bibliography: compcodeR.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 55)
+```
+
+```{r setup}
+library(phylocompcodeR)
+```
+
+# Introduction
+
+`phylocompcodeR` is built on the `r Biocpkg("compcodeR")` R package,
+that can generate RNAseq counts data and compare the relative performances of 
+various popular differential analysis detection tools (@Soneson2013).
+
+`phylocompcodeR` uses the same framework as the `r Biocpkg("compcodeR")`,
+with the added possibility to generate "orthologous gene" (OG) expression 
+for different species, taking into account their varying lengths, and 
+their phylogenetic relationships, as encoded by an evolutionary tree. 
+
+This vignette provides a tutorial on how to use the added functionalities of `phylocompcodeR`.
+It assumes that the reader is already familiar with the [`compcodeR` package vignette](compcodeR.html).
+
+# The `phyloCompData` class
+
+The `phyloCompData` class extends the `compData` class
+of the `r Biocpkg("compcodeR")` package
+to account for phylogeny and length information needed in the representation of
+OG expression data.
+
+A `phyloCompData` object contains all the slots of a
+[`compData` object](compcodeR.html#the-compdata-class),
+with an added slot containing a phylogenetic tree
+with [`ape`](https://CRAN.R-project.org/package=ape) format `phylo`,
+and a length matrix.
+It can also contain some added variable information, such as species names.
+More detailed information about the `phyloCompData` class are available in the
+section on [the phylo data object](#the-extended-data-object).
+After conducting a differential expression analysis, the `phyloCompData` object
+has the same added information than the `compData` object
+(see [the result object](compcodeR.html#the-result-object)
+in the `r Biocpkg("compcodeR")` package vignette).
+
+# A sample workflow
+
+The workflow for working with the inter-species extension is very similar to the
+[already existing workflow](compcodeR.html#a-sample-workflow)
+of the `r Biocpkg("compcodeR")` package.
+In this section, we recall this workflow, stressing out the added functionalities.
+
+## Phylogenetic Tree
+
+The simulations are performed following the description by @Bastide2021.
+
+We use here the phylogenetic tree issued from @Stern2017, normalized to unit height,
+that has $14$ species with up to 3 replicates, for a total number of sample equal to
+$34$ (see Figure below).
+
+```{r tree, eval = FALSE}
+library(ape)
+tree <- system.file("extdata", "Stern2018.tree", package = "phylocompcodeR")
+tree <- read.tree(tree)
+```
+
+```{r tree2, eval = TRUE, echo = FALSE}
+library(ape)
+tree <- read.tree("Stern2018.tree")
+```
+
+Note that any other tree could be used, for instance randomly generated
+using a birth-death process, see e.g. function `rphylo` in the 
+[`ape`](https://CRAN.R-project.org/package=ape) package.
+
+## Condition Design
+
+To conduct a differential analysis, each species must be attributed a condition.
+Because of the phylogenetic structure, the condition design does matter, and
+have a strong influence on the data produced.
+Here, we assume that the conditions are
+mapped on the tree in a balanced way ("alt" design), which is the "best case scenario".
+
+```{r cond, eval = TRUE}
+# link each sample to a species
+id_species <- factor(sub("_.*", "", tree$tip.label))
+names(id_species) <- tree$tip.label
+# Assign a condition to each species
+species_names <- unique(id_species)
+species_names[c(length(species_names)-1, length(species_names))] <- species_names[c(length(species_names), length(species_names)-1)]
+cond_species <- rep(c(1, 2), length(species_names) / 2)
+names(cond_species) <- species_names
+# map them on the tree
+id_cond <- id_species
+id_cond <- cond_species[as.vector(id_cond)]
+id_cond <- as.factor(id_cond)
+names(id_cond) <- tree$tip.label
+```
+
+We can plot the assigned conditions on the tree to visualize them.
+
+```{r, eval = TRUE, echo = TRUE, fig.cap = "Phylogenetic tree with $14$ species and $34$ samples, with two conditions", fig.height = 8, fig.align='center'}
+plot(tree, label.offset = 0.01)
+tiplabels(pch = 19, col = c("#D55E00", "#009E73")[id_cond])
+```
+
+## Simulating data
+
+Using this tree with associated condition design, we can then generate a dataset
+using a "phylogenetic Poisson Log Normal" (pPLN) distribution.
+We use here a Brownian Motion (BM) model of evolution for the latent phylogenetic
+log normal continuous trait, and assume that the phylogenetic model accounts for
+$90\%$ of the latent trait variance 
+(i.e. there is an added uniform intra-species variance representing $10\%$ of the 
+total latent trait variation).
+Using the `"auto"` setup, the counts are simulated so that they match empirical
+moments found in @Stern2018.
+OG lengths are also drawn from a pPLN model, so that their moments match those 
+of the empirical dataset of @Stern2018.
+We choose to simulate $2000$ OGs, $10\%$ of which are differentially expressed, with an effect size of $3$.
+
+The following code creates a `phyloCompData` object containing the simulated
+data set and saves it to a file named `"alt_BM_repl1.rds"`.
+
+```{r, eval = FALSE}
+set.seed(12890926)
+alt_BM <- generateSyntheticData(dataset = "alt_BM",
+                                n.vars = 2000, samples.per.cond = 17,
+                                n.diffexp = 200, repl.id = 1,
+                                seqdepth = 1e7, effect.size = 3,
+                                fraction.upregulated = 0.5,
+                                output.file = "alt_BM_repl1.rds",
+                                ## Phylogenetic parameters
+                                tree = tree,                      ## Phylogenetic tree
+                                id.species = id_species,          ## Species structure of samples
+                                id.condition = id_cond,           ## Condition design
+                                model_process = "BM",             ## The latent trait follows a BM
+                                prop.var.tree = 0.9,              ## Tree accounts for 90% of the variance
+                                lengths.relmeans = "auto",        ## OG length mean and dispersion
+                                lengths.dispersions = "auto")     ## are taken from an empirical exemple
+```
+
+The `summarizeSyntheticDataSet` works the same way as in the base
+[`compcodeR` package](compcodeR.html), generating a report that summarize
+all the parameters used in the simulation, and showing some diagnostic plots.
+
+```{r reportsimulated, eval = FALSE}
+summarizeSyntheticDataSet(data.set = "alt_BM_repl1.rds", 
+                          output.filename = "alt_BM_repl1_datacheck.html")
+```
+
+When applied to a `phyloCompData` object,
+it provides some extra diagnostics, related to the phylogenetic nature of the data.
+In particular, it contains MA-plots with TPM-normalized expression levels to 
+take OG length into account, which generally makes the original signal 
+clearer.
+
+```{r, echo = FALSE, fig.cap = "Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the same plot, but using TPM-normalized estimated expression levels.", fig.show='hold',fig.align='center'}
+knitr::include_graphics(
+  c("phylocompcodeR_check_figure/maplot-trueDEstatus-1.png",
+    "phylocompcodeR_check_figure/maplot-trueDEstatus-logTPM-1.png")
+  )
+```
+
+It also shows a log2 normalized counts heatmap plotted along the phylogeny,
+illustrating the phylogenetic structure of the differentially expressed OGs.
+
+```{r, echo = FALSE, fig.cap = "Example figures from the summarization report generated for a simulated data set. The tips colored by true differential expression status. Only the first 400 genes are represented. The first block of 200 genes are differencially expressed between condition 1 and 2. The second block of 200 genes are not differencially expressed.", fig.show='hold',fig.align='center'}
+knitr::include_graphics(
+  c("phylocompcodeR_check_figure/maplot-phyloHeatmap-1.png")
+  )
+```
+
+## Performing differential expression analysis 
+
+Differential expression analysis can be conducted using the same framework
+used in the [`compcodeR` package](compcodeR.html#performing-differential-expression-analysis),
+through the `runDiffExp` function.
+
+All the standard methods can be used. To account for the phylogenetic nature
+of the data and for the varying length of the OGs, some methods have been added
+to the pool.
+
+The code below applies three differential expression methods to the data set generated above:
+the `r Biocpkg("DESeq2")` method adapted for varying lengths,
+the `log2(TPM)` transformation for length normalization, 
+combined with `r Biocpkg("limma")`, using the `trend` empirical Bayes correction,
+and accounting for species-related correlations, and
+the phylogenetic regression tool
+[`phylolm`](https://CRAN.R-project.org/package=phylolm) applied on the same `log2(TPM)`.
+
+```{r rundiffexp1, eval = FALSE}
+runDiffExp(data.file = "alt_BM_repl1.rds",
+           result.extent = "DESeq2", Rmdfunction = "DESeq2.createRmd",
+           output.directory = ".",
+           fit.type = "parametric", test = "Wald")
+runDiffExp(data.file = "alt_BM_repl1.rds",
+           result.extent = "lengthNorm.limma", Rmdfunction = "lengthNorm.limma.createRmd",
+           output.directory = ".",
+           norm.method = "TMM",
+           lengthNormalization = "TPM",
+           dataTransformation = "log2",
+           trend = FALSE, blockFactor = "id.species")
+runDiffExp(data.file = "alt_BM_repl1.rds",
+           result.extent = "phylolm", Rmdfunction = "phylolm.createRmd",
+           output.directory = ".",
+           norm.method = "TMM",
+           model = "BM", measurement_error = TRUE,
+           extraDesignFactors = NULL,
+           lengthNormalization = "TPM",
+           dataTransformation = "log2")
+```
+
+As for a regular `r Biocpkg("compcodeR")` analysis,
+example calls are provided in the reference manual (see the help pages for the `runDiffExp` function),
+and a list of all available methods can be obtained with the `listcreateRmd()` function.
+
+```{r listcreatermd}
+listcreateRmd()
+```
+
+## Comparing results from several differential expression methods
+
+Given that the `phyloCompData` object has the same structure with respect to the
+slots added by the differential expression analysis
+(see [the result object](compcodeR.html#the-result-object),
+the procedure to compare results from several differential expression methods
+is exactly the same as for a `compData` object, and can be found in the
+[corresponding section](compcodeR.html#comparing-results-from-several-differential-expression-methods)
+section of the `r Biocpkg("compcodeR")` vignette.
+
+# Using your own data
+
+[As for a `compData` object](compcodeR.html#using-your-own-data),
+it is still possible to input user-defined data to produce a `phyloCompData`
+object for differential expression methods comparisons.
+One only needs to provide the additional information needed, that is
+the phylogenetic tree, and the length matrix.
+The constructor method will make sure that the tree is consistent with the count
+and length matrices, with the same dimensions and consistent species names.
+
+```{r create-compData, eval=TRUE}
+count.matrix <- round(matrix(1000*runif(4000), 1000))
+sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
+info.parameters <- list(dataset = "mydata", uID = "123456")
+tree <- ape::rphylo(4, 1, 0)
+length.matrix <- round(matrix(1000*runif(4000), 1000))
+colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
+cpd <- phyloCompData(count.matrix = count.matrix,
+                     sample.annotations = sample.annotations,
+                     info.parameters = info.parameters,
+                     tree = tree,
+                     length.matrix = length.matrix)
+check_phyloCompData(cpd)
+```
+
+# Providing your own differential expression code
+
+To use your own differential expression code,
+you can follow the 
+[base `compcodeR` instructions](compcodeR.html#providing-your-own-differential-expression-code) 
+in the `r Biocpkg("compcodeR")` vignette.
+
+# The extended data object
+
+The `phylocompData` data object is an S4 object that extends 
+[the `compData` object](compcodeR.html#the-data-object), 
+with the following added slots:
+
+* `tree` [`class phylo`] (**mandatory**) -- the phylogenetic tree describing the relationships between samples.
+* `length.matrix` [`class matrix`] (**mandatory**) -- the OG length matrix, with rows representing genes and columns representing samples.
+
+* When produced with `generateSyntheticData`, the `sample.annotations` data frame has an added column:
+  * `id.species` [`class character` or `numeric`] -- the species for each sample.
+  Should match with the `tip.label` of the `tree` slot.
+
+* When produced with `generateSyntheticData`, the `info.parameters` list has added entry:
+  * `prop.var.tree` [`class numeric`] -- the proportion of the variance explained by the phylogeny.
+
+* When produced with `generateSyntheticData`, the `variable.annotations` data frame has an added columns:
+
+  * `lengths.relmeans` [`class numeric`] -- the true mean values used in the simulations of the OG lengths.
+  * `lengths.dispersions` [`class numeric`] -- the true dispersion values used in the simulations of the OG lengths.
+  * `M.value.TPM` [`class numeric`] -- the estimated log2-fold change between conditions 1 and 2 for each OG using TPM length normalization. 
+  * `A.value.TPM` [`class numeric`] -- the estimated average expression in conditions 1 and 2 for each OG using TPM length normalization.
+
+The same way as the `compData` object, the `phyloCompData` object needs to be saved to a file with extension `.rds`.
+
+# The evaluation metrics
+
+The evaluation metrics are unchanged, and described in the 
+[corresponding section](compcodeR.html#the-evaluation-metrics)
+section of the `r Biocpkg("compcodeR")` vignette.
+
+
+# Session info
+
+```{r session-info}
+sessionInfo()
+```
+
+# References
