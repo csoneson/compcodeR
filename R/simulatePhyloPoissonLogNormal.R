@@ -50,26 +50,11 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   }
   
   ## Phylogenetic simulation of log(lambda)
-  # resids <- mvMORPH::mvSIM(tree = tree,
-  #                          nsim = P,
-  #                          error = 0,
-  #                          model = model_process,
-  #                          param = params_process)
-  
-  # resids <- ape::rTraitMult(phy = tree,
-  #                           model = function(x, l) return(x + rnorm(length(x), 0, sqrt(l))),
-  #                           p = P,
-  #                           root.value = rep(0.0, P))
-  
   resids <- phylolm::rTrait(n = P,
                             phy = tree,
                             model = model_process,
                             parameters = list(sigma2 = 1, ancestral.state = 0, optimal.value = 0, alpha = selection.strength),
                             plot.tree = FALSE)
-  
-  # V <- ape::vcv(tree)
-  # resids <- matrix(rnorm(N * P, mean = 0, sd = 1), nrow = N)
-  # resids <- t(chol(V)) %*% resids
   
   log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model_process, selection.strength)
   
@@ -455,160 +440,6 @@ trim_tree <- function(tree, id.species) {
   tree_sp <- ape::keep.tip(tree, tips_to_keep)
   tree_sp$tip.label <- as.character(unique(id.species))
   return(tree_sp)
-}
-
-#' @title Multiplying factor for Non central Fisher
-#'
-#' @description 
-#' Under the alternative hypothesis, multiplying factor for the non-central Fisher
-#' distribution parameter, compared to the case where samples are iid and of equal size.
-#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
-#' If it is below 1.0, then the problem is "harder".
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-deltaFisher <- function(tree, id.condition, model, selection.strength) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-    Vinv <- diag(1, n)
-  } else {
-    # Check vector order
-    id.condition <- checkParamVector(id.condition, "id.condition", tree)
-    # tree
-    n <- length(tree$tip.label)
-    if (model == "OU") model <- "OUfixedRoot"
-    V <- ape::vcv(phylolm::transf.branch.lengths(tree, model = model, list(alpha = selection.strength))$tree)
-    Vinv <- try(solve(V))
-    if (inherits(Vinv, 'try-error')) Vinv <- ginv(V)
-  }
-  # Intercept
-  X <- rep(1, n)
-  # Model matrix
-  Z <- stats::model.matrix(~factor(id.condition))[, -1, drop = FALSE]
-  deltaF <- (diag(1, n) -  X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv) %*% Z
-  deltaF <- t(deltaF) %*% Vinv %*% deltaF
-  # deltaF <- t(Z) %*% Vinv %*% Z - t(Z) %*% Vinv %*% X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv %*% Z
-  return(unname(as.vector(deltaF)) / n * 4)
-}
-
-# deltaFisherPhylolm <- function(tree, id.condition) {
-#   if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
-#   if (is.null(tree)) return(deltaFisher(tree, id.condition))
-#   # Check vector order
-#   id.condition <- checkParamVector(id.condition, "id.condition", tree)
-#   # tree
-#   n <- length(tree$tip.label)
-#   # phylolm
-#   e1 <- rnorm(n)
-#   names(e1) <- tree$tip.label
-#   phyfit <- phylolm::phylolm(e1 ~ as.factor(id.condition), phy = tree)
-#   vv <- phyfit$vcov
-#   pp <- solve(vv) * n / (n - 2)
-#   deltaF <- (pp[2, 2] - pp[1, 2] * pp[2, 1] / pp[1, 1]) * phyfit$sigma2
-#   return(deltaF / n * 4)
-# }
-
-#' @title Multiplying factor for Non central Student
-#'
-#' @description 
-#' Under the alternative hypothesis, multiplying factor for the non-central Student
-#' distribution parameter, compared to the case where samples are iid and of equal size.
-#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
-#' If it is below 1.0, then the problem is "harder".
-#' WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactly two factors.
-#' Otherwise, this is just the square root of the non-central Fisher factor (see \code{\link{deltaFisher}}).
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-deltaStudent <- function(tree, id.condition, model, selection.strength) {
-  return(sqrt(deltaFisher(tree, id.condition, model, selection.strength)))
-}
-
-vanillaPowerFisher <- function(tree, id.condition,  model, selection.strength, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d1 = 2 - 1
-  d2 = n - 2
-  qq = qf(level, d1, d2)
-  ncc <- deltaFisher(tree, id.condition, model, selection.strength) * n / 4
-  pow <- pf(qq, d1, d2, ncc, lower.tail = FALSE)
-  return(pow)
-}
-
-#' @title Vanilla Power
-#'
-#' @description 
-#' Power of the Student t-test between the two conditions for a Gaussian vector
-#' of data, with unit effect size (expectation) and variance.
-#' The tree-induced variance is taken into account.
-#' WARNING: This is only valid when \code{id.condition} has exactelly two factors.
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' @param level The level of the t-test.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d2 = n - 2
-  qq = qt(1 - (1 - level)/2, d2)
-  ncc <- deltaStudent(tree, id.condition, model, selection.strength) * sqrt(n / 4)
-  pow <- pt(qq, d2,  ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
-  pow
-}
-
-#' @title Vanilla Power for Independent Data
-#'
-#' @description 
-#' Power of the Student t-test between the two conditions for an independent
-#' Gaussian vector of data, with unit effect size (expectation) and variance.
-#' WARNING: This is only valid when \code{id.condition} has exactly two factors.
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param level The level of the t-test.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d2 = n - 2
-  qq = qt(1 - (1 - level)/2, d2)
-  ncc <- sqrt(n / 4)
-  pow <- pt(qq, d2, ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
-  pow
 }
 
 #' @title Effective Sample Size
