@@ -248,13 +248,13 @@ add_replicates <- function(tree, r) {
 #' @title Compute log means and variances
 #'
 #' @description 
-#' From the parameters of a negative binomial (count_means and count_dispertions),
+#' From the parameters of a negative binomial (count_means and count_dispersions),
 #' compute the parameters of a phylogenetic Poisson log-normal with the
 #' same expectations and variances.
 #' 
 #' @param count_means a matrix with the number of genes p rows and the number of
 #' species n columns. Column names should match the tree taxa names.
-#' @param count_dispertions a matrix of size p x n, for each gene and species.
+#' @param count_dispersions a matrix of size p x n, for each gene and species.
 #' Column names should match the tree taxa names.
 #' 
 #' @return A list, with:
@@ -266,13 +266,13 @@ add_replicates <- function(tree, r) {
 #' 
 #' @keywords internal
 #' 
-get_poisson_log_normal_parameters <- function(count_means, count_dispertions, prop.var.tree) {
+get_poisson_log_normal_parameters <- function(count_means, count_dispersions, prop.var.tree) {
   N <- ncol(count_means)
   P <- nrow(count_means)
   
   ## Check Dimension
-  if (nrow(count_dispertions) != P || ncol(count_dispertions) != N) {
-    stop("`count_means` and `count_dispertions` should have the same dimensions.")
+  if (nrow(count_dispersions) != P || ncol(count_dispersions) != N) {
+    stop("`count_means` and `count_dispersions` should have the same dimensions.")
   }
   
   ## Check Proportion
@@ -281,7 +281,7 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispertions, pr
   }
   
   ## Parameters of the PLN
-  params_PLN <- NB_to_PLN(count_means, count_dispertions)
+  params_PLN <- NB_to_PLN(count_means, count_dispersions)
   log_means <- params_PLN$log_means_pln
   log_variances_all <- params_PLN$log_variances_pln
   
@@ -304,12 +304,12 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispertions, pr
 #' @title Negative Binomial to Poisson Log-Normal
 #'
 #' @description 
-#' From the parameters of a negative binomial (mean and dispertion),
+#' From the parameters of a negative binomial (mean and dispersion),
 #' compute the parameters of a Poisson log-normal with the
 #' same expectation and variance.
 #' 
 #' @param mean mean of the negative binomial.
-#' @param dispertion dispersion of the negative binomial.
+#' @param dispersion dispersion of the negative binomial.
 #' 
 #' @return A list, with:
 #' \describe{
@@ -342,14 +342,14 @@ NB_to_PLN <- function(mean, dispersion) {
 #' @keywords internal
 #' 
 simulateDataPhylo <- function(count_means,
-                              count_dispertions,
+                              count_dispersions,
                               tree, prop.var.tree,
                               model_process = "BM", selection.strength = 0) {
   ### Initialize data matrix
-  colnames(count_means) <- colnames(count_dispertions) <- tree$tip.label
+  colnames(count_means) <- colnames(count_dispersions) <- tree$tip.label
   
   ### Get Equivalent Phylogenetic Poisson log-normal parameters
-  params_poisson_lognormal <- get_poisson_log_normal_parameters(count_means, count_dispertions, prop.var.tree)
+  params_poisson_lognormal <- get_poisson_log_normal_parameters(count_means, count_dispersions, prop.var.tree)
   
   ### Simulate Data
   res_sim <- simulatePhyloPoissonLogNormal(tree,
@@ -364,7 +364,7 @@ simulateDataPhylo <- function(count_means,
 #' @title Scale the variances
 #'
 #' @description 
-#' Scale the variances of the process simulation so that they are equel to log_variance_phylo.
+#' Scale the variances of the process simulation so that they are equal to log_variance_phylo.
 #' 
 #' @inheritParams generateSyntheticData 
 #' @inheritParams simulateData
@@ -428,7 +428,7 @@ generateLengthsPhylo <- function(tree, id.species, lengths.relmeans, lengths.dis
                                                 S2 = NULL, prob.S2 = 0, sum.S2 = 0, truedispersions.S2 = 0, nfact_length.S2 = matrix(NA, 0, 0),
                                                 seq.depths = rep(1.0, ntaxa))
   lengths_unique <- simulateDataPhylo(params_simus$count_means,
-                                      params_simus$count_dispertions,
+                                      params_simus$count_dispersions,
                                       tree = tree_sp, prop.var.tree = 1.0,
                                       model_process = "BM", selection.strength = 0) 
   length_matrix <- lengths_unique[, id.species]

@@ -6,7 +6,7 @@
 \usage{
 simulateDataPhylo(
   count_means,
-  count_dispertions,
+  count_dispersions,
   tree,
   prop.var.tree,
   model_process = "BM",

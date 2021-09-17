@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateSyntheticData.R
 \name{computeFactorLengths}
 \alias{computeFactorLengths}
-\title{Compute Length Noormalization Factors}
+\title{Compute Length Normalization Factors}
 \usage{
 computeFactorLengths(length_matrix, prob.S1, sum.S1)
 }
@@ -20,6 +20,6 @@ to be applied for each sample and each gene.
 \description{
 Compute the factor to be applied for length normalization.
 Each column of the matrix (samples) is normalized by the weighted average of
-the column, with weights coresponding to the true probabilities of each gene.
+the column, with weights corresponding to the true probabilities of each gene.
 }
 \keyword{internal}

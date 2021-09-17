@@ -9,7 +9,7 @@ NB_to_PLN(mean, dispersion)
 \arguments{
 \item{mean}{mean of the negative binomial.}
 
-\item{dispertion}{dispersion of the negative binomial.}
+\item{dispersion}{dispersion of the negative binomial.}
 }
 \value{
 A list, with:
@@ -19,7 +19,7 @@ A list, with:
 }
 }
 \description{
-From the parameters of a negative binomial (mean and dispertion),
+From the parameters of a negative binomial (mean and dispersion),
 compute the parameters of a Poisson log-normal with the
 same expectation and variance.
 }

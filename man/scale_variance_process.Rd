@@ -22,6 +22,6 @@ scale_variance_process(
 A matrix N * P of factors to multiply the simulated phylogenetic residuals.
 }
 \description{
-Scale the variances of the process simulation so that they are equel to log_variance_phylo.
+Scale the variances of the process simulation so that they are equal to log_variance_phylo.
 }
 \keyword{internal}

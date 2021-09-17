@@ -18,7 +18,7 @@ A list, with:
 }
 }
 \description{
-Extrat results from a phylolm object.
+Extract results from a phylolm object.
 The coefficient of interest must be named "condition".
 }
 \keyword{internal}

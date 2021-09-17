@@ -38,7 +38,7 @@
 #' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
 #' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
 #' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the mean length values are sampled from values estimated from the Stern & Crandall (2018) data set.
-#' @param lengths.dispersions An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispertion length values are sampled from values estimated from the Stern & Crandall (2018) data set.
+#' @param lengths.dispersions An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispersion length values are sampled from values estimated from the Stern & Crandall (2018) data set.
 #' @param lengths.phylo If TRUE, the lenghts are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE is a tree is provided.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
@@ -314,7 +314,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                                seq.depths = seq.depths)
 	  model_process <- match.arg(model_process)
 	  Z <- simulateDataPhylo(params_simus$count_means,
-	                         params_simus$count_dispertions,
+	                         params_simus$count_dispersions,
 	                         tree = tree, prop.var.tree = prop.var.tree,
 	                         model_process = model_process, selection.strength = selection.strength) 
 	} else {
@@ -613,7 +613,7 @@ simulateData <- function(n.vars,
 #' @return A list of parameters for each entry of the count matrix:
 #' \describe{
 #' \item{count_means}{a matrix of mean for each gene and sample.}
-#' \item{count_dispertions}{a matrix of dispersions for each gene and sample.}
+#' \item{count_dispersions}{a matrix of dispersions for each gene and sample.}
 #' }
 #' 
 #' @keywords internal
@@ -624,22 +624,22 @@ getNegativeBinomialParameters <- function(n.vars,
                                           seq.depths) {
   ### Initialize
   count_means <- matrix(0, n.vars, length(S1) + length(S2))
-  count_dispertions <- matrix(0, n.vars, length(S1) + length(S2))
+  count_dispersions <- matrix(0, n.vars, length(S1) + length(S2))
 
     ### Generate Negative Binomial Parameters
   for (i in 1:n.vars) {
     for (j in 1:ncol(count_means)) {
       if (j %in% S1) {
         count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j)
-        count_dispertions[i, j] <- truedispersions.S1[i]
+        count_dispersions[i, j] <- truedispersions.S1[i]
       } else {
         count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j] * get_factor(nfact_length.S2, i, j)
-        count_dispertions[i, j] <- truedispersions.S2[i]
+        count_dispersions[i, j] <- truedispersions.S2[i]
       }
     }
   }
   return(list(count_means = count_means,
-              count_dispertions = count_dispertions))
+              count_dispersions = count_dispersions))
 }
 
 get_factor <- function(M, i, j) {
@@ -653,8 +653,8 @@ get_factor <- function(M, i, j) {
 #' Get the NB mean for one gene in one sample
 #' 
 #' @inheritParams simulateData
-#' @param i gene indice.
-#' @param j sample indice.
+#' @param i gene index.
+#' @param j sample index.
 #' 
 #' @return The mean for gene i in sample j.
 #' 
@@ -676,8 +676,8 @@ getNegativeBinomialMean <- function(i, j,
 #' Get the NB dispersion for one gene in one sample
 #' 
 #' @inheritParams simulateData
-#' @param i gene indice.
-#' @param j sample indice.
+#' @param i gene index.
+#' @param j sample index.
 #' 
 #' @return The dispersion for gene i in sample j.
 #' 
@@ -734,12 +734,12 @@ generateLengths <- function(id.species, lengths.relmeans, lengths.dispersions) {
   return(length_matrix)
 }
 
-#' @title Compute Length Noormalization Factors
+#' @title Compute Length Normalization Factors
 #'
 #' @description 
 #' Compute the factor to be applied for length normalization.
 #' Each column of the matrix (samples) is normalized by the weighted average of
-#' the column, with weights coresponding to the true probabilities of each gene.
+#' the column, with weights corresponding to the true probabilities of each gene.
 #' 
 #' @param length_matrix An n.vars times n.sample matrix of lengths of each gene in each sample.
 #' @param prob.S1 Vector of means for condition 1.

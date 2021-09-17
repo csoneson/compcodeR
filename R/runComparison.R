@@ -1005,7 +1005,7 @@ performComparison <- function(panel) {
 #' @param check.table Logical, should the input table be checked for consistency. Default \code{TRUE}.
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated.
 #' @param saveResultTable Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.
-#' @param knitResults Logical, should the Rmd be generated and knited ? Default to \code{TRUE}.
+#' @param knitResults Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}.
 #' @return
 #' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
 #' @export

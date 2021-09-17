@@ -102,3 +102,6 @@ Law, C.W., Chen, Y., Shi, W. et al. (2014) voom: precision weights unlock linear
 
 Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604.
 }
+\author{
+Charlotte Soneson, Paul Bastide, Mélina Gallopin
+}

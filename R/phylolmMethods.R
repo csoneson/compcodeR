@@ -1,3 +1,15 @@
+#' @title Get the tree from a compData object
+#'
+#' @description
+#' Return the tree of a \code{phyloCompData} object.
+#' If no tree, return a star tree with unit height, and throw a warning.
+#' 
+#' @param cdata a compData object.
+#' 
+#' @return A tree of class \code{phylo}
+#' 
+#' @keywords internal
+#' 
 getTree <- function(cdata) {
   if (is.null(phylo.tree(cdata)) || length(phylo.tree(cdata)) == 0) {
     message("There were no tree in the data object. Using a star tree of unit height in phylolm.")
@@ -16,7 +28,7 @@ getTree <- function(cdata) {
 #' @title Extract phylom results
 #'
 #' @description
-#' Extrat results from a phylolm object.
+#' Extract results from a phylolm object.
 #' The coefficient of interest must be named "condition".
 #' 
 #' @param phylo_lm_obj a phylolm object.
