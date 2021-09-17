@@ -269,7 +269,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     prob.S2 <- c(effect.size) * prob.S1
   }
 	true.log2foldchange <- log2(prob.S2/prob.S1)
-	# true.sqrtfoldchange <- sqrt(prob.S2) - sqrt(prob.S1)
 	sum.S1 <- sum(prob.S1)
 	sum.S2 <- sum(prob.S2)
 	
@@ -428,7 +427,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                   M.value = M.value, 
 	                                   A.value = A.value, 
 	                                   truelog2foldchanges = true.log2foldchange, 
-	                                   # truesqrtfoldchanges = true.sqrtfoldchange, 
 	                                   upregulation = upregulation, 
 	                                   downregulation = downregulation, 
 	                                   differential.expression = differential.expression)
@@ -457,9 +455,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'minfact' = minfact, 'maxfact' = maxfact,
 	                        'nEff' = nEffNaive(tree, id.condition, model_process, selection.strength),
 	                        'nEffRatio' = nEffRatio(tree, id.condition, model_process, selection.strength))
-	                        # 'studentFactor' = deltaStudent(tree, id.condition, model_process, selection.strength),
-	                        # 'unitTtestPower95' = vanillaPowerStudent(tree, id.condition, model_process, selection.strength, 0.95),
-	                        # 'unitTtestPower95Ind' = vanillaPowerStudentInd(tree, id.condition, 0.95))
 	if (use_tree) {
 	  info.parameters <- c(info.parameters, list('prop.var.tree' = prop.var.tree))
 	  sample.annotations$id.condition <-  id.condition
@@ -843,25 +838,10 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "```"), codefile)
   
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    # writeLines("### MA plot, log2 gwRPKM normalized, colored by true differential expression status", codefile)
-    # writeLines(c("```{r maplot-trueDEstatus-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
-    #              "```"), codefile)
-    
-    # writeLines("### MA plot, sqrt TPM normalized, colored by true differential expression status", codefile)
-    # writeLines(c("```{r maplot-trueDEstatus-sqrtTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "ggplot(variable.annotations(data.set), aes(x = A.value.sqrtTPM, y = M.value.sqrtTPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
-    #              "```"), codefile)
-    
     writeLines("### MA plot, log2 TPM normalized, colored by true differential expression status", codefile)
     writeLines(c("```{r maplot-trueDEstatus-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "ggplot(variable.annotations(data.set), aes(x = A.value.TPM, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
                  "```"), codefile)
-    
-    # writeLines("### MA plot, log2 RPKM normalized, colored by true differential expression status", codefile)
-    # writeLines(c("```{r maplot-trueDEstatus-logRPKM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "ggplot(variable.annotations(data.set), aes(x = A.value.RPKM, y = M.value.RPKM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
-    #              "```"), codefile)
   }
 
   ## Colored by number of outlier counts
@@ -869,13 +849,6 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   writeLines(c("```{r maplot-nbroutliers, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = total.nbr.outliers)) + geom_point()",
                "```"), codefile)
-  
-  # if (length(length.matrix(data.set)) != 0) { # There are lengths
-  #   writeLines("### MA plot, length normalized, colored by total number of outliers", codefile)
-  #   writeLines(c("```{r maplot-nbroutliers-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-  #                "ggplot(variable.annotations(data.set), aes(x = A.value.lengths, y = M.value.lengths, color = total.nbr.outliers)) + geom_point()",
-  #                "```"), codefile)
-  # }
   
   ## Plots of estimated log2-fold change (M-value) vs true log2-fold change, colored by true differential expression status
   writeLines("### True log2-fold change vs estimated log2-fold change (M-value)", codefile)
@@ -885,29 +858,11 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "```"), codefile)
   
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    # writeLines("### True log2-fold change vs estimated length normalized log2-fold change (M-value)", codefile)
-    # writeLines(c("```{r logfoldchanges-lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
-    #              "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.lengths, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
-    #              "```"), codefile)
-    
-    # writeLines("### True sqrt-fold change vs estimated TPM sqrt-fold change (M-value)", codefile)
-    # writeLines(c("```{r logfoldchanges-sqrtTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "if (!is.null(variable.annotations(data.set)$truesqrtfoldchanges)) {",
-    #              "ggplot(variable.annotations(data.set), aes(x = truesqrtfoldchanges, y = M.value.sqrtTPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
-    #              "```"), codefile)
-    
     writeLines("### True log2-fold change vs estimated TPM log2-fold change (M-value)", codefile)
     writeLines(c("```{r logfoldchanges-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                  "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
                  "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                  "```"), codefile)
-    
-    # writeLines("### True log2-fold change vs estimated RPKM log2-fold change (M-value)", codefile)
-    # writeLines(c("```{r logfoldchanges-logRPKM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-    #              "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
-    #              "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.RPKM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
-    #              "```"), codefile)
   }
   
   ## Phylogenetic heatmap
@@ -994,11 +949,6 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                            output = output.filename,
                            encoding = "UTF-8",
                            title = "Synthetic data set summary")
-  
-  # knit2html(input = Rmd.file,
-  #           output = output.filename, 
-  #           title = "Synthetic data set summary", 
-  #           envir = new.env())
   
   ## Remove the .Rmd file
   # file.remove(Rmd.file)
