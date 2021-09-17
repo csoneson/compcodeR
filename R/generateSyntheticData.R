@@ -950,8 +950,9 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                            encoding = "UTF-8",
                            title = "Synthetic data set summary")
   
+  save.rmdfile <- FALSE  ## set to TRUE to save the .Rmd file (debug)
   ## Remove the .Rmd file
-  # file.remove(Rmd.file)
+  if (!save.rmdfile) file.remove(Rmd.file)
   
   ## Remove the .md file
   file.remove(md.file)
