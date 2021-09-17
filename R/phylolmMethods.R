@@ -371,28 +371,3 @@ writeNormalization <- function(norm.method, lengthNormalization, dataTransformat
   }
   writeLines("rownames(data.trans) <- rownames(count.matrix(cdata))", codefile)
 }
-
-#' @title Generate a \code{.Rmd} file containing code to normalize data.
-#' 
-#' @description This function uses \code{\link[phylolimma]{lengthNormalizeRNASeq}}.
-#' 
-#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
-#' @param lengthNormalization one of "none" (no correction), "TPM", or "RPKM" (default). See details.
-#' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.
-#' @param codefile 
-#' 
-#' @keywords internal
-#' 
-writeNormalization_phylolimma <- function(norm.method, lengthNormalization, dataTransformation, codefile) {
-  writeLines(c("", "# Normalisation"),codefile)
-  lengthNormalization <- match.arg(lengthNormalization, c("RPKM", "TPM", "none"))
-  if (lengthNormalization == "none" || lengthNormalization == "RPKM") {
-    writeLines(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-               codefile)
-  } else if (lengthNormalization == "TPM") {
-    writeLines(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata) / length.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 codefile)
-  }
-  writeLines(paste0("data.trans <- phylolimma::lengthNormalizeRNASeq(count.matrix(cdata), length.matrix(cdata), normalisationFactor = nf, lengthNormalization = '", lengthNormalization, "', dataTransformation = '", dataTransformation, "')"),
-                    codefile)
-}

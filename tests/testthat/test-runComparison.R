@@ -466,7 +466,7 @@ test_that("runDiffExp works", {
 
 test_that("runDiffExp works - with lengths", {
   ## Skip if suggested packages are not installed
-  skip_if_not_installed("phylolimma")
+  skip_if_not_installed("phylolm")
   skip_if_not_installed("DESeq2")
   
   tdir <- tempdir()
@@ -552,17 +552,16 @@ test_that("runDiffExp works - with lengths", {
   )
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
-    result.extent = "phylolimma",
-    Rmdfunction = "phylolimma.createRmd",
+    result.extent = "phylolm",
+    Rmdfunction = "phylolm.createRmd",
     output.directory = tdir, norm.method = "TMM",
     model = "BM", measurement_error = TRUE,
     extraDesignFactors = NULL,
     lengthNormalization = "RPKM",
-    dataTransformation = "log2",
-    use_eBayes = TRUE
+    dataTransformation = "log2"
   )
   
-  methods <- c("DESeq2.length", "lengthNorm.limma", "phylolimma")
+  methods <- c("DESeq2.length", "lengthNorm.limma", "phylolm")
 
   ## Test show() method
   m <- "DESeq2.length"

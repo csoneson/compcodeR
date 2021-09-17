@@ -57,8 +57,7 @@ Suggests:
     testthat,
     ggtree,
     tidytree,
-    compcodeR,
-    phylolimma
+    compcodeR
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
