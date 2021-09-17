@@ -1,4 +1,4 @@
-Package: phylocompcodeR
+Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods

@@ -556,12 +556,12 @@ nEffPhylolm <- function(tree, id.condition, model, selection.strength) {
 #' id_cond <- rep(rep(0:1, each = 2), ntips / 4)
 #' names(id_cond) <- tree$tip.label
 #' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
-#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' compcodeR:::nEffRatio(tree, id_cond, "BM", 0)
 #' ## Bloc cond : nEff smaller than 1
 #' id_cond <- rep(0:1, each = ntips / 2)
 #' names(id_cond) <- tree$tip.label
 #' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
-#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' compcodeR:::nEffRatio(tree, id_cond, "BM", 0)
 #' 
 #' @keywords internal
 #' 

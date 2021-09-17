@@ -416,7 +416,7 @@ test_that("runDiffExp works", {
     expect_equal(nrow(result.table(tmp)), 500)
     expect_is(code(tmp), "character")
     expect_is(analysis.date(tmp), "character")
-    expect_is(phylocompcodeR:::package.version(tmp), "character")
+    expect_is(compcodeR:::package.version(tmp), "character")
     expect_is(method.names(tmp), "list")
     expect_named(method.names(tmp), c("short.name", "full.name"))
     
@@ -579,7 +579,7 @@ test_that("runDiffExp works - with lengths", {
     expect_equal(nrow(result.table(tmp)), 498)
     expect_is(code(tmp), "character")
     expect_is(analysis.date(tmp), "character")
-    expect_is(phylocompcodeR:::package.version(tmp), "character")
+    expect_is(compcodeR:::package.version(tmp), "character")
     expect_is(method.names(tmp), "list")
     expect_named(method.names(tmp), c("short.name", "full.name"))
     

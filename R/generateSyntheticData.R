@@ -153,7 +153,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     if (is.character(lengths.relmeans) || is.character(lengths.dispersions)) {  # if they are 'auto'
       ### Load mu and phi estimates from real data (Stern dataset)
       length.mu.phi.estimates <- system.file("extdata", "Stern2018.Length.Mu.Phi.Estimates.rds",
-                                             package = "phylocompcodeR")
+                                             package = "compcodeR")
       length.mu.phi.estimates <- readRDS(length.mu.phi.estimates)
       length.mu.estimates <- length.mu.phi.estimates$stern2018.length.mu
       length.phi.estimates <- length.mu.phi.estimates$stern2018.length.phi

@@ -1,8 +1,8 @@
 ---
-title: "Including inter-species measurements in differential expression analysis of RNAseq data with the phylocompcodeR package"
+title: "Including inter-species measurements in differential expression analysis of RNAseq data with the compcodeR package"
 author: "Paul Bastide & Mélina Gallopin"
 date: "`r Sys.Date()`"
-package: phylocompcodeR
+package: compcodeR
 output: 
   BiocStyle::html_document:
       toc: true
@@ -24,21 +24,21 @@ options(width = 55)
 ```
 
 ```{r setup}
-library(phylocompcodeR)
+library(compcodeR)
 ```
 
 # Introduction
 
-`phylocompcodeR` is built on the `r Biocpkg("compcodeR")` R package,
-that can generate RNAseq counts data and compare the relative performances of 
+The `r Biocpkg("compcodeR")` R package
+can generate RNAseq counts data and compare the relative performances of 
 various popular differential analysis detection tools (@Soneson2013).
 
-`phylocompcodeR` uses the same framework as the `r Biocpkg("compcodeR")`,
-with the added possibility to generate "orthologous gene" (OG) expression 
+Using the same framework, this document shows how
+to generate "orthologous gene" (OG) expression 
 for different species, taking into account their varying lengths, and 
 their phylogenetic relationships, as encoded by an evolutionary tree. 
 
-This vignette provides a tutorial on how to use the added functionalities of `phylocompcodeR`.
+This vignette provides a tutorial on how to use the "phylogenetic" functionalities of `r Biocpkg("compcodeR")`.
 It assumes that the reader is already familiar with the [`compcodeR` package vignette](compcodeR.html).
 
 # The `phyloCompData` class
@@ -78,7 +78,7 @@ $34$ (see Figure below).
 
 ```{r tree, eval = FALSE}
 library(ape)
-tree <- system.file("extdata", "Stern2018.tree", package = "phylocompcodeR")
+tree <- system.file("extdata", "Stern2018.tree", package = "compcodeR")
 tree <- read.tree(tree)
 ```
 
