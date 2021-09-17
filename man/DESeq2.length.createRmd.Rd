@@ -81,6 +81,8 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2"
 }
 \references{
 Anders S and Huber W (2010): Differential expression analysis for sequence count data. Genome Biology 11:R106
+
+Love, M.I., Huber, W., Anders, S. (2014) Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome Biology, 15:550. 10.1186/s13059-014-0550-8.
 }
 \author{
 Charlotte Soneson, Paul Bastide, Mélina Gallopin

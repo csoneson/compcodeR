@@ -28,6 +28,8 @@
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
 #' @references 
 #' Anders S and Huber W (2010): Differential expression analysis for sequence count data. Genome Biology 11:R106
+#' 
+#' Love, M.I., Huber, W., Anders, S. (2014) Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome Biology, 15:550. 10.1186/s13059-014-0550-8.
 #' @examples
 #' try(
 #' if (require(DESeq2)) {
@@ -135,20 +137,45 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param lengthNormalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+#' @param lengthNormalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param trend should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
-#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
+#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
 #' 
 #' @details 
 #' The \code{length.matrix} field of the \code{compData} object 
-#' is used to normalize the counts, by computing the square root of the TPM.
+#' is used to normalize the counts, using one of the following formulas:
+#' * \code{lengthNormalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
+#' * \code{lengthNormalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
+#' * \code{lengthNormalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
+#' 
+#' where \eqn{N_{gi}} is the count for gene g and sample i,
+#' where \eqn{L_{gi}} is the length of gene g in sample i,
+#' and \eqn{NF_i} is the normalization for sample i,
+#' normalized using \code{calcNormFactors} of the \code{edgeR} package.
+#' 
+#' The function specified by the \code{dataTransformation} is then applied
+#' to the normalized count matrix.
+#' 
+#' The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
+#' and dropped from the normalization 
+#' when the transformation is something else than \code{log2}.
+#' 
+#' The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
+#' the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
+#' be applied to real numbers smaller than 1.
+#' 
+#' @md
 #' 
 #' @export 
 #' @author Charlotte Soneson, Paul Bastide, Mélina Gallopin
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
 #' @references 
 #' Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
+#' 
+#' Smyth, G. K., Michaud, J., and Scott, H. (2005). The use of within-array replicate spots for assessing differential expression in microarray experiments. Bioinformatics 21(9), 2067-2075.
+#' 
+#' Law, C.W., Chen, Y., Shi, W. et al. (2014) voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biol 15, R29.
 #'
 #' Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604. 
 #' 
