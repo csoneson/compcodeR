@@ -10,6 +10,14 @@
 #' 
 #' To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
 #' 
+#' When the \code{tree} argument is provided (not \code{NULL}),
+#' then the "phylogenetic Poisson log-Normal" model is used for the simulations,
+#' possibly with varying gene lengths across species 
+#' (both \code{lengths.relmeans} and \code{lengths.dispersions} must be specified
+#' or set to \code{"auto"}.)
+#' Phylogenetic simulations use the \code{\link[phylolm]{rTrait}} function
+#' from package \code{phylolm}.
+#' 
 #' @param dataset A name or identifier for the data set/simulation settings. 
 #' @param n.vars The initial number of genes in the simulated data set. Based on the filtering conditions (\code{filter.threshold.total} and \code{filter.threshold.mediancpm}), the number of genes in the final data set may be lower than this number. 
 #' @param samples.per.cond The number of samples in each of the two conditions.
@@ -30,7 +38,7 @@
 #' @param single.outlier.low.prob The fraction of 'single' outliers with unusually low counts.
 #' @param effect.size The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
-#' @param tree a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
+#' @param tree a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
 #' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
 #' @param model_process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
 #' @param selection.strength if the process is "OU", the selection strength parameter.

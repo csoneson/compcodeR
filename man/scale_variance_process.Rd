@@ -12,7 +12,7 @@ scale_variance_process(
 )
 }
 \arguments{
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 

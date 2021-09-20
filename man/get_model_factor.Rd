@@ -11,7 +11,7 @@ get_model_factor(model_process, selection.strength, tree)
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 }
 \value{
 A vector N of factors.

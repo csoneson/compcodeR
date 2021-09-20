@@ -79,7 +79,7 @@ generateSyntheticData(
 
 \item{output.file}{If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.}
 
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 
@@ -113,6 +113,14 @@ For more detailed information regarding the different types of outliers, see Son
 Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013). 
 
 To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
+
+When the \code{tree} argument is provided (not \code{NULL}),
+then the "phylogenetic Poisson log-Normal" model is used for the simulations,
+possibly with varying gene lengths across species 
+(both \code{lengths.relmeans} and \code{lengths.dispersions} must be specified
+or set to \code{"auto"}.)
+Phylogenetic simulations use the \code{\link[phylolm]{rTrait}} function
+from package \code{phylolm}.
 }
 \examples{
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 

@@ -14,7 +14,7 @@ simulateDataPhylo(
 )
 }
 \arguments{
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 
