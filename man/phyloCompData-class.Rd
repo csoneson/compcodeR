@@ -5,27 +5,27 @@
 \alias{phyloCompData-class}
 \title{Class phyloCompData}
 \description{
-The \code{phyloCompData} class extends the \code{\link{compData}} class
+The \code{phyloCompData} class extends the \code{\linkS4class{compData}} class
 with sequence length and phylogeny related information.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{tree}:}{The phylogenetic tree describing the relationships between samples. Class \code{phylo}}
-\item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns.  Class \code{matrix}}
-\item{\code{sample.annotations}:}{Should contain an additional column named \code{id.species} of factors giving the species for each sample. If a tree is used, should have names matching the taxa of the tree.}
+\item{\code{tree}:}{The phylogenetic tree describing the relationships between samples. The taxa names of the \code{tree} should be the same as the column names of the \code{count.matrix}. Class \code{phylo}.}
+\item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns. The column names of the \code{length.matrix} should be the same as the column names of the \code{count.matrix}. Class \code{matrix}.}
+\item{\code{sample.annotations}:}{In addition to the columns described in the \code{\linkS4class{compData}} class, it should contain an extra column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. Class \code{data.frame}.}
 }
 }
 
 \section{Methods}{
 
 \describe{
-\item{phylo.tree}{\code{signature(x="compData")}}
-\item{phylo.tree<-}{\code{signature(x="compData",value="phylo")}:
-Get or set the tree in a \code{compData} object. \code{value} should be a phylo object.}
-\item{length.matrix}{\code{signature(x="compData")}}
-\item{length.matrix<-}{\code{signature(x="compData",value="matrix")}:
-Get or set the length matrix in a \code{compData} object. \code{value} should be a numeric matrix.}
+\item{phylo.tree}{\code{signature(x="phyloCompData")}}
+\item{phylo.tree<-}{\code{signature(x="phyloCompData",value="phylo")}:
+Get or set the tree in a \code{phyloCompData} object. \code{value} should be a phylo object.}
+\item{length.matrix}{\code{signature(x="phyloCompData")}}
+\item{length.matrix<-}{\code{signature(x="phyloCompData",value="matrix")}:
+Get or set the length matrix in a \code{phyloCompData} object. \code{value} should be a numeric matrix.}
 }
 }
 

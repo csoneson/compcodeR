@@ -53,8 +53,21 @@
 #' @export
 #' @author Charlotte Soneson
 #' @examples
+#' ## RNA-Seq data
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100)
+#'
+#' ## Inter-species RNA-Seq data
+#' library(ape)
+#' tree <- read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+#' id.species <- factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+#' names(id.species) <- tree$tip.label
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 4, n.diffexp = 100, 
+#'                                     tree = tree,
+#'                                     id.species = id.species,
+#'                                     lengths.relmeans = "auto",
+#'                                     lengths.dispersions = "auto")
 #' @references
 #' Soneson C and Delorenzi M (2013): A comparison of methods for differential expression analysis of RNA-seq data. BMC Bioinformatics 14:91
 #' 
@@ -516,9 +529,9 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                           info.parameters = info.parameters)
   
   if (use_tree || use_lengths) {
-    data.object <- phyloCompDataBis(data.object,
-                                    tree = tree,
-                                    length.matrix = length_matrix.TC)
+    data.object <- phyloCompDataFromCompData(data.object,
+                                             tree = tree,
+                                             length.matrix = length_matrix.TC)
   }
   
   ## Save results

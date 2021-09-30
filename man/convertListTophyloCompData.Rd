@@ -13,18 +13,21 @@ convertListTophyloCompData(inp.list)
 Given a list with data and results (resulting e.g. from \code{compcodeR} version 0.1.0), convert it to a \code{phyloCompData} object.
 }
 \examples{
-count.matrix <- round(matrix(1000*runif(4000), 1000))
-sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
+tree <- ape::read.tree(
+  text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"
+  )
+count.matrix <- round(matrix(1000*runif(8000), 1000))
+sample.annotations <- data.frame(condition = c(1, 1, 1, 1, 2, 2, 2, 2),
+                                 id.species = c("A", "A", "A", "B", "C", "C", "D", "D"))
 info.parameters <- list(dataset = "mydata", uID = "123456")
-tree <- ape::rphylo(4, 1, 0)
-length.matrix <- round(matrix(1000*runif(4000), 1000))
+length.matrix <- round(matrix(1000*runif(8000), 1000))
 colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
 convertListTophyloCompData(list(count.matrix = count.matrix,
                                 sample.annotations = sample.annotations,
                                 info.parameters = list(dataset = "mydata", 
                                                        uID = "123456"),
-                                 tree = tree,
-                                 length.matrix = length.matrix))
+                                tree = tree,
+                                length.matrix = length.matrix))
                                  
 }
 \author{

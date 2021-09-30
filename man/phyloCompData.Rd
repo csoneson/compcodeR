@@ -22,7 +22,7 @@ phyloCompData(
 \arguments{
 \item{count.matrix}{A count matrix, with genes as rows and observations as columns.}
 
-\item{sample.annotations}{A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups. The row names should be the same as the column names of the \code{count.matrix}.}
+\item{sample.annotations}{A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. \code{Class data.frame}.}
 
 \item{info.parameters}{A list containing information regarding simulation parameters etc. The only mandatory entries are \code{dataset} and \code{uID}, but it may contain entries such as the ones listed below (see \code{generateSyntheticData} for more detailed information about each of these entries).
 \itemize{
@@ -93,23 +93,26 @@ phyloCompData(
 \item \code{dispersion.S2} dispersion estimates in condition S2
 }}
 
-\item{tree}{A phylogenetic tree describing the relationships between samples.}
+\item{tree}{The phylogenetic tree describing the relationships between samples. The taxa names of the \code{tree} should be the same as the column names of the \code{count.matrix}.}
 
-\item{length.matrix}{A length matrix, with genes as rows and observations as columns.}
+\item{length.matrix}{The length matrix, with genes as rows and samples as columns. The column names of the \code{length.matrix} should be the same as the column names of the \code{count.matrix}.}
 }
 \value{
 A \code{phyloCompData} object.
 }
 \description{
-The \code{phyloCompData} class extends the \code{\link{compData}} class
+The \code{\linkS4class{phyloCompData}} class extends the \code{\link{compData}} class
 with sequence length and phylogeny related information.
 }
 \examples{
-count.matrix <- round(matrix(1000*runif(4000), 1000))
-sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
+tree <- ape::read.tree(
+  text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"
+  )
+count.matrix <- round(matrix(1000*runif(8000), 1000))
+sample.annotations <- data.frame(condition = c(1, 1, 1, 1, 2, 2, 2, 2),
+                                 id.species = c("A", "A", "A", "B", "C", "C", "D", "D"))
 info.parameters <- list(dataset = "mydata", uID = "123456")
-tree <- ape::rphylo(4, 1, 0)
-length.matrix <- round(matrix(1000*runif(4000), 1000))
+length.matrix <- round(matrix(1000*runif(8000), 1000))
 colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
 cpd <- phyloCompData(count.matrix, sample.annotations, info.parameters,
                      tree = tree, length.matrix = length.matrix)
