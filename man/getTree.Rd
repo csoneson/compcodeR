@@ -2,12 +2,12 @@
 % Please edit documentation in R/phylolmMethods.R
 \name{getTree}
 \alias{getTree}
-\title{Get the tree from a compData object}
+\title{Get the tree from a phyloCompData object}
 \usage{
 getTree(cdata)
 }
 \arguments{
-\item{cdata}{a compData object.}
+\item{cdata}{a phyloCompData object.}
 }
 \value{
 A tree of class \code{phylo}

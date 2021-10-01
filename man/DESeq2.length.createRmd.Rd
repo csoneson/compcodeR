@@ -18,7 +18,7 @@ DESeq2.length.createRmd(
 )
 }
 \arguments{
-\item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
+\item{data.path}{The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.}
 
 \item{result.path}{The path to the file where the result object will be saved.}
 
@@ -36,7 +36,7 @@ DESeq2.length.createRmd(
 
 \item{impute.outliers}{Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.}
 
-\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -55,7 +55,7 @@ The provided matrix will be multiplied by the default normalization factor
 obtained through the \code{\link[DESeq2]{estimateSizeFactors}} function.
 
 The \code{design} model used in the \code{\link[DESeq2]{DESeqDataSetFromMatrix}}
-uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 as well as all the covariates named in \code{extra.design.covariates}.
 For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula

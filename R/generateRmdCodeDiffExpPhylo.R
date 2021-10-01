@@ -4,7 +4,7 @@
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{DESeq2} package and the corresponding publications. 
 #' 
-#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
 #' @param fit.type The fitting method used to get the dispersion-mean relationship. Possible values are \code{"parametric"}, \code{"local"} and \code{"mean"}.
@@ -13,7 +13,7 @@
 #' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
-#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' 
 #' @details 
 #' The lengths matrix is used as a normalization factor and applied to the \code{DESeq2}
@@ -23,7 +23,7 @@
 #' obtained through the \code{\link[DESeq2]{estimateSizeFactors}} function.
 #' 
 #' The \code{design} model used in the \code{\link[DESeq2]{DESeqDataSetFromMatrix}}
-#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 #' as well as all the covariates named in \code{extra.design.covariates}.
 #' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 #' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
@@ -72,10 +72,10 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "require(DESeq2)", 
                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
   if (is.list(readRDS(data.path))) {
-    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+    writeLines("cdata <- convertListTophyloCompData(cdata)", codefile)
   }
-  writeLines(c("is.valid <- check_compData(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+  writeLines(c("is.valid <- check_phyloCompData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData object.')"),
              codefile)
   writeLines("count_matrix <- count.matrix(cdata)", codefile)
   if (is.null(extra.design.covariates)) {
@@ -120,7 +120,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -134,15 +134,15 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
 #' 
-#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
-#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param length.normalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param trend should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
-#' @param block.factor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
+#' @param block.factor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{phyloCompData}} object. Default to null (no block structure).
 #' 
 #' @details 
 #' The \code{length.matrix} field of the \code{phyloCompData} object 
@@ -168,7 +168,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' be applied to real numbers smaller than 1.
 #' 
 #' The \code{design} model used in the \code{\link[limma]{lmFit}}
-#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 #' as well as all the covariates named in \code{extra.design.covariates}.
 #' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 #' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
@@ -225,10 +225,10 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                "require(edgeR)",
                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
   if (is.list(readRDS(data.path))) {
-    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+    writeLines("cdata <- convertListTophyloCompData(cdata)", codefile)
   }
-  writeLines(c("is.valid <- check_compData(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+  writeLines(c("is.valid <- check_phyloCompData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData object.')"),
              codefile)
   
   writeLines(c("", "# Design"),codefile)
@@ -287,7 +287,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                            ifelse(!is.null(block.factor), paste0(".", paste(block.factor, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)

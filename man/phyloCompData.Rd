@@ -22,7 +22,7 @@ phyloCompData(
 \arguments{
 \item{count.matrix}{A count matrix, with genes as rows and observations as columns.}
 
-\item{sample.annotations}{A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. \code{Class data.frame}.}
+\item{sample.annotations}{A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named \code{id.species} of factors giving the species for each sample if the tree is specified. The row names should be the same as the column names of count.matrix. \code{Class data.frame}.}
 
 \item{info.parameters}{A list containing information regarding simulation parameters etc. The only mandatory entries are \code{dataset} and \code{uID}, but it may contain entries such as the ones listed below (see \code{generateSyntheticData} for more detailed information about each of these entries).
 \itemize{

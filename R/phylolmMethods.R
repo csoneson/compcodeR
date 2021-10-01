@@ -1,10 +1,10 @@
-#' @title Get the tree from a compData object
+#' @title Get the tree from a phyloCompData object
 #'
 #' @description
 #' Return the tree of a \code{phyloCompData} object.
 #' If no tree, return a star tree with unit height, and throw a warning.
 #' 
-#' @param cdata a compData object.
+#' @param cdata a phyloCompData object.
 #' 
 #' @return A tree of class \code{phylo}
 #' 
@@ -157,19 +157,19 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications. 
 #' 
-#' @param data.path The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.
+#' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param model The model for trait evolution on the tree. Default to "BM".
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
-#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param length.normalization one of "none" (no correction), "TPM" or "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
 #' 
 #' @details 
-#' The \code{length.matrix} field of the \code{compData} object 
+#' The \code{length.matrix} field of the \code{phyloCompData} object 
 #' is used to normalize the counts, using one of the following formulas:
 #' * \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
 #' * \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
@@ -192,7 +192,7 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' be applied to real numbers smaller than 1.
 #' 
 #' The \code{design} model used in the \code{\link[phylolm]{phylolm}}
-#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 #' as well as all the covariates named in \code{extra.design.covariates}.
 #' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 #' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
@@ -251,11 +251,11 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
                "require(edgeR)",
                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
   if (is.list(readRDS(data.path))) {
-    writeLines("cdata <- convertListTocompData(cdata)", codefile)
+    writeLines("cdata <- convertListTophyloCompData(cdata)", codefile)
   }
   
-  writeLines(c("is.valid <- check_compData(cdata)",
-               "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
+  writeLines(c("is.valid <- check_phyloCompData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData object.')"),
              codefile)
   ## Design for normalization
   writeLines(c("", "# Design"),codefile)
@@ -326,7 +326,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
                 sep = ''),
           "')", sep = ''),
     "is.valid <- check_compData_results(cdata)",
-    "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+    "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
     paste("saveRDS(cdata, '", result.path, "')", sep = "")),
     codefile)  
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
@@ -342,7 +342,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 #' @param codefile 
 #' 
 #' @details 
-#' The \code{length.matrix} field of the \code{compData}
+#' The \code{length.matrix} field of the \code{phyloCompData}
 #' object is used to normalize the counts. 
 #' \describe{
 #' \item{\code{none}:}{No length normalization.}

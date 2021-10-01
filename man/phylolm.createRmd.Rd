@@ -18,7 +18,7 @@ phylolm.createRmd(
 )
 }
 \arguments{
-\item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
+\item{data.path}{The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.}
 
 \item{result.path}{The path to the file where the result object will be saved.}
 
@@ -30,7 +30,7 @@ phylolm.createRmd(
 
 \item{measurement_error}{A logical value indicating whether there is measurement error. Default to TRUE.}
 
-\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
 \item{length.normalization}{one of "none" (no correction), "TPM" or "RPKM" (default). See details.}
 
@@ -48,7 +48,7 @@ A function to generate code that can be run to perform differential expression a
 For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
 
 
-The \code{length.matrix} field of the \code{compData} object 
+The \code{length.matrix} field of the \code{phyloCompData} object 
 is used to normalize the counts, using one of the following formulas:
 * \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
 * \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
@@ -71,7 +71,7 @@ the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 be applied to real numbers smaller than 1.
 
 The \code{design} model used in the \code{\link[phylolm]{phylolm}}
-uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 as well as all the covariates named in \code{extra.design.covariates}.
 For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula

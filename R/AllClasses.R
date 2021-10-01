@@ -518,7 +518,7 @@ check_phyloCompData <- function(object) {
 #' \describe{
 #' \item{\code{tree}:}{The phylogenetic tree describing the relationships between samples. The taxa names of the \code{tree} should be the same as the column names of the \code{count.matrix}. Class \code{phylo}.}
 #' \item{\code{length.matrix}:}{The length matrix, with genes as rows and samples as columns. The column names of the \code{length.matrix} should be the same as the column names of the \code{count.matrix}. Class \code{matrix}.}
-#' \item{\code{sample.annotations}:}{In addition to the columns described in the \code{\linkS4class{compData}} class, it should contain an extra column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. Class \code{data.frame}.}
+#' \item{\code{sample.annotations}:}{In addition to the columns described in the \code{\linkS4class{compData}} class, if the tree is specified, it should contain an extra column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. Class \code{data.frame}.}
 #' }
 #' 
 #' @section Methods:
@@ -573,7 +573,7 @@ setReplaceMethod("length.matrix", "phyloCompData",
 #' @inheritParams compData
 #' @param tree The phylogenetic tree describing the relationships between samples. The taxa names of the \code{tree} should be the same as the column names of the \code{count.matrix}.
 #' @param length.matrix The length matrix, with genes as rows and samples as columns. The column names of the \code{length.matrix} should be the same as the column names of the \code{count.matrix}.
-#' @param sample.annotations A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named \code{id.species} of factors giving the species for each sample. The row names should be the same as the column names of count.matrix. \code{Class data.frame}.
+#' @param sample.annotations A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named \code{id.species} of factors giving the species for each sample if the tree is specified. The row names should be the same as the column names of count.matrix. \code{Class data.frame}.
 #' 
 #' @export
 #' @author Charlotte Soneson, Paul Bastide

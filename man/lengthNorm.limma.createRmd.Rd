@@ -17,7 +17,7 @@ lengthNorm.limma.createRmd(
 )
 }
 \arguments{
-\item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
+\item{data.path}{The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.}
 
 \item{result.path}{The path to the file where the result object will be saved.}
 
@@ -25,7 +25,7 @@ lengthNorm.limma.createRmd(
 
 \item{norm.method}{The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}}
 
-\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
 \item{length.normalization}{one of "none" (no length correction), "TPM", or "RPKM" (default). See details.}
 
@@ -33,7 +33,7 @@ lengthNorm.limma.createRmd(
 
 \item{trend}{should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.}
 
-\item{block.factor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).}
+\item{block.factor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{phyloCompData}} object. Default to null (no block structure).}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -69,7 +69,7 @@ the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 be applied to real numbers smaller than 1.
 
 The \code{design} model used in the \code{\link[limma]{lmFit}}
-uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 as well as all the covariates named in \code{extra.design.covariates}.
 For example, if \code{extra.design.covariates = c("var1", "var2")}, then
 \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula

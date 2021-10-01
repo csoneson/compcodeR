@@ -573,7 +573,7 @@ test_that("runDiffExp works - with lengths", {
   for (m in methods) {
     tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
     
-    expect_is(tmp, "compData")
+    expect_is(tmp, "phyloCompData")
     expect_is(result.table(tmp), "data.frame")
     expect_equal(nrow(result.table(tmp)), 498)
     expect_is(code(tmp), "character")

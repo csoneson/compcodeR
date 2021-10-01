@@ -24,7 +24,7 @@ writeNormalization(
 Generate a \code{.Rmd} file containing code to normalize data.
 }
 \details{
-The \code{length.matrix} field of the \code{compData}
+The \code{length.matrix} field of the \code{phyloCompData}
 object is used to normalize the counts. 
 \describe{
 \item{\code{none}:}{No length normalization.}
