@@ -22,7 +22,7 @@ species n columns. Column names should match the tree taxa names.}
 \item{log_variance_phylo}{a vector of length p of phylogenetic variances for 
 the BM in the log space for each gene.}
 
-\item{log_variance_sample}{a matrix of size p x n of environemental variances
+\item{log_variance_sample}{a matrix of size p x n of environmental variances
 for individual variations in the log space, for each gene and species.
 Column names should match the tree taxa names.}
 }

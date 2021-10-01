@@ -13,10 +13,10 @@
 getTree <- function(cdata) {
   if (is.null(phylo.tree(cdata)) || length(phylo.tree(cdata)) == 0) {
     message("There were no tree in the data object. Using a star tree of unit height in phylolm.")
-    ntaxa <- cdata@info.parameters$samples.per.cond * 2
+    ntaxa <- info.parameters(cdata)$samples.per.cond * 2
     tree <- ape::stree(ntaxa, "star")
     tree$edge.length <- rep(1, nrow(tree$edge))
-    tree$tip.label <- rownames(cdata@sample.annotations)
+    tree$tip.label <- rownames(sample.annotations(cdata))
     return(tree)
   } else {
     tree <- phylo.tree(cdata)
@@ -25,7 +25,7 @@ getTree <- function(cdata) {
   }
 }
 
-#' @title Extract phylom results
+#' @title Extract phylolm results
 #'
 #' @description
 #' Extract results from a phylolm object.
@@ -100,10 +100,10 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
   return(res)
 }
 
-#' @title Perform the phylolm analysis
+#' @title Perform the phylolm analysis with lengths as a predictor
 #'
 #' @description
-#' Perform the phylolm analysis for a given gene, with legnths as a predictor.
+#' Perform the phylolm analysis for a given gene, with lengths as a predictor.
 #' 
 #' @param gene a gene
 #' @param all_dat the matrix of all expression data

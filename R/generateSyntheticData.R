@@ -43,11 +43,11 @@
 #' @param model.process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
 #' @param selection.strength if the process is "OU", the selection strength parameter.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
-#' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
-#' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? Default to TRUE.
+#' @param id.species A factor giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
+#' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? If TRUE, the function checks that all the samples that share a factor value in \code{id.species} that their distance on the tree is zero, i.e. that they are on the same tip of the tree. Default to TRUE.
 #' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the mean length values are sampled from values estimated from the Stern & Crandall (2018) data set.
 #' @param lengths.dispersions An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispersion length values are sampled from values estimated from the Stern & Crandall (2018) data set.
-#' @param lengths.phylo If TRUE, the lenghts are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE is a tree is provided.
+#' @param lengths.phylo If TRUE, the lengths are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE if a tree is provided.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
@@ -141,14 +141,14 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     
     ## Check Conditions
     if (!is.null(id.condition)) {
-      if (use_tree) id.condition <- checkParamVector(id.condition, "id.condition", tree)
+      id.condition <- checkParamVector(id.condition, "id.condition", tree)
     } else {
       id.condition <- rep(c(1, 2), each = samples.per.cond)
       names(id.condition) <- tree$tip.label
     }
     
     ## Check id species
-    if (use_tree) id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
+    id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
     
     ## Check that all genes are over-dispersed
     if (fraction.non.overdispersed != 0) {
@@ -602,8 +602,8 @@ simulateData <- function(n.vars,
   Z <- matrix(0, n.vars, length(S1) + length(S2))
   
   ### Generate data
-  for (i in 1:nrow(Z)) {
-    for (j in 1:ncol(Z)) {
+  for (i in seq_len(nrow(Z))) {
+    for (j in seq_len(ncol(Z))) {
       if (overdispersed[i] == 1) {
         Z[i, j] <- rnbinom(n = 1, mu = getNegativeBinomialMean(i, j,
                                                                S1, prob.S1, sum.S1, nfact_length.S1,
@@ -648,8 +648,8 @@ getNegativeBinomialParameters <- function(n.vars,
   count_dispersions <- matrix(0, n.vars, length(S1) + length(S2))
 
     ### Generate Negative Binomial Parameters
-  for (i in 1:n.vars) {
-    for (j in 1:ncol(count_means)) {
+  for (i in seq_len(n.vars)) {
+    for (j in seq_len(ncol(count_means))) {
       if (j %in% S1) {
         count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j)
         count_dispersions[i, j] <- truedispersions.S1[i]
@@ -726,8 +726,8 @@ getNegativeBinomialDispersion <- function(i, j,
 #' @param lengths.dispersions A vector or matrix of dispersions to use in the
 #' simulation of data from the Negative Binomial distribution.
 #' 
-#' @return A matrix of the same size as 'length_matrix', with normalization
-#' factors to be applied for each sample and each gene.
+#' @return A matrix of lengths, with as many columns as the number of species (length of id.species)
+#' and as many rows as the number of parameters in lengths.relmeans.
 #' 
 #' @keywords internal
 #'
@@ -896,19 +896,19 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                    "library(ggtree)",
                    "library(tidytree)",
                    "",
-                   "tree <- data.set@tree",
-                   "conds <- data.frame(label = rownames(data.set@sample.annotations), condition = as.factor(data.set@sample.annotations$id.condition))",
+                   "tree <- phylo.tree(data.set)",
+                   "conds <- data.frame(label = rownames(sample.annotations(data.set)), condition = as.factor(sample.annotations(data.set)$id.condition))",
                    "gt <- ggtree(tree)",
                    "gt <- gt %<+% conds + geom_tippoint(aes(color = condition))",
                    "",
-                   "Z <- data.set@count.matrix",
+                   "Z <- count.matrix(data.set)",
                    "nf <- edgeR::calcNormFactors(Z)",
                    "norm.factors <- nf * colSums(Z)",
                    "common.libsize <- exp(mean(log(colSums(Z))))",
                    "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
                    "log2.pseudocounts <- log2(pseudocounts)",
                    "",
-                   "maxGene <- data.set@info.parameters$n.diffexp",
+                   "maxGene <- info.parameters(data.set)$n.diffexp",
                    "Z1 <- log2.pseudocounts[1:maxGene, ]",
                    "Z2 <- log2.pseudocounts[maxGene + 1:maxGene, ]",
                    "",
@@ -929,7 +929,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   if (length(phylo.tree(data.set)) != 0) { # There is a tree
     writeLines("### log2 normalized counts samples correlation heatmap", codefile)
     writeLines(c("```{r maplot-corHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-                 "Z <- data.set@count.matrix",
+                 "Z <- count.matrix(data.set)",
                  "nf <- edgeR::calcNormFactors(Z)",
                  "norm.factors <- nf * colSums(Z)",
                  "common.libsize <- exp(mean(log(colSums(Z))))",
@@ -946,10 +946,10 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   }
   ##
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    writeLines("### Lenghts: mean versus variance (log2)", codefile)
+    writeLines("### lengths: mean versus variance (log2)", codefile)
     writeLines(c(
       "```{r lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
-      "length.matrix_species <- length.matrix(data.set)[, !duplicated(data.set@sample.annotations$id.species)]",
+      "length.matrix_species <- length.matrix(data.set)[, !duplicated(sample.annotations(data.set)$id.species)]",
       "stats_lengths <- data.frame(mean = c(variable.annotations(data.set)$lengths.relmeans,",
       "                                     rowMeans(length.matrix_species)),",
       "                            var = c(variable.annotations(data.set)$lengths.relmeans + variable.annotations(data.set)$lengths.relmeans^2 * variable.annotations(data.set)$lengths.dispersion,",

@@ -1005,9 +1005,10 @@ performComparison <- function(panel) {
 #' @param check.table Logical, should the input table be checked for consistency. Default \code{TRUE}.
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated.
 #' @param save.result.table Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.
-#' @param knit.results Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}.
+#' @param knit.results Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}. If \code{FALSE}, no comparison report is generated, and only the intermediate result table is saved (if \code{save.result.table=TRUE}).
 #' @return
-#' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+#' If \code{knit.results=TRUE}, the function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+#' If \code{save.result.table=TRUE}, the function will also create a comparison report, named \strong{compcodeR_result_table_<timestamp>.rds} in the \code{output.directory}, containing the result table.
 #' @export
 #' @author Charlotte Soneson
 #' @examples
@@ -1047,6 +1048,11 @@ runComparison <- function(file.table,
                           out.width = NULL,
                           save.result.table = FALSE,
                           knit.results = TRUE) {
+  
+  ## Check arguments
+  if (!save.result.table && !knit.results) {
+    stop("At least on of 'save.result.table' or 'knit.results' must be set to TRUE, otherwise the function does not produce anything.")
+  }
   
   checkClass(file.table, "file.table", "data.frame")
   checkClass(output.directory, "output.directory", "character")
@@ -1246,11 +1252,11 @@ runComparison <- function(file.table,
   message("Done!")
 }
 
-# Save the result table for further ploting
+# Save the result table for further plotting
 # 
 # This function is generally not called by the user.
 # 
-# @author Charlotte Soneson
+# @author Charlotte Soneson, Paul Bastide
 doSaveResultsTable <- function(setup.parameters.file, output.file) {
   ## Check that the output file ends with .rds
   if (!(substr(output.file, nchar(output.file) - 3, nchar(output.file)) == ".rds")) {

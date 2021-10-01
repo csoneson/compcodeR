@@ -67,10 +67,11 @@ runComparison(
 
 \item{save.result.table}{Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.}
 
-\item{knit.results}{Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}.}
+\item{knit.results}{Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}. If \code{FALSE}, no comparison report is generated, and only the intermediate result table is saved (if \code{save.result.table=TRUE}).}
 }
 \value{
-The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+If \code{knit.results=TRUE}, the function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+If \code{save.result.table=TRUE}, the function will also create a comparison report, named \strong{compcodeR_result_table_<timestamp>.rds} in the \code{output.directory}, containing the result table.
 }
 \description{
 The main function for performing comparisons among differential expression methods and generating a report in HTML format. It is assumed that all differential expression results have been generated in advance (using e.g. the function \code{\link{runDiffExp}}) and that the result \code{compData} object for each data set and each differential expression method is saved separately in files with the extension \code{.rds}. Note that the function can also be called via the \code{\link{runComparisonGUI}} function, which lets the user set parameters and select input files using a graphical user interface.

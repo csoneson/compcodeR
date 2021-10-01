@@ -22,7 +22,7 @@ A list, with:
 \describe{
 \item{log_means}{the p x n matrix of log-means for Poisson-lognormal simulations.}
 \item{log_variance_phylo}{the p vector of phylogenetic log-variances for Poisson-lognormal simulations.}
-\item{log_variance_sample}{the p x n matrix of environemental log-variances for Poisson-lognormal simulations.}
+\item{log_variance_sample}{the p x n matrix of environmental log-variances for Poisson-lognormal simulations.}
 }
 }
 \description{

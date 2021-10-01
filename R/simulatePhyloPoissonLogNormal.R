@@ -18,7 +18,7 @@
 #' species n columns. Column names should match the tree taxa names.
 #' @param log_variance_phylo a vector of length p of phylogenetic variances for 
 #' the BM in the log space for each gene.
-#' @param log_variance_sample a matrix of size p x n of environemental variances
+#' @param log_variance_sample a matrix of size p x n of environmental variances
 #' for individual variations in the log space, for each gene and species.
 #' Column names should match the tree taxa names.
 #' 
@@ -235,7 +235,7 @@ add_replicates <- function(tree, r) {
   tree_rep <- tree
   # Add replicates
   for (tip_label in tree$tip.label) {
-    for (rep in 1:r) {
+    for (rep in seq_len(r)) {
       tree_rep <- phytools::bind.tip(tree_rep, tip.label = paste0(tip_label, "_", rep),
                                      where = which(tree_rep$tip.label == tip_label))
     }
@@ -261,7 +261,7 @@ add_replicates <- function(tree, r) {
 #' \describe{
 #' \item{log_means}{the p x n matrix of log-means for Poisson-lognormal simulations.}
 #' \item{log_variance_phylo}{the p vector of phylogenetic log-variances for Poisson-lognormal simulations.}
-#' \item{log_variance_sample}{the p x n matrix of environemental log-variances for Poisson-lognormal simulations.}
+#' \item{log_variance_sample}{the p x n matrix of environmental log-variances for Poisson-lognormal simulations.}
 #' }
 #' 
 #' @keywords internal

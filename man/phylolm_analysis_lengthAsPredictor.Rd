@@ -2,7 +2,7 @@
 % Please edit documentation in R/phylolmMethods.R
 \name{phylolm_analysis_lengthAsPredictor}
 \alias{phylolm_analysis_lengthAsPredictor}
-\title{Perform the phylolm analysis}
+\title{Perform the phylolm analysis with lengths as a predictor}
 \usage{
 phylolm_analysis_lengthAsPredictor(
   gene,
@@ -42,6 +42,6 @@ A list, with:
 }
 }
 \description{
-Perform the phylolm analysis for a given gene, with legnths as a predictor.
+Perform the phylolm analysis for a given gene, with lengths as a predictor.
 }
 \keyword{internal}

@@ -294,7 +294,7 @@ with the following added slots:
 * `tree` [`class phylo`] (**mandatory**) -- the phylogenetic tree describing the relationships between samples.
 * `length.matrix` [`class matrix`] (**mandatory**) -- the OG length matrix, with rows representing genes and columns representing samples.
 
-* When produced with `generateSyntheticData`, the `sample.annotations` data frame has an added column:
+* When produced with `generateSyntheticData`, the `sample.annotations` data frame has added column:
   * `id.species` [`class character` or `numeric`] -- the species for each sample.
   Should match with the `tip.label` of the `tree` slot.
 

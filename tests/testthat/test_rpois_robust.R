@@ -14,7 +14,7 @@ test_that("rpois coincides with rpois_robust", {
   
 })
 
-test_that("rpois for large numbers", {
+test_that("rpois for large numbers runs and has correct moments", {
   
   n <- 10000
   lambda <- rep(1.23e10, n)
