@@ -14,7 +14,6 @@
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
 #' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
-#' @param divByLengths If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.
 #' 
 #' @details 
 #' The length matrix are used as a normalization factor and applied to the \code{DESeq2}
@@ -55,8 +54,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                                     fit.type, test, beta.prior = TRUE, 
                                     independent.filtering = TRUE, cooks.cutoff = TRUE, 
                                     impute.outliers = TRUE,
-                                    extraDesignFactors = NULL,
-                                    divByLengths = FALSE) {
+                                    extraDesignFactors = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2.length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -69,11 +67,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
   writeLines(c("is.valid <- check_compData(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
              codefile)
-  if (divByLengths) {
-    writeLines("count_matrix <- round(count.matrix(cdata) / length.matrix(cdata))", codefile)
-  } else {
-    writeLines("count_matrix <- count.matrix(cdata)", codefile)
-  }
+  writeLines("count_matrix <- count.matrix(cdata)", codefile)
   if (is.null(extraDesignFactors)) {
     writeLines(c(
       paste("DESeq2.length.ds <- DESeq2::DESeqDataSetFromMatrix(countData = count_matrix,",
@@ -87,18 +81,16 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
              " design = as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition')))")),
       codefile)
   }
-  if (!divByLengths) {
-    writeLines(c(
-      "## Size Factors",
-      "DESeq2.length.ds <-  estimateSizeFactors(DESeq2.length.ds)",
-      "size_fac <- sizeFactors(DESeq2.length.ds)",
-      "mat_size_fac <- matrix(size_fac, ncol = length(size_fac), nrow = nrow(count.matrix(cdata)), byrow = T)",
-      "## Extra factors",
-      "extraNormFactor <- length.matrix(cdata)",
-      "normFactors <- (mat_size_fac * extraNormFactor) / exp(rowMeans(log(mat_size_fac * extraNormFactor)))",
-      "normalizationFactors(DESeq2.length.ds) <- as.matrix(normFactors)"),
-      codefile)
-  }
+  writeLines(c(
+    "## Size Factors",
+    "DESeq2.length.ds <-  estimateSizeFactors(DESeq2.length.ds)",
+    "size_fac <- sizeFactors(DESeq2.length.ds)",
+    "mat_size_fac <- matrix(size_fac, ncol = length(size_fac), nrow = nrow(count.matrix(cdata)), byrow = T)",
+    "## Extra factors",
+    "extraNormFactor <- length.matrix(cdata)",
+    "normFactors <- (mat_size_fac * extraNormFactor) / exp(rowMeans(log(mat_size_fac * extraNormFactor)))",
+    "normalizationFactors(DESeq2.length.ds) <- as.matrix(normFactors)"),
+    codefile)
   writeLines(paste("DESeq2.length.ds <- DESeq2::DESeq(DESeq2.length.ds, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""),
              codefile)
   if (impute.outliers == TRUE) {
@@ -116,7 +108,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('DESeq2,', packageVersion('DESeq2'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(divByLengths, ".divByLengths", ""), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  

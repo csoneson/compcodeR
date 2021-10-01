@@ -537,8 +537,7 @@ test_that("runDiffExp works - with lengths", {
     test = "Wald", beta.prior = TRUE,
     independent.filtering = TRUE, cooks.cutoff = TRUE,
     impute.outliers = TRUE,
-    extraDesignFactors = NULL,
-    divByLengths = FALSE
+    extraDesignFactors = NULL
   )
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 

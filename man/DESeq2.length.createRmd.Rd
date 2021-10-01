@@ -14,8 +14,7 @@ DESeq2.length.createRmd(
   independent.filtering = TRUE,
   cooks.cutoff = TRUE,
   impute.outliers = TRUE,
-  extraDesignFactors = NULL,
-  divByLengths = FALSE
+  extraDesignFactors = NULL
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ DESeq2.length.createRmd(
 \item{impute.outliers}{Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.}
 
 \item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
-
-\item{divByLengths}{If TRUE, the counts are divided by the sequence lengths. If FALSE, the normalizing method explained in the details section is used. Default to FALSE.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
