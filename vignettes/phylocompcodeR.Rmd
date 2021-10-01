@@ -76,15 +76,10 @@ We use here the phylogenetic tree issued from @Stern2017, normalized to unit hei
 that has $14$ species with up to 3 replicates, for a total number of sample equal to
 $34$ (see Figure below).
 
-```{r tree, eval = FALSE}
+```{r tree, eval = TRUE}
 library(ape)
 tree <- system.file("extdata", "Stern2018.tree", package = "compcodeR")
 tree <- read.tree(tree)
-```
-
-```{r tree2, eval = TRUE, echo = FALSE}
-library(ape)
-tree <- read.tree("Stern2018.tree")
 ```
 
 Note that any other tree could be used, for instance randomly generated
