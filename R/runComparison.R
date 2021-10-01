@@ -1004,8 +1004,8 @@ performComparison <- function(panel) {
 #' @param output.directory The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.
 #' @param check.table Logical, should the input table be checked for consistency. Default \code{TRUE}.
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated.
-#' @param saveResultTable Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.
-#' @param knitResults Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}.
+#' @param save.result.table Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.
+#' @param knit.results Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}.
 #' @return
 #' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
 #' @export
@@ -1045,8 +1045,8 @@ runComparison <- function(file.table,
                           output.directory, 
                           check.table = TRUE, 
                           out.width = NULL,
-                          saveResultTable = FALSE,
-                          knitResults = TRUE) {
+                          save.result.table = FALSE,
+                          knit.results = TRUE) {
   
   checkClass(file.table, "file.table", "data.frame")
   checkClass(output.directory, "output.directory", "character")
@@ -1199,7 +1199,7 @@ runComparison <- function(file.table,
                                            ".rds", sep = ""))
   saveRDS(setup.parameters, setup.parameters.file)
   
-  if (saveResultTable) {
+  if (save.result.table) {
     doSaveResultsTable(setup.parameters.file,
                        output.file = file.path(output.directory, 
                                                paste("compcodeR_result_table_", 
@@ -1207,7 +1207,7 @@ runComparison <- function(file.table,
                                                      ".rds", sep = "")))
   }
   
-  if (knitResults) {
+  if (knit.results) {
     createResultsRmdFile(setup.parameters.file,
                          output.file = file.path(output.directory, 
                                                  paste("compcodeR_report_", 

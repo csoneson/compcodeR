@@ -152,7 +152,7 @@ alt_BM <- generateSyntheticData(dataset = "alt_BM",
                                 tree = tree,                      ## Phylogenetic tree
                                 id.species = id_species,          ## Species structure of samples
                                 id.condition = id_cond,           ## Condition design
-                                model_process = "BM",             ## The latent trait follows a BM
+                                model.process = "BM",             ## The latent trait follows a BM
                                 prop.var.tree = 0.9,              ## Tree accounts for 90% of the variance
                                 lengths.relmeans = "auto",        ## OG length mean and dispersion
                                 lengths.dispersions = "auto")     ## are taken from an empirical exemple
@@ -216,17 +216,17 @@ runDiffExp(data.file = "alt_BM_repl1.rds",
            result.extent = "lengthNorm.limma", Rmdfunction = "lengthNorm.limma.createRmd",
            output.directory = ".",
            norm.method = "TMM",
-           lengthNormalization = "TPM",
-           dataTransformation = "log2",
-           trend = FALSE, blockFactor = "id.species")
+           length.normalization = "TPM",
+           data.transformation = "log2",
+           trend = FALSE, block.factor = "id.species")
 runDiffExp(data.file = "alt_BM_repl1.rds",
            result.extent = "phylolm", Rmdfunction = "phylolm.createRmd",
            output.directory = ".",
            norm.method = "TMM",
            model = "BM", measurement_error = TRUE,
            extra.design.covariates = NULL,
-           lengthNormalization = "TPM",
-           dataTransformation = "log2")
+           length.normalization = "TPM",
+           data.transformation = "log2")
 ```
 
 As for a regular `r Biocpkg("compcodeR")` analysis,

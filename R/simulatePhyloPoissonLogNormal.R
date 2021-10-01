@@ -30,7 +30,7 @@
 #' 
 #' @keywords internal
 #' 
-simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample, model_process = "BM", selection.strength = 0) {
+simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample, model.process = "BM", selection.strength = 0) {
   
   ## Check for packages
   if (!requireNamespace("ape", quietly = TRUE) || !requireNamespace("phylolm", quietly = TRUE)) {
@@ -52,11 +52,11 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   ## Phylogenetic simulation of log(lambda)
   resids <- phylolm::rTrait(n = P,
                             phy = tree,
-                            model = model_process,
+                            model = model.process,
                             parameters = list(sigma2 = 1, ancestral.state = 0, optimal.value = 0, alpha = selection.strength),
                             plot.tree = FALSE)
   
-  log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model_process, selection.strength)
+  log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model.process, selection.strength)
   
   ## phylo variances
   resids <- resids * log_sd_phylo
@@ -344,7 +344,7 @@ NB_to_PLN <- function(mean, dispersion) {
 simulateDataPhylo <- function(count_means,
                               count_dispersions,
                               tree, prop.var.tree,
-                              model_process = "BM", selection.strength = 0) {
+                              model.process = "BM", selection.strength = 0) {
   ### Initialize data matrix
   colnames(count_means) <- colnames(count_dispersions) <- tree$tip.label
   
@@ -356,7 +356,7 @@ simulateDataPhylo <- function(count_means,
                                            params_poisson_lognormal$log_means,
                                            params_poisson_lognormal$log_variance_phylo,
                                            params_poisson_lognormal$log_variance_sample,
-                                           model_process = model_process,
+                                           model.process = model.process,
                                            selection.strength = selection.strength)
   return(res_sim$counts)
 }
@@ -373,8 +373,8 @@ simulateDataPhylo <- function(count_means,
 #' 
 #' @keywords internal
 #' 
-scale_variance_process <- function(log_variance_phylo, tree, model_process, selection.strength) {
-  fac <- get_model_factor(model_process, selection.strength, tree)
+scale_variance_process <- function(log_variance_phylo, tree, model.process, selection.strength) {
+  fac <- get_model_factor(model.process, selection.strength, tree)
   return(fac %*% t(sqrt(log_variance_phylo)))
 }
 
@@ -389,11 +389,11 @@ scale_variance_process <- function(log_variance_phylo, tree, model_process, sele
 #' 
 #' @keywords internal
 #' 
-get_model_factor <- function(model_process, selection.strength, tree) {
+get_model_factor <- function(model.process, selection.strength, tree) {
   heights <- ape::node.depth.edgelength(tree)[1:length(tree$tip.label)]
-  if (model_process == "BM" || selection.strength == 0) {
+  if (model.process == "BM" || selection.strength == 0) {
     return(sqrt(1 / heights))
-  } else if (model_process == "OU") {
+  } else if (model.process == "OU") {
     return(sqrt(1 / expm1(-2 * selection.strength * heights) * (-2 * selection.strength)))
   } else {
     stop("Process not yet implemented.")
@@ -430,7 +430,7 @@ generateLengthsPhylo <- function(tree, id.species, lengths.relmeans, lengths.dis
   lengths_unique <- simulateDataPhylo(params_simus$count_means,
                                       params_simus$count_dispersions,
                                       tree = tree_sp, prop.var.tree = 1.0,
-                                      model_process = "BM", selection.strength = 0) 
+                                      model.process = "BM", selection.strength = 0) 
   length_matrix <- lengths_unique[, id.species]
   return(length_matrix)
 }

@@ -40,7 +40,7 @@
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
 #' @param tree a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
 #' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
-#' @param model_process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
+#' @param model.process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
 #' @param selection.strength if the process is "OU", the selection strength parameter.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
 #' @param id.species A vector of factors giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
@@ -92,7 +92,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   single.outlier.low.prob = 0, effect.size = 1.5, 
                                   output.file = NULL,
                                   tree = NULL, prop.var.tree = 1.0,
-                                  model_process = c("BM", "OU"), selection.strength = 0,
+                                  model.process = c("BM", "OU"), selection.strength = 0,
                                   id.condition = NULL,
                                   id.species = as.factor(rep(1, 2 * samples.per.cond)),
                                   check.id.species = TRUE,
@@ -333,11 +333,11 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                                                S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
 	                                                S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
 	                                                seq.depths = seq.depths)
-	  model_process <- match.arg(model_process)
+	  model.process <- match.arg(model.process)
 	  Z <- simulateDataPhylo(params_simus$count_means,
 	                         params_simus$count_dispersions,
 	                         tree = tree, prop.var.tree = prop.var.tree,
-	                         model_process = model_process, selection.strength = selection.strength) 
+	                         model.process = model.process, selection.strength = selection.strength) 
 	} else {
 	  Z <- simulateData(n.vars = n.vars,
 	                    S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
@@ -474,8 +474,8 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'repl.id' = repl.id, 'dataset' = dataset, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
 	                        'minfact' = minfact, 'maxfact' = maxfact,
-	                        'nEff' = nEffNaive(tree, id.condition, model_process, selection.strength),
-	                        'nEffRatio' = nEffRatio(tree, id.condition, model_process, selection.strength))
+	                        'nEff' = nEffNaive(tree, id.condition, model.process, selection.strength),
+	                        'nEffRatio' = nEffRatio(tree, id.condition, model.process, selection.strength))
 	if (use_tree) {
 	  info.parameters <- c(info.parameters, list('prop.var.tree' = prop.var.tree))
 	  sample.annotations$id.condition <-  id.condition

@@ -10,10 +10,10 @@ lengthNorm.limma.createRmd(
   codefile,
   norm.method,
   extra.design.covariates = NULL,
-  lengthNormalization = "RPKM",
-  dataTransformation = "log2",
+  length.normalization = "RPKM",
+  data.transformation = "log2",
   trend = FALSE,
-  blockFactor = NULL
+  block.factor = NULL
 )
 }
 \arguments{
@@ -27,13 +27,13 @@ lengthNorm.limma.createRmd(
 
 \item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
-\item{lengthNormalization}{one of "none" (no length correction), "TPM", or "RPKM" (default). See details.}
+\item{length.normalization}{one of "none" (no length correction), "TPM", or "RPKM" (default). See details.}
 
-\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
+\item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
 
 \item{trend}{should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.}
 
-\item{blockFactor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).}
+\item{block.factor}{Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -44,12 +44,12 @@ A function to generate code that can be run to perform differential expression a
 \details{
 For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
 
-The \code{length.matrix} field of the \code{compData} object
+The \code{length.matrix} field of the \code{phyloCompData} object
 is used to normalize the counts, using one of the following formulas:
 \itemize{
-\item \code{lengthNormalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
-\item \code{lengthNormalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
-\item \code{lengthNormalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
+\item \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
+\item \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
+\item \code{length.normalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
 }
 
 where \eqn{N_{gi}} is the count for gene g and sample i,
@@ -57,7 +57,7 @@ where \eqn{L_{gi}} is the length of gene g in sample i,
 and \eqn{NF_i} is the normalization for sample i,
 normalized using \code{calcNormFactors} of the \code{edgeR} package.
 
-The function specified by the \code{dataTransformation} is then applied
+The function specified by the \code{data.transformation} is then applied
 to the normalized count matrix.
 
 The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,

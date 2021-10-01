@@ -28,7 +28,7 @@ generateSyntheticData(
   output.file = NULL,
   tree = NULL,
   prop.var.tree = 1,
-  model_process = c("BM", "OU"),
+  model.process = c("BM", "OU"),
   selection.strength = 0,
   id.condition = NULL,
   id.species = as.factor(rep(1, 2 * samples.per.cond)),
@@ -83,7 +83,7 @@ generateSyntheticData(
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 

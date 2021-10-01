@@ -7,14 +7,14 @@
 scale_variance_process(
   log_variance_phylo,
   tree,
-  model_process,
+  model.process,
   selection.strength
 )
 }
 \arguments{
 \item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 }

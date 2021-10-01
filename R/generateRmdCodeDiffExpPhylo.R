@@ -139,24 +139,24 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
-#' @param lengthNormalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
-#' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
+#' @param length.normalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
+#' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param trend should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
-#' @param blockFactor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
+#' @param block.factor Name of the factor specifying a blocking variable, to be passed to \code{\link[limma]{duplicateCorrelation}} function of the \code{limma} package. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. Default to null (no block structure).
 #' 
 #' @details 
-#' The \code{length.matrix} field of the \code{compData} object 
+#' The \code{length.matrix} field of the \code{phyloCompData} object 
 #' is used to normalize the counts, using one of the following formulas:
-#' * \code{lengthNormalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
-#' * \code{lengthNormalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
-#' * \code{lengthNormalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
+#' * \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
+#' * \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
+#' * \code{length.normalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
 #' 
 #' where \eqn{N_{gi}} is the count for gene g and sample i,
 #' where \eqn{L_{gi}} is the length of gene g in sample i,
 #' and \eqn{NF_i} is the normalization for sample i,
 #' normalized using \code{calcNormFactors} of the \code{edgeR} package.
 #' 
-#' The function specified by the \code{dataTransformation} is then applied
+#' The function specified by the \code{data.transformation} is then applied
 #' to the normalized count matrix.
 #' 
 #' The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
@@ -213,10 +213,10 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' 
 lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
                                        extra.design.covariates = NULL,
-                                       lengthNormalization = "RPKM",
-                                       dataTransformation = "log2",
+                                       length.normalization = "RPKM",
+                                       data.transformation = "log2",
                                        trend = FALSE,
-                                       blockFactor = NULL) {
+                                       block.factor = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("###  limma + length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -248,12 +248,12 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   
-  writeNormalization(norm.method, lengthNormalization, dataTransformation, codefile)
+  writeNormalization(norm.method, length.normalization, data.transformation, codefile)
   
-  if (!is.null(blockFactor)) {
-    if (length(blockFactor) > 1) stop("Only one factor can be taken for block definition.")
+  if (!is.null(block.factor)) {
+    if (length(block.factor) > 1) stop("Only one factor can be taken for block definition.")
     writeLines(c("# Fitting Block correlations",
-                 paste0("block <- sample.annotations(cdata)[['", paste(blockFactor), "']]"),
+                 paste0("block <- sample.annotations(cdata)[['", paste(block.factor), "']]"),
                  "corfit <- duplicateCorrelation(data.trans, design = design, block = block, ndups = 1)"),
                codefile)
     writeLines(c("", "# Fit"), codefile)
@@ -280,11 +280,11 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
                      paste('length.', utils::packageVersion('limma'), '.limma.', norm.method,
-                           ".lengthNorm.", lengthNormalization, '.',
-                           "dataTrans.", dataTransformation,
+                           ".lengthNorm.", length.normalization, '.',
+                           "dataTrans.", data.transformation,
                            ifelse(trend, '.with_trend', ".no_trend"),
                            ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
-                           ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), ""),
+                           ifelse(!is.null(block.factor), paste0(".", paste(block.factor, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",

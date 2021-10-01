@@ -309,7 +309,7 @@ test_that("NB to PLN phylo - random tree - OU", {
                                                params_PLN$log_means,
                                                params_PLN$log_variance_phylo,
                                                params_PLN$log_variance_sample,
-                                               model_process = "OU",
+                                               model.process = "OU",
                                                selection.strength = selection.strength)
   
   sample_ln <- sample_ppln$log_lambda
@@ -557,7 +557,7 @@ test_that("NB to PLN phylo - random tree - OU - Not Unit Length - With Rep - Uni
                                                params_PLN$log_means,
                                                params_PLN$log_variance_phylo,
                                                params_PLN$log_variance_sample,
-                                               model_process = "OU",
+                                               model.process = "OU",
                                                selection.strength = selection.strength)
   
   sample_ln <- sample_ppln$log_lambda

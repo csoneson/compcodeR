@@ -9,7 +9,7 @@ simulateDataPhylo(
   count_dispersions,
   tree,
   prop.var.tree,
-  model_process = "BM",
+  model.process = "BM",
   selection.strength = 0
 )
 }
@@ -18,7 +18,7 @@ simulateDataPhylo(
 
 \item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
 
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 }

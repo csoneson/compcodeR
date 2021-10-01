@@ -12,8 +12,8 @@ phylolm.createRmd(
   model = "BM",
   measurement_error = TRUE,
   extra.design.covariates = NULL,
-  lengthNormalization = "RPKM",
-  dataTransformation = "log2",
+  length.normalization = "RPKM",
+  data.transformation = "log2",
   ...
 )
 }
@@ -32,9 +32,9 @@ phylolm.createRmd(
 
 \item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
-\item{lengthNormalization}{one of "none" (no correction), "TPM" or "RPKM" (default). See details.}
+\item{length.normalization}{one of "none" (no correction), "TPM" or "RPKM" (default). See details.}
 
-\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
+\item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.}
 }
@@ -50,16 +50,16 @@ For more information about the methods and the interpretation of the parameters,
 
 The \code{length.matrix} field of the \code{compData} object 
 is used to normalize the counts, using one of the following formulas:
-* \code{lengthNormalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
-* \code{lengthNormalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
-* \code{lengthNormalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
+* \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
+* \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
+* \code{length.normalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
 
 where \eqn{N_{gi}} is the count for gene g and sample i,
 where \eqn{L_{gi}} is the length of gene g in sample i,
 and \eqn{NF_i} is the normalization for sample i,
 normalized using \code{calcNormFactors} of the \code{edgeR} package.
 
-The function specified by the \code{dataTransformation} is then applied
+The function specified by the \code{data.transformation} is then applied
 to the normalized count matrix.
 
 The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
@@ -102,7 +102,7 @@ runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2"
            output.directory = tmpdir,
            norm.method = "TMM",
            extra.design.covariates = c("test_factor", "test_reg"),
-           lengthNormalization = "RPKM")
+           length.normalization = "RPKM")
 })
 }
 \references{

@@ -9,7 +9,7 @@ simulatePhyloPoissonLogNormal(
   log_means,
   log_variance_phylo,
   log_variance_sample,
-  model_process = "BM",
+  model.process = "BM",
   selection.strength = 0
 )
 }

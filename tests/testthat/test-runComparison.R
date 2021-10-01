@@ -545,9 +545,9 @@ test_that("runDiffExp works - with lengths", {
     Rmdfunction = "lengthNorm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM",
     extra.design.covariates = NULL,
-    lengthNormalization = "RPKM",
-    dataTransformation = "log2",
-    blockFactor = NULL
+    length.normalization = "RPKM",
+    data.transformation = "log2",
+    block.factor = NULL
   )
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
@@ -556,8 +556,8 @@ test_that("runDiffExp works - with lengths", {
     output.directory = tdir, norm.method = "TMM",
     model = "BM", measurement_error = TRUE,
     extra.design.covariates = NULL,
-    lengthNormalization = "RPKM",
-    dataTransformation = "log2"
+    length.normalization = "RPKM",
+    data.transformation = "log2"
   )
   
   methods <- c("DESeq2.length", "lengthNorm.limma", "phylolm")
