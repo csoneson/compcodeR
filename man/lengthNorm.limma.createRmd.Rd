@@ -9,7 +9,7 @@ lengthNorm.limma.createRmd(
   result.path,
   codefile,
   norm.method,
-  extraDesignFactors = NULL,
+  extra.design.covariates = NULL,
   lengthNormalization = "RPKM",
   dataTransformation = "log2",
   trend = FALSE,
@@ -25,7 +25,7 @@ lengthNorm.limma.createRmd(
 
 \item{norm.method}{The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}}
 
-\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
 \item{lengthNormalization}{one of "none" (no length correction), "TPM", or "RPKM" (default). See details.}
 
@@ -67,17 +67,32 @@ when the transformation is something else than \code{log2}.
 The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
 the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 be applied to real numbers smaller than 1.
+
+The \code{design} model used in the \code{\link[limma]{lmFit}}
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+as well as all the covariates named in \code{extra.design.covariates}.
+For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+\code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+in the \code{\link[limma]{lmFit}} function will be:
+\code{~ condition + var1 + var2}.
 }
 \examples{
 try(
 if (require(limma)) {
 tmpdir <- normalizePath(tempdir(), winslash = "/")
+## Simulate data
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
                                     samples.per.cond = 5, n.diffexp = 100, 
                                     id.species = factor(1:10),
                                     lengths.relmeans = rpois(1000, 1000),
                                     lengths.dispersions = rgamma(1000, 1, 1),
                                     output.file = file.path(tmpdir, "mydata.rds"))
+## Add covariates
+## Model fitted is count.matrix ~ condition + test_factor + test_reg
+sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
+saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
+## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
            Rmdfunction = "lengthNorm.limma.createRmd", 
            output.directory = tmpdir, norm.method = "TMM")

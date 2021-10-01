@@ -13,14 +13,22 @@
 #' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
-#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' 
 #' @details 
-#' The length matrix are used as a normalization factor and applied to the \code{DESeq2}
+#' The lengths matrix is used as a normalization factor and applied to the \code{DESeq2}
 #' model in the way explained in \code{\link[DESeq2]{normalizationFactors}}
-#' (see details and examples of this function).
+#' (see examples of this function).
 #' The provided matrix will be multiplied by the default normalization factor 
 #' obtained through the \code{\link[DESeq2]{estimateSizeFactors}} function.
+#' 
+#' The \code{design} model used in the \code{\link[DESeq2]{DESeqDataSetFromMatrix}}
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' as well as all the covariates named in \code{extra.design.covariates}.
+#' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+#' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+#' in the \code{\link[DESeq2]{DESeqDataSetFromMatrix}} function will be:
+#' \code{~ condition + var1 + var2}.
 #' 
 #' @export 
 #' @author Charlotte Soneson, Paul Bastide, Mélina Gallopin
@@ -33,28 +41,30 @@
 #' try(
 #' if (require(DESeq2)) {
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' ## Simulate data
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
 #'                                     id.species = 1:10,
 #'                                     lengths.relmeans = rpois(1000, 1000),
 #'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' ## Add annotations
+#' ## Add covariates
+#' ## Model fitted is count.matrix ~ condition + test_factor + test_reg
 #' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
-#' sample.annotations(mydata.obj)$test_reg <- 1:10
+#' sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 #' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
 #'            Rmdfunction = "DESeq2.length.createRmd", 
 #'            output.directory = tmpdir, fit.type = "parametric",
 #'            test = "Wald",
-#'            extraDesignFactors = c("test_factor", "test_reg"))
+#'            extra.design.covariates = c("test_factor", "test_reg"))
 #' })
 DESeq2.length.createRmd <- function(data.path, result.path, codefile, 
                                     fit.type, test, beta.prior = TRUE, 
                                     independent.filtering = TRUE, cooks.cutoff = TRUE, 
                                     impute.outliers = TRUE,
-                                    extraDesignFactors = NULL) {
+                                    extra.design.covariates = NULL) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2.length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -68,7 +78,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "if (!(is.valid == TRUE)) stop('Not a valid compData object.')"),
              codefile)
   writeLines("count_matrix <- count.matrix(cdata)", codefile)
-  if (is.null(extraDesignFactors)) {
+  if (is.null(extra.design.covariates)) {
     writeLines(c(
       paste("DESeq2.length.ds <- DESeq2::DESeqDataSetFromMatrix(countData = count_matrix,",
             "colData = data.frame(condition = factor(sample.annotations(cdata)$condition)),",
@@ -77,8 +87,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
   } else {
     writeLines(c(
       paste0("DESeq2.length.ds <- DESeq2::DESeqDataSetFromMatrix(countData = count_matrix,",
-             " colData = cbind(sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "'), drop = FALSE], data.frame(condition = factor(sample.annotations(cdata)$condition))),",
-             " design = as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition')))")),
+             " colData = cbind(sample.annotations(cdata)[, c('", paste(extra.design.covariates, collapse = "', '"), "'), drop = FALSE], data.frame(condition = factor(sample.annotations(cdata)$condition))),",
+             " design = as.formula(paste(' ~ ', paste(c('", paste(extra.design.covariates, collapse = "', '"), "'), collapse= '+'), '+ condition')))")),
       codefile)
   }
   writeLines(c(
@@ -108,7 +118,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                "result.table(cdata) <- result.table", 
                "package.version(cdata) <- paste('DESeq2,', packageVersion('DESeq2'))",
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""), sep = ''), "')", sep = ''),
+               paste("method.names(cdata) <- list('short.name' = 'DESeq2.length', 'full.name' = '", paste('DESeq2.length.', utils::packageVersion('DESeq2'), '.', fit.type, '.', test, '.', ifelse(beta.prior == TRUE, 'bp', 'nobp'), '.', ifelse(independent.filtering == TRUE, 'indf', 'noindf'), paste(".cook_", cooks.cutoff, sep = ""), ifelse(impute.outliers, ".imp", ".noimp"), ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""), sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)  
@@ -128,7 +138,7 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
-#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{limma}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param lengthNormalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param trend should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.
@@ -157,6 +167,14 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 #' be applied to real numbers smaller than 1.
 #' 
+#' The \code{design} model used in the \code{\link[limma]{lmFit}}
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' as well as all the covariates named in \code{extra.design.covariates}.
+#' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+#' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+#' in the \code{\link[limma]{lmFit}} function will be:
+#' \code{~ condition + var1 + var2}.
+#' 
 #' @md
 #' 
 #' @export 
@@ -175,19 +193,26 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' try(
 #' if (require(limma)) {
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' ## Simulate data
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100, 
 #'                                     id.species = factor(1:10),
 #'                                     lengths.relmeans = rpois(1000, 1000),
 #'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
+#' ## Add covariates
+#' ## Model fitted is count.matrix ~ condition + test_factor + test_reg
+#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+#' sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
+#' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
+#' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
 #'            Rmdfunction = "lengthNorm.limma.createRmd", 
 #'            output.directory = tmpdir, norm.method = "TMM")
 #' })
 #' 
 lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
-                                       extraDesignFactors = NULL,
+                                       extra.design.covariates = NULL,
                                        lengthNormalization = "RPKM",
                                        dataTransformation = "log2",
                                        trend = FALSE,
@@ -207,15 +232,15 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
              codefile)
   
   writeLines(c("", "# Design"),codefile)
-  if (is.null(extraDesignFactors)) {
+  if (is.null(extra.design.covariates)) {
     writeLines(c(
       "design_formula <- as.formula(~ condition)",
       "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
       codefile)
   } else {
     writeLines(c(
-      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
-      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extra.design.covariates, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extra.design.covariates, collapse = "', '"), "', 'condition'), drop = FALSE]")),
       codefile)
   }
   writeLines(c(
@@ -258,7 +283,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                            ".lengthNorm.", lengthNormalization, '.',
                            "dataTrans.", dataTransformation,
                            ifelse(trend, '.with_trend', ".no_trend"),
-                           ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
+                           ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
                            ifelse(!is.null(blockFactor), paste0(".", paste(blockFactor, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",

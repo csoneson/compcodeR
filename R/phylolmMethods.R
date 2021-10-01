@@ -163,7 +163,7 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param model The model for trait evolution on the tree. Default to "BM".
 #' @param measurement_error A logical value indicating whether there is measurement error. Default to TRUE.
-#' @param extraDesignFactors A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.
+#' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param lengthNormalization one of "none" (no correction), "TPM" or "RPKM" (default). See details.
 #' @param dataTransformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
@@ -191,6 +191,14 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #' the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 #' be applied to real numbers smaller than 1.
 #' 
+#' The \code{design} model used in the \code{\link[phylolm]{phylolm}}
+#' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+#' as well as all the covariates named in \code{extra.design.covariates}.
+#' For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+#' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+#' in the \code{\link[phylolm]{phylolm}} function will be:
+#' \code{~ condition + var1 + var2}.
+#' 
 #' @export 
 #' @author Charlotte Soneson, Paul Bastide, Mélina Gallopin
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -214,21 +222,23 @@ phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_da
 #'                                     lengths.relmeans = rpois(1000, 1000),
 #'                                     lengths.dispersions = rgamma(1000, 1, 1),
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' ## Add annotations
-#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
+#' ## Add covariates
+#' ## Model fitted is count.matrix ~ condition + test_factor + test_reg
+#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+#' sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 #' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
 #'            Rmdfunction = "phylolm.createRmd", 
 #'            output.directory = tmpdir,
 #'            norm.method = "TMM",
-#'            extraDesignFactors = c("test_factor", "test_reg"),
+#'            extra.design.covariates = c("test_factor", "test_reg"),
 #'            lengthNormalization = "RPKM")
 #' })
 phylolm.createRmd <- function(data.path, result.path, codefile, 
                               norm.method,
                               model = "BM", measurement_error = TRUE,
-                              extraDesignFactors = NULL,
+                              extra.design.covariates = NULL,
                               lengthNormalization = "RPKM",
                               dataTransformation = "log2",
                               ...) {
@@ -249,15 +259,15 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
              codefile)
   ## Design for normalization
   writeLines(c("", "# Design"),codefile)
-  if (is.null(extraDesignFactors)) {
+  if (is.null(extra.design.covariates)) {
     writeLines(c(
       "design_formula <- as.formula(~ condition)",
       "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
       codefile)
   } else {
     writeLines(c(
-      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extraDesignFactors, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
-      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extraDesignFactors, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extra.design.covariates, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extra.design.covariates, collapse = "', '"), "', 'condition'), drop = FALSE]")),
       codefile)
   }
   writeLines(c(
@@ -312,7 +322,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
                 ifelse(!is.null(measurement_error), 'me', 'nome'), '.',
                 "lengthNorm.", lengthNormalization, '.',
                 "dataTrans.", dataTransformation,
-                ifelse(!is.null(extraDesignFactors), paste0(".", paste(extraDesignFactors, collapse = ".")), ""),
+                ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
                 sep = ''),
           "')", sep = ''),
     "is.valid <- check_compData_results(cdata)",

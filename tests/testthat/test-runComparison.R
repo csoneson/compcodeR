@@ -537,14 +537,14 @@ test_that("runDiffExp works - with lengths", {
     test = "Wald", beta.prior = TRUE,
     independent.filtering = TRUE, cooks.cutoff = TRUE,
     impute.outliers = TRUE,
-    extraDesignFactors = NULL
+    extra.design.covariates = NULL
   )
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "lengthNorm.limma",
     Rmdfunction = "lengthNorm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM",
-    extraDesignFactors = NULL,
+    extra.design.covariates = NULL,
     lengthNormalization = "RPKM",
     dataTransformation = "log2",
     blockFactor = NULL
@@ -555,7 +555,7 @@ test_that("runDiffExp works - with lengths", {
     Rmdfunction = "phylolm.createRmd",
     output.directory = tdir, norm.method = "TMM",
     model = "BM", measurement_error = TRUE,
-    extraDesignFactors = NULL,
+    extra.design.covariates = NULL,
     lengthNormalization = "RPKM",
     dataTransformation = "log2"
   )

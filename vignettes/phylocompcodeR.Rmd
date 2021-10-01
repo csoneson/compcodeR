@@ -224,7 +224,7 @@ runDiffExp(data.file = "alt_BM_repl1.rds",
            output.directory = ".",
            norm.method = "TMM",
            model = "BM", measurement_error = TRUE,
-           extraDesignFactors = NULL,
+           extra.design.covariates = NULL,
            lengthNormalization = "TPM",
            dataTransformation = "log2")
 ```

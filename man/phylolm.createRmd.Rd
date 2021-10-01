@@ -11,7 +11,7 @@ phylolm.createRmd(
   norm.method,
   model = "BM",
   measurement_error = TRUE,
-  extraDesignFactors = NULL,
+  extra.design.covariates = NULL,
   lengthNormalization = "RPKM",
   dataTransformation = "log2",
   ...
@@ -30,7 +30,7 @@ phylolm.createRmd(
 
 \item{measurement_error}{A logical value indicating whether there is measurement error. Default to TRUE.}
 
-\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{compData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
 \item{lengthNormalization}{one of "none" (no correction), "TPM" or "RPKM" (default). See details.}
 
@@ -69,6 +69,14 @@ when the transformation is something else than \code{log2}.
 The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
 the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 be applied to real numbers smaller than 1.
+
+The \code{design} model used in the \code{\link[phylolm]{phylolm}}
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{compData}} object
+as well as all the covariates named in \code{extra.design.covariates}.
+For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+\code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+in the \code{\link[phylolm]{phylolm}} function will be:
+\code{~ condition + var1 + var2}.
 }
 \examples{
 try(
@@ -83,15 +91,17 @@ mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
                                     lengths.relmeans = rpois(1000, 1000),
                                     lengths.dispersions = rgamma(1000, 1, 1),
                                     output.file = file.path(tmpdir, "mydata.rds"))
-## Add annotations
-sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
+## Add covariates
+## Model fitted is count.matrix ~ condition + test_factor + test_reg
+sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
            Rmdfunction = "phylolm.createRmd", 
            output.directory = tmpdir,
            norm.method = "TMM",
-           extraDesignFactors = c("test_factor", "test_reg"),
+           extra.design.covariates = c("test_factor", "test_reg"),
            lengthNormalization = "RPKM")
 })
 }
