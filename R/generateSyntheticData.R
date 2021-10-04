@@ -650,13 +650,13 @@ getNegativeBinomialParameters <- function(n.vars,
     ### Generate Negative Binomial Parameters
   for (i in seq_len(n.vars)) {
     for (j in seq_len(ncol(count_means))) {
-      if (j %in% S1) {
-        count_means[i, j] <- prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j)
-        count_dispersions[i, j] <- truedispersions.S1[i]
-      } else {
-        count_means[i, j] <- prob.S2[i]/sum.S2 * seq.depths[j] * get_factor(nfact_length.S2, i, j)
-        count_dispersions[i, j] <- truedispersions.S2[i]
-      }
+      count_means[i, j] <- getNegativeBinomialMean(i, j,
+                                                   S1, prob.S1, sum.S1, nfact_length.S1,
+                                                   S2, prob.S2, sum.S2, nfact_length.S2,
+                                                   seq.depths)
+      count_dispersions[i, j] <- getNegativeBinomialDispersion(i, j,
+                                                               S1, truedispersions.S1,
+                                                               S2, truedispersions.S2)
     }
   }
   return(list(count_means = count_means,
@@ -686,9 +686,9 @@ getNegativeBinomialMean <- function(i, j,
                                     S2, prob.S2, sum.S2, nfact_length.S2,
                                     seq.depths) {
   if (j %in% S1) {
-    return(prob.S1[i]/sum.S1 * seq.depths[j] * nfact_length.S1[i, j])
+    return(prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j))
   } else {
-    return(prob.S2[i]/sum.S2 * seq.depths[j] * nfact_length.S2[i, j])
+    return(prob.S2[i]/sum.S2 * seq.depths[j] * get_factor(nfact_length.S2, i, j))
   }
 }
 #' @title Get NB dispersion
