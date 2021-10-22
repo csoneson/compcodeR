@@ -1,4 +1,4 @@
-CHANGES IN VERSION 1.29.0.9999
+CHANGES IN VERSION 1.29.1
 -------------------------
   o Implement simulations according to the phylogenetic poisson log normal model
   o Implement length-varying simulations
