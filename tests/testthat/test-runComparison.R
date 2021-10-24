@@ -195,7 +195,7 @@ test_that("generateSyntheticData works", {
 test_that("help functions work", {
   listcreateRmd()
   
-  expect_error(checkRange("hello", "name", 0, 1), "Illegal value")
+  expect_warning(expect_error(checkRange("hello", "name", 0, 1), "Illegal value"), "NAs introduced by coercion")
   expect_equal(checkRange(-1, "name", 0, 1), 0)
   expect_equal(checkRange(2, "name", 0, 1), 1)
   expect_equal(checkRange("-1", "name", 0, 1), 0)
@@ -229,6 +229,7 @@ test_that("help functions work", {
 })
 
 test_that("runDiffExp works", {
+  
   tdir <- tempdir()
   set.seed(1)  ## note that with other seeds, the number of genes 
                ## passing the filtering threshold could be different
@@ -283,24 +284,28 @@ test_that("runDiffExp works", {
   expect_equal(package.version(tmp), "")
   expect_is(method.names(tmp), "list")
   expect_equal(method.names(tmp), list())
-
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "baySeq",
-    Rmdfunction = "baySeq.createRmd",
-    output.directory = tdir, norm.method = "edgeR",
-    equaldisp = TRUE
-  )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "DESeq2",
-    Rmdfunction = "DESeq2.createRmd",
-    output.directory = tdir, fit.type = "parametric",
-    test = "Wald", beta.prior = TRUE,
-    independent.filtering = TRUE, cooks.cutoff = TRUE,
-    impute.outliers = TRUE
-  )
-  if (require("DSS")) {
+  
+  if (requireNamespace("baySeq", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "baySeq",
+      Rmdfunction = "baySeq.createRmd",
+      output.directory = tdir, norm.method = "edgeR",
+      equaldisp = TRUE
+    )
+  }
+  if (requireNamespace("DESeq2", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "DESeq2",
+      Rmdfunction = "DESeq2.createRmd",
+      output.directory = tdir, fit.type = "parametric",
+      test = "Wald", beta.prior = TRUE,
+      independent.filtering = TRUE, cooks.cutoff = TRUE,
+      impute.outliers = TRUE
+    )
+  }
+  if (requireNamespace("DSS", quietly = TRUE)) {
     runDiffExp(
       data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
       result.extent = "DSS",
@@ -309,12 +314,15 @@ test_that("runDiffExp works", {
       disp.trend = FALSE
     )
   }
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "EBSeq",
-    Rmdfunction = "EBSeq.createRmd",
-    output.directory = tdir, norm.method = "median"
-  )
+  if (requireNamespace("EBSeq", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "EBSeq",
+      Rmdfunction = "EBSeq.createRmd",
+      output.directory = tdir, norm.method = "median"
+    )
+  }
+  # edgeR is in Imports -> always installed
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "edgeR.exact",
@@ -330,105 +338,127 @@ test_that("runDiffExp works", {
     disp.type = "tagwise", disp.method = "CoxReid",
     trended = TRUE
   )
+  # limma is in Imports -> always installed
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "logcpm.limma",
     Rmdfunction = "logcpm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "NBPSeq",
-    Rmdfunction = "NBPSeq.createRmd",
-    output.directory = tdir, norm.method = "TMM",
-    disp.method = "NBP"
-  )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "NOISeq",
-    Rmdfunction = "NOISeq.prenorm.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
+  if (requireNamespace("NBPSeq", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "NBPSeq",
+      Rmdfunction = "NBPSeq.createRmd",
+      output.directory = tdir, norm.method = "TMM",
+      disp.method = "NBP"
+    )
+  }
+  if (requireNamespace("NOISeq", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "NOISeq",
+      Rmdfunction = "NOISeq.prenorm.createRmd",
+      output.directory = tdir, norm.method = "TMM"
+    )
+  }
+  # limma is in Imports -> always installed
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
     result.extent = "sqrtcpm.limma",
     Rmdfunction = "sqrtcpm.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "TCC",
-    Rmdfunction = "TCC.createRmd",
-    output.directory = tdir, norm.method = "tmm",
-    test.method = "edger", iteration = 3,
-    normFDR = 0.1, floorPDEG = 0.05
-  )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-    result.extent = "ttest",
-    Rmdfunction = "ttest.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
+  if (requireNamespace("TCC", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "TCC",
+      Rmdfunction = "TCC.createRmd",
+      output.directory = tdir, norm.method = "tmm",
+      test.method = "edger", iteration = 3,
+      normFDR = 0.1, floorPDEG = 0.05
+    )
+  }
+  if (requireNamespace("genefilter", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "ttest",
+      Rmdfunction = "ttest.createRmd",
+      output.directory = tdir, norm.method = "TMM"
+    )
+  }
+  # limma is in Imports -> always installed
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
     result.extent = "voom.limma",
     Rmdfunction = "voom.limma.createRmd",
     output.directory = tdir, norm.method = "TMM"
   )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
-    result.extent = "voom.ttest",
-    Rmdfunction = "voom.ttest.createRmd",
-    output.directory = tdir, norm.method = "TMM"
-  )
-
-  methods <- c("baySeq", "DESeq2", "EBSeq", "edgeR.exact",
+  if (requireNamespace("genefilter", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+      result.extent = "voom.ttest",
+      Rmdfunction = "voom.ttest.createRmd",
+      output.directory = tdir, norm.method = "TMM"
+    )
+  }
+  
+  methods <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq", 
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
-  if (require("DSS")) {
-    methods <- c(methods, "DSS")
-  }
-
+  pkgs <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR",
+            "edgeR", "limma", "NBPSeq", "NOISeq", 
+            "limma", "TCC", "genefilter", "limma",
+            "genefilter")
+  
   ## Test show() method
-  m <- "EBSeq"
+  m <- "edgeR.exact" # edgeR always installed
   tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
                                winslash = "/"))
   show(tmp)
   count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
   show(tmp)
   
-  for (m in methods) {
-    tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
-    
-    expect_is(tmp, "compData")
-    expect_is(result.table(tmp), "data.frame")
-    expect_equal(nrow(result.table(tmp)), 500)
-    expect_is(code(tmp), "character")
-    expect_is(analysis.date(tmp), "character")
-    expect_is(compcodeR:::package.version(tmp), "character")
-    expect_is(method.names(tmp), "list")
-    expect_named(method.names(tmp), c("short.name", "full.name"))
-    
-    tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
-    tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
-    tmp2 <- tmp; result.table(tmp2)$score <- NULL; expect_equal(check_compData_results(tmp2), "result.table must contain a column named 'score'.")
+  for (i in seq_len(length(methods))) {
+    m <- methods[i]
+    pkg <- pkgs[i]
+    if (requireNamespace(pkg, quietly = TRUE)) {
+      tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
+      
+      expect_is(tmp, "compData")
+      expect_is(result.table(tmp), "data.frame")
+      expect_equal(nrow(result.table(tmp)), 500)
+      expect_is(code(tmp), "character")
+      expect_is(analysis.date(tmp), "character")
+      expect_is(compcodeR:::package.version(tmp), "character")
+      expect_is(method.names(tmp), "list")
+      expect_named(method.names(tmp), c("short.name", "full.name"))
+      
+      tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
+      tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
+      tmp2 <- tmp; result.table(tmp2)$score <- NULL; expect_equal(check_compData_results(tmp2), "result.table must contain a column named 'score'.")
+    }
   }
   
-  for (m in methods) {
-    generateCodeHTMLs(
-      normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
-                    winslash = "/"), normalizePath(tdir)
-    )
-    expect_true(file.exists(normalizePath(file.path(
-      tdir, paste0("B_625_625_5spc_repl1_", 
-                   m, "_code.html")), winslash = "/")))
+  for (i in seq_len(length(methods))) {
+    m <- methods[i]
+    pkg <- pkgs[i]
+    if (requireNamespace(pkg, quietly = TRUE)) {
+      generateCodeHTMLs(
+        normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
+                      winslash = "/"), normalizePath(tdir)
+      )
+      expect_true(file.exists(normalizePath(file.path(
+        tdir, paste0("B_625_625_5spc_repl1_", 
+                     m, "_code.html")), winslash = "/")))
+    }
   }
-
+  
   ## Comparison report
   file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 c("voom.limma", "voom.ttest", "EBSeq", "DESeq2"),
+                 c("voom.limma", "sqrtcpm.limma", "edgeR.exact", "edgeR.GLM"), ## Only packages in import
                  ".rds")), winslash = "/"))
   parameters <- NULL
   comp <- runComparison(file.table = file.table, output.directory = tdir,
@@ -452,4 +482,170 @@ test_that("runDiffExp works", {
                              parameters = par2),
                "No methods left to compare after matching with DE methods")
   
+})
+
+test_that("runDiffExp works - with lengths", {
+  
+  tdir <- tempdir()
+  set.seed(1)  ## note that with other seeds, the number of genes 
+               ## passing the filtering threshold could be different
+  
+  testdat <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 500, 
+    samples.per.cond = 5, n.diffexp = 50, 
+    repl.id = 1, seqdepth = 1e5, 
+    fraction.upregulated = 0.5, 
+    between.group.diffdisp = FALSE, 
+    filter.threshold.total = 1, 
+    filter.threshold.mediancpm = 0, 
+    fraction.non.overdispersed = 0, 
+    id.species = factor(1:10),
+    lengths.relmeans = rpois(500, 1e4),
+    lengths.dispersions = rgamma(500, 1, 1),
+    output.file = file.path(tdir, "B_625_625_5spc_repl1.rds")
+  )
+  
+  expect_equal(checkDataObject(testdat), "Data object looks ok.")
+  
+  tmp <- readRDS(normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
+  expect_is(tmp, "compData")
+  expect_is(count.matrix(tmp), "matrix")
+  expect_equal(nrow(count.matrix(tmp)), 498) # some are filtered
+  expect_equal(ncol(count.matrix(tmp)), 10)
+  expect_is(sample.annotations(tmp), "data.frame")
+  expect_equal(nrow(sample.annotations(tmp)), 10)
+  expect_equal(ncol(sample.annotations(tmp)), 2)
+  expect_is(variable.annotations(tmp), "data.frame")
+  expect_equal(nrow(variable.annotations(tmp)), 498)
+  expect_equal(ncol(variable.annotations(tmp)), 22)
+  expect_is(info.parameters(tmp), "list")
+  expect_equal(info.parameters(tmp)$n.diffexp, 50)
+  expect_equal(info.parameters(tmp)$dataset, "B_625_625")
+  expect_equal(info.parameters(tmp)$fraction.upregulated, 0.5)
+  expect_equal(info.parameters(tmp)$between.group.diffdisp, FALSE)
+  expect_equal(info.parameters(tmp)$filter.threshold.total, 1)
+  expect_equal(info.parameters(tmp)$filter.threshold.mediancpm, 0)
+  expect_equal(info.parameters(tmp)$fraction.non.overdispersed, 0)
+  expect_equal(info.parameters(tmp)$random.outlier.high.prob, 0)
+  expect_equal(info.parameters(tmp)$random.outlier.low.prob, 0)
+  expect_equal(info.parameters(tmp)$single.outlier.high.prob, 0)
+  expect_equal(info.parameters(tmp)$single.outlier.low.prob, 0)
+  expect_equal(info.parameters(tmp)$effect.size, 1.5)
+  expect_equal(info.parameters(tmp)$samples.per.cond, 5)
+  expect_equal(info.parameters(tmp)$repl.id, 1)
+  expect_equal(info.parameters(tmp)$seqdepth, 1e5)
+  expect_equal(info.parameters(tmp)$minfact, 0.7)
+  expect_equal(info.parameters(tmp)$maxfact, 1.4)
+  expect_equal(info.parameters(tmp)$nEff, 2.5)
+  expect_equal(info.parameters(tmp)$nEffRatio, 1.0)
+  expect_equal(filtering(tmp), "total count >= 1 ;  median cpm >= 0")
+  expect_is(analysis.date(tmp), "character")
+  expect_equal(analysis.date(tmp), "")
+  expect_is(package.version(tmp), "character")
+  expect_equal(package.version(tmp), "")
+  expect_is(method.names(tmp), "list")
+  expect_equal(method.names(tmp), list())
+  
+  if (requireNamespace("DESeq2", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "DESeq2.length",
+      Rmdfunction = "DESeq2.length.createRmd",
+      output.directory = tdir, fit.type = "parametric",
+      test = "Wald", beta.prior = TRUE,
+      independent.filtering = TRUE, cooks.cutoff = TRUE,
+      impute.outliers = TRUE,
+      extra.design.covariates = NULL
+    )
+  }
+  # limma is in Imports
+  runDiffExp(
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+    result.extent = "lengthNorm.limma",
+    Rmdfunction = "lengthNorm.limma.createRmd",
+    output.directory = tdir, norm.method = "TMM",
+    extra.design.covariates = NULL,
+    length.normalization = "RPKM",
+    data.transformation = "log2",
+    block.factor = NULL
+  )
+  # phylolm is in Imports
+  runDiffExp(
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+    result.extent = "phylolm",
+    Rmdfunction = "phylolm.createRmd",
+    output.directory = tdir, norm.method = "TMM",
+    model = "BM", measurement_error = TRUE,
+    extra.design.covariates = NULL,
+    length.normalization = "RPKM",
+    data.transformation = "log2"
+  )
+  
+  methods <- c("DESeq2.length", "lengthNorm.limma", "phylolm")
+  
+  ## Test show() method
+  m <- "lengthNorm.limma"
+  tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
+                               winslash = "/"))
+  show(tmp)
+  count.matrix(tmp) <- count.matrix(tmp)[, 1:4]
+  show(tmp)
+  
+  for (m in methods) {
+    if (m != "DESeq2.length" || requireNamespace("DESeq2", quietly = TRUE)) {
+      tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
+      
+      expect_is(tmp, "phyloCompData")
+      expect_is(result.table(tmp), "data.frame")
+      expect_equal(nrow(result.table(tmp)), 498)
+      expect_is(code(tmp), "character")
+      expect_is(analysis.date(tmp), "character")
+      expect_is(compcodeR:::package.version(tmp), "character")
+      expect_is(method.names(tmp), "list")
+      expect_named(method.names(tmp), c("short.name", "full.name"))
+      
+      tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
+      tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
+      tmp2 <- tmp; result.table(tmp2)$score <- NULL; expect_equal(check_compData_results(tmp2), "result.table must contain a column named 'score'.")
+    }
+  }
+  
+  for (m in methods) {
+    if (m != "DESeq2.length" || requireNamespace("DESeq2", quietly = TRUE)) {
+      generateCodeHTMLs(
+        normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
+                      winslash = "/"), normalizePath(tdir)
+      )
+      expect_true(file.exists(normalizePath(file.path(
+        tdir, paste0("B_625_625_5spc_repl1_", 
+                     m, "_code.html")), winslash = "/")))
+    }
+  }
+  
+  ## Comparison report
+  file.table <- data.frame(input.files = normalizePath(file.path(
+    tdir, paste0("B_625_625_5spc_repl1_", 
+                 methods[-1],
+                 ".rds")), winslash = "/"))
+  parameters <- NULL
+  comp <- runComparison(file.table = file.table, output.directory = tdir,
+                        parameters = parameters)
+  
+  parameters <- list()
+  par2 <- parameters; par2$incl.dataset <- "missing"
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with datasets")
+  par2 <- parameters; par2$incl.nbr.samples <- 10
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with nbr.samples")
+  par2 <- parameters; par2$incl.replicates <- 10
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with replicates")
+  par2 <- parameters; par2$incl.de.methods <- "missing"
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = par2),
+               "No methods left to compare after matching with DE methods")
 })

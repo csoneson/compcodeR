@@ -5,6 +5,11 @@
 #' @author Charlotte Soneson
 #' @examples
 #' listcreateRmd()
+#' 
+#' @importFrom stats cor hclust as.dist runif rexp median loess predict na.omit rnbinom rpois rnorm sd lm pf pt qf qt
+#' @importFrom grDevices heat.colors
+#' @importFrom graphics par lines legend title axis
+#' 
 listcreateRmd <- function() {
   s <- unlist(lapply(search(), ls, all.names = TRUE))
   print(unname(s[grep("\\.createRmd$", s)]))
@@ -298,7 +303,7 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
                paste("DESeq2.ds <- DESeq2::DESeq(DESeq2.ds, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = "")), codefile)
   if (impute.outliers == TRUE) {
     writeLines(c("DESeq2.ds.clean <- DESeq2::replaceOutliersWithTrimmedMean(DESeq2.ds)",
-               paste("DESeq2.ds.clean <- DESeq2::DESeq(DESeq2.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
+                 paste("DESeq2.ds.clean <- DESeq2::DESeq(DESeq2.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
                  "DESeq2.ds <- DESeq2.ds.clean"), codefile)
   }
   writeLines(c(paste("DESeq2.results <- DESeq2::results(DESeq2.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
@@ -376,15 +381,14 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
                      paste('voom.', utils::packageVersion('limma'), '.limma.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
   writeLines("```", codefile)
   close(codefile)
 }
-
 
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with baySeq
 #' 
@@ -440,7 +444,7 @@ baySeq.createRmd <- function(data.path, result.path, codefile,
                "baySeq.cd <- new('countData', data = count.matrix(cdata), replicates = sample.annotations(cdata)$condition, groups = list(NDE = rep(1, length(sample.annotations(cdata)$condition)), DE = sample.annotations(cdata)$condition))", 
                paste("libsizes(baySeq.cd) <- baySeq::getLibsizes(baySeq.cd, estimationType = '", norm.method, "')", sep = '')), codefile)
   writeLines(c(paste("baySeq.cd <- baySeq::getPriors.NB(baySeq.cd, samplesize =", sample.size, ", equalDispersions = ", equaldisp, ", estimation = '", estimation, "', cl = NULL)", sep = ''), 
-                 paste("baySeq.cd <- baySeq::getLikelihoods(baySeq.cd, prs = c(0.5, 0.5), pET = '", pET, "', cl = NULL)", sep = '')), codefile)
+               paste("baySeq.cd <- baySeq::getLikelihoods(baySeq.cd, prs = c(0.5, 0.5), pET = '", pET, "', cl = NULL)", sep = '')), codefile)
   writeLines(c("baySeq.posteriors.DE <- exp(baySeq.cd@posteriors)[, 'DE']", 
                "baySeq.FDR <- baySeq::topCounts(baySeq.cd, group = 'DE', FDR = 1)$FDR.DE[match(rownames(count.matrix(cdata)), rownames(baySeq::topCounts(baySeq.cd, group = 'DE', FDR = 1)))]", 
                "baySeq.score <- 1 - baySeq.FDR", 
@@ -518,8 +522,8 @@ voom.ttest.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
                      paste('voom.', utils::packageVersion('limma'), '.ttest.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -584,8 +588,8 @@ logcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'logcpm.limma', 'full.name' = '", 
                      paste('logcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -650,8 +654,8 @@ sqrtcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.metho
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtcpm.limma', 'full.name' = '", 
                      paste('sqrtcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -714,8 +718,8 @@ ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
                "package.version(cdata) <- paste('edgeR,', packageVersion('edgeR'), ';', 'genefilter,', packageVersion('genefilter'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'ttest', 'full.name' = 'ttest.", utils::packageVersion('genefilter'), '.', norm.method, "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -775,7 +779,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "count.matrix <- round(sweep(count.matrix(cdata), 2, nf, '/'))", 
                "inp.data <- NOISeq::readData(count.matrix, factors = sample.annotations(cdata))",
                paste("NOISeq.test <- NOISeq::noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c('", unique(as.character(sample.annotations(cdata)$condition))[1], "', '", unique(as.character(sample.annotations(cdata)$condition))[2], "'), filter = 0)@results", sep = ""), 
-##               paste("NOISeq.test = noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c(unique(as.character(sample.annotations(cdata)$condition))[1], unique(as.character(sample.annotations(cdata)$condition))[2]), filter = 0)@results", sep = ""), 
+               ##               paste("NOISeq.test = noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c(unique(as.character(sample.annotations(cdata)$condition))[1], unique(as.character(sample.annotations(cdata)$condition))[2]), filter = 0)@results", sep = ""), 
                "NOISeq.prob <- NOISeq.test[[1]]$prob",
                "NOISeq.statistic <- NOISeq.test[[1]]$theta", 
                "NOISeq.score <- NOISeq.prob", 
@@ -786,8 +790,8 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NOISeq', 'full.name' = '", 
                      paste('NOISeq.', utils::packageVersion('NOISeq'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -855,8 +859,8 @@ NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NBPSeq', 'full.name' = '", 
                      paste('NBPSeq.', utils::packageVersion('NBPSeq'), '.', norm.method, '.', disp.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -923,8 +927,8 @@ DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.tr
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'DSS', 'full.name' = '", 
                      paste('DSS.', utils::packageVersion('DSS'), '.', norm.method, '.', ifelse(disp.trend, 'trend', 'notrend'), sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
