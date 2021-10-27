@@ -1,7 +1,7 @@
 pandoc: 2.7.3
-pkgdown: 1.6.1.9000
-pkgdown_sha: 84f234cf19153ce99bf1bcf875dc56248ddf0cbe
+pkgdown: 1.9000.9000.9000
+pkgdown_sha: 59763faf68914592064da4cd98b7a202ec5be29b
 articles:
   compcodeR: compcodeR.html
-last_built: 2021-01-29T15:43Z
+last_built: 2021-10-27T06:59Z
 
