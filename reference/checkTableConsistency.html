@@ -132,11 +132,11 @@
 <span class="r-in"><span class="va">new.table</span> <span class="op">&lt;-</span> <span class="fu">checkTableConsistency</span><span class="op">(</span><span class="va">file.table</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">new.table</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                  input.files</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_voom.limma.rds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_edgeR.exact.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_voom.limma.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_edgeR.exact.rds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   datasets nbr.samples repl                               de.methods</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.49.5.limma.TMM</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.35.3.exact.TMM.movingave.tagwise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.51.0.limma.TMM</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.37.0.exact.TMM.movingave.tagwise</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## An incorrect table</span></span>
 <span class="r-in"><span class="va">file.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>input.files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, </span>
@@ -146,17 +146,17 @@
 <span class="r-in">                         repl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span class="r-in">                         stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">new.table</span> <span class="op">&lt;-</span> <span class="fu">checkTableConsistency</span><span class="op">(</span><span class="va">file.table</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Inconsistency between provided repl and information in file /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_voom.limma.rds . Replacing the given information with </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Inconsistency between provided repl and information in file /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_voom.limma.rds . Replacing the given information with </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>                       the one given in the saved file.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Inconsistency between provided nbr.samples and information in file /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_edgeR.exact.rds . Replacing the given information with </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Inconsistency between provided nbr.samples and information in file /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_edgeR.exact.rds . Replacing the given information with </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>                       the one given in the saved file.</span>
 <span class="r-in"><span class="va">new.table</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                  input.files</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_voom.limma.rds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_edgeR.exact.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_voom.limma.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_edgeR.exact.rds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   datasets nbr.samples repl                               de.methods</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.49.5.limma.TMM</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.35.3.exact.TMM.movingave.tagwise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.51.0.limma.TMM</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.37.0.exact.TMM.movingave.tagwise</span>
 <span class="r-in"></span>
 <span class="r-in"><span class="co">## A table with missing information</span></span>
 <span class="r-in"><span class="va">file.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>input.files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, </span>
@@ -165,11 +165,11 @@
 <span class="r-in"><span class="va">new.table</span> <span class="op">&lt;-</span> <span class="fu">checkTableConsistency</span><span class="op">(</span><span class="va">file.table</span><span class="op">)</span></span>
 <span class="r-in"><span class="va">new.table</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                                                                                  input.files</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_voom.limma.rds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpAxQgNJ/mydata_edgeR.exact.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_voom.limma.rds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp6whLDk/mydata_edgeR.exact.rds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   datasets nbr.samples repl                               de.methods</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.49.5.limma.TMM</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.35.3.exact.TMM.movingave.tagwise</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   mydata           5    1                    voom.3.51.0.limma.TMM</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   mydata           5    1 edgeR.3.37.0.exact.TMM.movingave.tagwise</span>
 </code></pre></div>
     </div>
   </div>
