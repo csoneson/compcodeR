@@ -115,48 +115,27 @@ rpois_robust <- function(n, lambda) {
 #' @param x matrix of parameters being tested.
 #' @param name name of the parameter.
 #' @param tree A phylogenetic tree with n tips.
-#' @param transpose Should the transpose of the matrix be taken ? Default to FALSE.
 #' 
 #' @keywords internal
 #' 
-checkParamMatrix <- function(x, name, tree, transpose = FALSE) {
+checkParamMatrix <- function(x, name, tree) {
   N <- length(tree$tip.label)
   
-  if (!transpose) {
-    if (ncol(x) != N) {
-      stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
-    }
-    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
-    if (is.null(colnames(x))){
-      warning(paste0("Columns of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
-      colnames(x) <- tree$tip.label
-    } else {
-      if (!all(tree$tip.label == colnames(x))){
-        correspondances <- match(tree$tip.label, colnames(x))
-        if (length(unique(correspondances)) != length(tree$tip.label)){
-          stop(paste0("`", name, "` names do not match the tip labels."))
-        }
-        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
-        x <- x[, correspondances, drop = FALSE]
-      }
-    }
+  if (ncol(x) != N) {
+    stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
+  }
+  if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
+  if (is.null(colnames(x))){
+    warning(paste0("Columns of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
+    colnames(x) <- tree$tip.label
   } else {
-    if (nrow(x) != N) {
-      stop(paste0("`", name, "` should have as many rows as the number of taxa in the tree."))
-    }
-    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
-    if (is.null(rownames(x))){
-      warning(paste0("Rows of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
-      rownames(x) <- tree$tip.label
-    } else {
-      if (!all(tree$tip.label == rownames(x))){
-        correspondances <- match(tree$tip.label, rownames(x))
-        if (length(unique(correspondances)) != length(tree$tip.label)){
-          stop(paste0("`", name, "` names do not match the tip labels."))
-        }
-        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
-        x <- x[correspondances, , drop = FALSE]
+    if (!all(tree$tip.label == colnames(x))){
+      correspondances <- match(tree$tip.label, colnames(x))
+      if (length(na.omit(unique(correspondances))) != length(tree$tip.label)){
+        stop(paste0("`", name, "` names do not match the tip labels."))
       }
+      warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
+      x <- x[, correspondances, drop = FALSE]
     }
   }
   return(x)
@@ -186,7 +165,7 @@ checkParamVector <- function(x, name, tree) {
   } else {
     if (!all(tree$tip.label == names(x))){
       correspondances <- match(tree$tip.label, names(x))
-      if (length(unique(correspondances)) != length(tree$tip.label)){
+      if (length(na.omit(unique(correspondances))) != length(tree$tip.label)){
         stop(paste0("`", name, "` names do not match the tip labels."))
       }
       warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))

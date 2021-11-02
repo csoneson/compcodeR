@@ -71,6 +71,97 @@ test_that("compData object checks work", {
   expect_equal(check_compData_results(tmp), "Object must contain a list named 'method.names' identifying the differential expression method used.")
 })
 
+test_that("phyloCompData object checks work", {
+  tree <- ape::read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+  idsp <- as.factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+  names(idsp) <- tree$tip.label
+  idcond <- c(1, 1, 1, 1, 2, 2, 2, 2)
+  names(idcond) <- tree$tip.label
+  
+  tmp <- generateSyntheticData(
+    dataset = "B_625_625", n.vars = 50, 
+    samples.per.cond = 4, n.diffexp = 10,
+    tree = tree,
+    id.species =  idsp,
+    id.condition = idcond,
+    lengths.relmeans = "auto",
+    lengths.dispersions = "auto",
+    output.file = NULL
+  )
+  
+  expect_equal(checkDataObject(tmp), "Data object looks ok.")
+  
+  l <- convertphyloCompDataToList(tmp)
+  expect_is(l, "list")
+
+  cpd <- convertListTocompData(l)
+  expect_is(cpd, "compData")
+  expect_equal(checkDataObject(cpd), "Data object looks ok.")
+  expect_null(length.matrix(cpd))
+  expect_null(phylo.tree(cpd))
+  expect_error(phylo.tree(cpd) <- l$tree, "There is no 'phylo.tree' slot in a 'compData' object. Please use a 'phyloCompData' object.")
+  expect_error(length.matrix(cpd) <- l$length.matrix, "There is no 'lenght.matrix' slot in a 'compData' object. Please use a 'phyloCompData' object.")
+  
+  
+  cpd <- convertListTophyloCompData(l)
+  expect_is(cpd, "phyloCompData")
+  expect_equal(checkDataObject(cpd), "Data object looks ok.")
+  
+  cpdbis <- phyloCompData(l$count.matrix, l$sample.annotations, 
+                          l$info.parameters, l$variable.annotations, 
+                          l$filtering, character(0), 
+                          l$package.version, l$method.names, 
+                          l$code, l$result.table,
+                          l$tree,
+                          l$length.matrix)
+  expect_equal(cpd, cpdbis)
+  
+  l$count.matrix <- NULL
+  expect_message({cpd2 <- convertListTocompData(l)}, 
+                 "Cannot convert list to compData object")
+  expect_message({cpd2 <- convertListTophyloCompData(l)}, 
+                 "Cannot convert list to compData object")
+  expect_equal(cpd2, NULL)
+  
+  tmp2 <- tmp; expect_error({count.matrix(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({sample.annotations(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({filtering(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({analysis.date(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({package.version(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({info.parameters(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({length.matrix(tmp2) <- 1:3})
+  tmp2 <- tmp; expect_error({phylo.tree(tmp2) <- 1:3})
+  
+  expect_equal(check_compData(tmp), TRUE)
+  expect_equal(check_compData(count.matrix(tmp)), "This is not an S4 object.")
+  tmp2 <- tmp; count.matrix(tmp2) <- as.matrix(numeric(0)); expect_equal(check_phyloCompData(tmp2), "Object must contain a non-empty count matrix.")
+  tmp2 <- tmp; sample.annotations(tmp2) <- as.data.frame(NULL); expect_equal(check_phyloCompData(tmp2), "Object must contain a non-empty sample annotation data frame.")
+  tmp2 <- tmp; sample.annotations(tmp2) <- data.frame(condition = numeric(0)); expect_equal(check_phyloCompData(tmp2), "The sample.annotations must contain a column named condition.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(); expect_equal(check_phyloCompData(tmp2), "Object must contain a non-empty list called info.parameters.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(tmp = 1); expect_equal(check_phyloCompData(tmp2), "info.parameters list must contain an entry named 'dataset'.")
+  tmp2 <- tmp; info.parameters(tmp2) <- list(dataset = ""); expect_equal(check_phyloCompData(tmp2), "info.parameters list must contain an entry named 'uID'.")
+  tmp2 <- tmp; count.matrix(tmp2) <- count.matrix(tmp2)[1:10, ]; expect_equal(check_phyloCompData(tmp2), "count.matrix and variable.annotations do not contain the same number of rows.")
+  tmp2 <- tmp; rownames(count.matrix(tmp2)) <- paste0("r", rownames(count.matrix(tmp2))); expect_equal(check_phyloCompData(tmp2), "The rownames of count.matrix and variable.annotations are not the same.")
+  tmp2 <- tmp; count.matrix(tmp2) <- count.matrix(tmp2)[, 1:2]; expect_equal(check_phyloCompData(tmp2), "The number of columns of count.matrix is different from the number of rows of sample.annotations.")
+  tmp2 <- tmp; colnames(count.matrix(tmp2)) <- paste0("r", colnames(count.matrix(tmp2))); expect_equal(check_phyloCompData(tmp2), "The colnames of count.matrix are different from the rownames of sample.annotations.")
+  
+  tmp2 <- tmp; length.matrix(tmp2) <- length.matrix(tmp2)[1:10, ]; expect_equal(check_phyloCompData(tmp2), "The dimension of count.matrix is different from the dimension of length.matrix.")
+  tmp2 <- tmp; rownames(length.matrix(tmp2)) <- paste0("r", rownames(length.matrix(tmp2))); expect_equal(check_phyloCompData(tmp2), "The rownames of count.matrix are different from the rownames of length.matrix.")
+  tmp2 <- tmp; length.matrix(tmp2) <- length.matrix(tmp2)[, 1:2]; expect_equal(check_phyloCompData(tmp2), "The dimension of count.matrix is different from the dimension of length.matrix.")
+  tmp2 <- tmp; colnames(length.matrix(tmp2)) <- paste0("r", colnames(length.matrix(tmp2))); expect_equal(check_phyloCompData(tmp2), "The colnames of count.matrix are different from the colnames of length.matrix.")
+  
+  tmp2 <- tmp; phylo.tree(tmp2)$tip.label <- NULL; expect_equal(check_phyloCompData(tmp2), "The tips of the phylogeny are not named.")
+  tmp2 <- tmp; phylo.tree(tmp2)$tip.label <- paste0("r", phylo.tree(tmp2)$tip.label); expect_equal(check_phyloCompData(tmp2), "Column names of count.matrix do not match the tip labels.")
+  tmp2 <- tmp; phylo.tree(tmp2)$tip.label <- phylo.tree(tmp2)$tip.label[c(2, 1, 3:8)]; expect_equal(check_phyloCompData(tmp2), "Column names of count.matrix do not match the tip labels.")
+  tmp2 <- tmp; colnames(count.matrix(tmp2)) <- colnames(count.matrix(tmp2))[c(2, 1, 3:8)]; expect_equal(check_phyloCompData(tmp2), "The colnames of count.matrix are different from the rownames of sample.annotations.")
+  tmp2 <- tmp; colnames(length.matrix(tmp2)) <- colnames(length.matrix(tmp2))[c(2, 1, 3:8)]; expect_equal(check_phyloCompData(tmp2), "The colnames of count.matrix are different from the colnames of length.matrix.")
+  tmp2 <- tmp; rownames(sample.annotations(tmp2)) <- rownames(sample.annotations(tmp2))[c(2, 1, 3:8)]; expect_equal(check_phyloCompData(tmp2), "The colnames of count.matrix are different from the rownames of sample.annotations.")
+  tmp2 <- tmp; sample.annotations(tmp2)$id.species <- rep(1, 8); expect_equal(check_phyloCompData(tmp2), "Error in checkSpecies(ids, \"id.species\", phylo.tree(object), tol = 1e-10,  : \n  The provided species do not match with the tree branch lengths. Please check the 'id.species' vector.\n")
+  tmp2 <- tmp; sample.annotations(tmp2)$id.species <- NULL; expect_equal(check_phyloCompData(tmp2), "The sample.annotations must contain a column named id.species.")
+  
+  expect_equal(check_compData_results(tmp), "Object must contain a list named 'method.names' identifying the differential expression method used.")
+})
+
 test_that("generateSyntheticData works", {
   tdir <- tempdir()
   
@@ -260,6 +351,16 @@ test_that("generateSyntheticData works - with lengths and phylo", {
       output.file = NULL
     ),
     "The tree should have as many species as `samples.per.cond` times two")
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 500, 
+      samples.per.cond = 4, n.diffexp = 50, 
+      repl.id = 1,
+      tree = tree,
+      id.species =  as.factor(c("A", "A", "A", "B", "C", "C", "D")),
+      output.file = NULL
+    ),
+    "`id.species` should have the same length as the number of taxa in the tree.")
   expect_warning(
     generateSyntheticData(
       dataset = "B_625_625", n.vars = 500, 
@@ -280,6 +381,20 @@ test_that("generateSyntheticData works - with lengths and phylo", {
       output.file = NULL
     ),
     "`id.species` is not named. I'm naming them, assuming they are in the same order as the tree.")
+  
+  idsp <- as.factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+  names(idsp) <- c("F", tree$tip.label[-1])
+  
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 500, 
+      samples.per.cond = 4, n.diffexp = 50, 
+      repl.id = 1,
+      tree = tree,
+      id.species =  idsp,
+      output.file = NULL
+    ),
+    "`id.species` names do not match the tip labels.")
   
   idsp <- as.factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
   names(idsp) <- tree$tip.label
