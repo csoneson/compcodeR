@@ -111,7 +111,6 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   ## Checks for phylogenetic tree
   use_tree <- !is.null(tree) # If tree is specified, use it.
   if (lengths.phylo && !use_tree) {
-    # warning("No tree is provided. Setting 'lengths.phylo' to FALSE")
     lengths.phylo <- FALSE
   }
   
@@ -128,7 +127,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     }
     ## Check Tree
     if (class(tree) != "phylo") {
-      stop("Tree tree must be of class `phylo` from package `ape`.")
+      stop("The `tree` must be of class `phylo` from package `ape`.")
     }
     ## Check that the tree has the right number of species
     if (length(tree$tip.label) != samples.per.cond * 2) {
