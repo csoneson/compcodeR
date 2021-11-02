@@ -62,7 +62,8 @@ Suggests:
     phangorn,
     testthat,
     ggtree,
-    tidytree
+    tidytree,
+    covr
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
