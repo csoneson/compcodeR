@@ -1129,16 +1129,18 @@ test_that("runDiffExp works - phylo", {
     data.transformation = "log2",
     block.factor = NULL
   )
-  runDiffExp(
-    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
-    result.extent = "lengthNorm.limma.cor",
-    Rmdfunction = "lengthNorm.limma.createRmd",
-    output.directory = tdir, norm.method = "TMM",
-    extra.design.covariates = NULL,
-    length.normalization = "TPM",
-    data.transformation = "log2",
-    block.factor = "id.species"
-  )
+  if (requireNamespace("statmod", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+      result.extent = "lengthNorm.limma.cor",
+      Rmdfunction = "lengthNorm.limma.createRmd",
+      output.directory = tdir, norm.method = "TMM",
+      extra.design.covariates = NULL,
+      length.normalization = "TPM",
+      data.transformation = "log2",
+      block.factor = "id.species"
+    )
+  }
   # phylolm is in Imports
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
@@ -1214,39 +1216,43 @@ test_that("runDiffExp works - phylo", {
   
   for (m in methods) {
     if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
-      tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
-      
-      expect_is(tmp, "phyloCompData")
-      expect_is(result.table(tmp), "data.frame")
-      expect_equal(nrow(result.table(tmp)), 489)
-      expect_is(code(tmp), "character")
-      expect_is(analysis.date(tmp), "character")
-      expect_is(compcodeR:::package.version(tmp), "character")
-      expect_is(method.names(tmp), "list")
-      expect_named(method.names(tmp), c("short.name", "full.name"))
-      
-      tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
-      tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
-      tmp2 <- tmp; result.table(tmp2)$score <- NULL; expect_equal(check_compData_results(tmp2), "result.table must contain a column named 'score'.")
+      if (!(m %in% c("lengthNorm.limma.cor")) || requireNamespace("statmod", quietly = TRUE)) {
+        tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
+        
+        expect_is(tmp, "phyloCompData")
+        expect_is(result.table(tmp), "data.frame")
+        expect_equal(nrow(result.table(tmp)), 489)
+        expect_is(code(tmp), "character")
+        expect_is(analysis.date(tmp), "character")
+        expect_is(compcodeR:::package.version(tmp), "character")
+        expect_is(method.names(tmp), "list")
+        expect_named(method.names(tmp), c("short.name", "full.name"))
+        
+        tmp2 <- tmp; result.table(tmp2) <- result.table(tmp2)[1:10, ]; expect_equal(check_compData_results(tmp2), "result.table must have the same number of rows as count.matrix.")
+        tmp2 <- tmp; result.table(tmp2) <- data.frame(); expect_equal(check_compData_results(tmp2), "Object must contain a data frame named 'result.table'.")
+        tmp2 <- tmp; result.table(tmp2)$score <- NULL; expect_equal(check_compData_results(tmp2), "result.table must contain a column named 'score'.")
+      }
     }
   }
   
   for (m in methods) {
     if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
-      generateCodeHTMLs(
-        normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
-                      winslash = "/"), normalizePath(tdir)
-      )
-      expect_true(file.exists(normalizePath(file.path(
-        tdir, paste0("B_625_625_5spc_repl1_", 
-                     m, "_code.html")), winslash = "/")))
+      if (!(m %in% c("lengthNorm.limma.cor")) || requireNamespace("statmod", quietly = TRUE)) {
+        generateCodeHTMLs(
+          normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
+                        winslash = "/"), normalizePath(tdir)
+        )
+        expect_true(file.exists(normalizePath(file.path(
+          tdir, paste0("B_625_625_5spc_repl1_", 
+                       m, "_code.html")), winslash = "/")))
+      }
     }
   }
   
   ## Comparison report
   file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 methods[!(methods %in% c("DESeq2.length", "DESeq2.length.factor"))],
+                 methods[!(methods %in% c("DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma.cor"))],
                  ".rds")), winslash = "/"))
   parameters <- NULL
   
@@ -1256,7 +1262,7 @@ test_that("runDiffExp works - phylo", {
   resTable <- readRDS(ff[length(ff)])
   expect_equal(resTable$fp + resTable$tp + resTable$fn + resTable$tn, rep(489, nrow(resTable)))
   expect_equal(ncol(resTable), 14)
-  expect_equal(nrow(resTable), length(methods) - 2)
+  expect_equal(nrow(resTable), length(methods) - 3)
   
   parameters <- list()
   par2 <- parameters; par2$incl.dataset <- "missing"
