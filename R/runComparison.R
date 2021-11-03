@@ -1260,9 +1260,7 @@ runComparison <- function(file.table,
 doSaveResultsTable <- function(setup.parameters.file, output.file) {
   ## Check that the output file ends with .rds
   if (!(substr(output.file, nchar(output.file) - 3, nchar(output.file)) == ".rds")) {
-    output.file <- sub(strsplit(output.file, "\\.")[[1]][length(strsplit(output.file, "\\.")[[1]])], 
-                       "rds", 
-                       output.file)
+    output.file <- sub(strsplit(output.file, "\\.")[[1]][length(strsplit(output.file, "\\.")[[1]])], "rds", output.file)
   }
   
   ## Load the setup parameters

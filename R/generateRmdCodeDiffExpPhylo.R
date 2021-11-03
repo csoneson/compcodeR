@@ -244,7 +244,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
       codefile)
   }
   writeLines(c(
-    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design_data$condition <- factor(design_data$condition)",
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   

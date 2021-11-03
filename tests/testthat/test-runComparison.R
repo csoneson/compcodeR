@@ -826,6 +826,17 @@ test_that("runDiffExp works", {
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)
   
+  expect_error(runComparison(file.table = file.table, output.directory = tdir,
+                             parameters = parameters, save.result.table = FALSE, knit.results = FALSE),
+               "At least on of 'save.result.table' or 'knit.results' must be set to TRUE, otherwise the function does not produce anything.")
+  comp2 <- runComparison(file.table = file.table, output.directory = tdir,
+                         parameters = parameters, save.result.table = TRUE, knit.results = FALSE)
+  ff <- list.files(path = tdir, pattern = "compcodeR_result_table_.*.rds", full.names = TRUE)
+  resTable <- readRDS(ff[length(ff)])
+  expect_equal(resTable$fp + resTable$tp + resTable$fn + resTable$tn, rep(500, nrow(resTable)))
+  expect_equal(ncol(resTable), 14)
+  expect_equal(nrow(resTable), 4)
+  
   parameters <- list()
   par2 <- parameters; par2$incl.dataset <- "missing"
   expect_error(runComparison(file.table = file.table, output.directory = tdir,
@@ -993,6 +1004,14 @@ test_that("runDiffExp works - with lengths", {
   comp <- runComparison(file.table = file.table, output.directory = tdir,
                         parameters = parameters)
   
+  comp2 <- runComparison(file.table = file.table, output.directory = tdir,
+                         parameters = parameters, save.result.table = TRUE, knit.results = FALSE)
+  ff <- list.files(path = tdir, pattern = "compcodeR_result_table_.*.rds", full.names = TRUE)
+  resTable <- readRDS(ff[length(ff)])
+  expect_equal(resTable$fp + resTable$tp + resTable$fn + resTable$tn, rep(498, nrow(resTable)))
+  expect_equal(ncol(resTable), 14)
+  expect_equal(nrow(resTable), length(methods) - 1)
+  
   parameters <- list()
   par2 <- parameters; par2$incl.dataset <- "missing"
   expect_error(runComparison(file.table = file.table, output.directory = tdir,
@@ -1047,7 +1066,7 @@ test_that("runDiffExp works - phylo", {
   expect_equal(checkDataObject(testdat), "Data object looks ok.")
   
   tmp <- readRDS(normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
-  expect_is(tmp, "compData")
+  expect_is(tmp, "phyloCompData")
   expect_is(count.matrix(tmp), "matrix")
   expect_equal(nrow(count.matrix(tmp)), 489) # some are filtered
   expect_equal(ncol(count.matrix(tmp)), 8)
@@ -1110,6 +1129,16 @@ test_that("runDiffExp works - phylo", {
     data.transformation = "log2",
     block.factor = NULL
   )
+  runDiffExp(
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+    result.extent = "lengthNorm.limma.cor",
+    Rmdfunction = "lengthNorm.limma.createRmd",
+    output.directory = tdir, norm.method = "TMM",
+    extra.design.covariates = NULL,
+    length.normalization = "TPM",
+    data.transformation = "log2",
+    block.factor = "id.species"
+  )
   # phylolm is in Imports
   runDiffExp(
     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
@@ -1133,7 +1162,47 @@ test_that("runDiffExp works - phylo", {
     data.transformation = "log2"
   )
   
-  methods <- c("DESeq2.length", "lengthNorm.limma", "phylolm_cpm", "phylolm")
+  # with extra factor
+  tmp <- readRDS(normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
+  sample.annotations(tmp)$test_reg <- rnorm(nrow(sample.annotations(tmp)))
+  sample.annotations(tmp)$test_fac <- factor(sample(c(0, 1)))
+  saveRDS(tmp, normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"))
+  
+  if (requireNamespace("DESeq2", quietly = TRUE)) {
+    runDiffExp(
+      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+      result.extent = "DESeq2.length.factor",
+      Rmdfunction = "DESeq2.length.createRmd",
+      output.directory = tdir, fit.type = "parametric",
+      test = "Wald", beta.prior = TRUE,
+      independent.filtering = TRUE, cooks.cutoff = TRUE,
+      impute.outliers = FALSE,
+      extra.design.covariates = c("test_reg", "test_fac")
+    )
+  }
+  runDiffExp(
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+    result.extent = "lengthNorm.limma.factor",
+    Rmdfunction = "lengthNorm.limma.createRmd",
+    output.directory = tdir, norm.method = "TMM",
+    extra.design.covariates = c("test_reg", "test_fac"),
+    trend = TRUE,
+    length.normalization = "TPM",
+    data.transformation = "log2",
+    block.factor = NULL
+  )
+  runDiffExp(
+    data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"), 
+    result.extent = "phylolm.factor",
+    Rmdfunction = "phylolm.createRmd",
+    output.directory = tdir, norm.method = "TMM",
+    model = "BM", measurement_error = FALSE,
+    extra.design.covariates = c("test_reg", "test_fac"),
+    length.normalization = "TPM",
+    data.transformation = "log2"
+  )
+  
+  methods <- c("DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma", "lengthNorm.limma.cor", "lengthNorm.limma.factor", "phylolm.factor", "phylolm_cpm", "phylolm")
   
   ## Test show() method
   m <- "lengthNorm.limma"
@@ -1144,7 +1213,7 @@ test_that("runDiffExp works - phylo", {
   show(tmp)
   
   for (m in methods) {
-    if (m != "DESeq2.length" || requireNamespace("DESeq2", quietly = TRUE)) {
+    if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
       tmp <- readRDS(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), winslash = "/"))
       
       expect_is(tmp, "phyloCompData")
@@ -1163,7 +1232,7 @@ test_that("runDiffExp works - phylo", {
   }
   
   for (m in methods) {
-    if (m != "DESeq2.length" || requireNamespace("DESeq2", quietly = TRUE)) {
+    if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
       generateCodeHTMLs(
         normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")), 
                       winslash = "/"), normalizePath(tdir)
@@ -1177,11 +1246,17 @@ test_that("runDiffExp works - phylo", {
   ## Comparison report
   file.table <- data.frame(input.files = normalizePath(file.path(
     tdir, paste0("B_625_625_5spc_repl1_", 
-                 methods[!(methods %in% c("DESeq2.length", "phylolm_cpm"))],
+                 methods[!(methods %in% c("DESeq2.length", "DESeq2.length.factor"))],
                  ".rds")), winslash = "/"))
   parameters <- NULL
+  
   comp <- runComparison(file.table = file.table, output.directory = tdir,
-                        parameters = parameters)
+                        parameters = parameters, save.result.table = TRUE, knit.results = FALSE)
+  ff <- list.files(path = tdir, pattern = "compcodeR_result_table_.*.rds", full.names = TRUE)
+  resTable <- readRDS(ff[length(ff)])
+  expect_equal(resTable$fp + resTable$tp + resTable$fn + resTable$tn, rep(489, nrow(resTable)))
+  expect_equal(ncol(resTable), 14)
+  expect_equal(nrow(resTable), length(methods) - 2)
   
   parameters <- list()
   par2 <- parameters; par2$incl.dataset <- "missing"
