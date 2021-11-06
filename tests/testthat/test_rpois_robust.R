@@ -12,6 +12,8 @@ test_that("rpois coincides with rpois_robust", {
   
   expect_equal(rp[1:2], rprob[1:2], tolerance = 0.01)
   
+  expect_error(rpois_robust(3, lambda[1:2]), "`lambda` must be of length `n` in `rpois_robust`.")
+  
 })
 
 test_that("rpois for large numbers runs and has correct moments", {

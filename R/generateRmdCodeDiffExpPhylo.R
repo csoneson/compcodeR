@@ -217,6 +217,9 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                                        data.transformation = "log2",
                                        trend = FALSE,
                                        block.factor = NULL) {
+  if (!is.null(block.factor)) {
+    if (!requireNamespace("statmod", quietly = TRUE)) stop("Package `statmod` is required for correlation modeling with `block.factor`.")
+  }
   codefile <- file(codefile, open = 'w')
   writeLines("###  limma + length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -244,7 +247,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
       codefile)
   }
   writeLines(c(
-    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design_data$condition <- factor(design_data$condition)",
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   

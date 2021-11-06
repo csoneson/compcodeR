@@ -100,57 +100,6 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
   return(res)
 }
 
-#' @title Perform the phylolm analysis with lengths as a predictor
-#'
-#' @description
-#' Perform the phylolm analysis for a given gene, with lengths as a predictor.
-#' 
-#' @param gene a gene
-#' @param all_dat the matrix of all expression data
-#' @param all_len the matrix of all length data
-#' @param design_data design matrix
-#' @param design_formula design formula
-#' @param tree phylogenetic tree
-#' @param model the model to be used in phylolm
-#' @param measurement_error boolean
-#' 
-#' @return A list, with:
-#' \describe{
-#' \item{pvalue}{the p value of the differential expression.}
-#' \item{logFC}{the log fold change of the differential expression.}
-#' \item{score}{1 - pvalue.}
-#' }
-#' 
-#' @keywords internal
-#' 
-phylolm_analysis_lengthAsPredictor <- function(gene, all_dat, all_len, design_data, design_formula, tree, model, measurement_error, ...) {
-  data_reg <- cbind(data.frame(expr = all_dat[gene, ], lengths = log2(all_len[gene, ])), design_data)
-  levels(data_reg$condition) <- c(1, 2)
-  res <- try(extract_results_phylolm(phylolm::phylolm(paste('expr', paste(as.character(design_formula), collapse = ''), '+lengths'),
-                                                      data = data_reg,
-                                                      phy = tree,
-                                                      model = model,
-                                                      measurement_error = measurement_error, 
-                                                      ...)))
-  if (inherits(res, 'try-error')) {
-    if (model == 'BM' && measurement_error) {
-      res <- try(extract_results_phylolm(phylolm::phylolm(paste('expr', paste(as.character(design_formula), collapse = '')),
-                                                          data = data_reg,
-                                                          phy = tree,
-                                                          model = 'lambda',
-                                                          measurement_error = FALSE, 
-                                                          ...)))
-    }
-  }
-  if (inherits(res, 'try-error')) {
-    res <- data.frame('pvalue' = 1.0,
-                      'logFC' = 0.0,
-                      'score' = 0.0)
-    warning(paste0(gene, 'produced an error.'))
-  }
-  return(res)
-}
-
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with \code{\link[phylolm]{phylolm}}.
 #' 
 #' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the phylolm package. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
@@ -271,7 +220,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
       codefile)
   }
   writeLines(c(
-    "design_data <- data.frame(apply(design_data, 2, as.factor))",
+    "design_data$condition <- factor(design_data$condition)",
     "design <- model.matrix(design_formula, design_data)"),
     codefile)
   writeNormalization(norm.method, length.normalization, data.transformation, codefile)
@@ -280,32 +229,19 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
   ff <- deparse(extract_results_phylolm)
   ff[1] <- paste0("extract_results_phylolm <- ", ff[1])
   writeLines(ff, codefile)
-  if (length.normalization != "asPredictor") {
-    ff <- deparse(phylolm_analysis)
-    ff[1] <- paste0("phylolm_analysis <- ", ff[1])
-    writeLines(ff, codefile)
-  } else {
-    ff <- deparse(phylolm_analysis_lengthAsPredictor)
-    ff[1] <- paste0("phylolm_analysis_lengthAsPredictor <- ", ff[1])
-    writeLines(ff, codefile)
-  }
+  ff <- deparse(phylolm_analysis)
+  ff[1] <- paste0("phylolm_analysis <- ", ff[1])
+  writeLines(ff, codefile)
   ## Apply analysis
   writeLines(c("", "# Analysis"),codefile)
   extra_args <- eval(substitute(alist(...)))
   extra_args <- sapply(extra_args, function(x) paste(" = ", x))
   extra_args <- paste(names(extra_args), extra_args, collapse = ", ")
   writeLines(c("tree <- getTree(cdata)"),codefile)
-  if (length.normalization != "asPredictor") {
-    writeLines(c(
-      paste0("phylolm.results_list <- apply(data.trans, 1, phylolm_analysis, design_data = design_data, design_formula = design_formula, tree = tree, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, ")"),
-      "result.table <- do.call(rbind, phylolm.results_list)"),
-      codefile)
-  } else {
-    writeLines(c(
-      paste0("result.table <- t(sapply(1:nrow(data.trans), phylolm_analysis_lengthAsPredictor, all_dat = data.trans, all_len = length.matrix(cdata), design_data = design_data, design_formula = design_formula, tree = tree, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, "))"),
-      "result.table <- as.data.frame(result.table)"),
-      codefile)
-  }
+  writeLines(c(
+    paste0("phylolm.results_list <- apply(data.trans, 1, phylolm_analysis, design_data = design_data, design_formula = design_formula, tree = tree, model = '", model, "', measurement_error = ", measurement_error, ", ", extra_args, ")"),
+    "result.table <- do.call(rbind, phylolm.results_list)"),
+    codefile)
   writeLines(c(
     "result.table$adjpvalue <- p.adjust(result.table$pvalue, 'BH')"),
     codefile)
@@ -337,7 +273,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 
 #' Generate a \code{.Rmd} file containing code to normalize data.
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
-#' @param length.normalization one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.
+#' @param length.normalization one of "none" (no correction), "TPM", "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.
 #' @param codefile 
 #' 
@@ -354,9 +290,9 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 #' 
 writeNormalization <- function(norm.method, length.normalization, data.transformation, codefile) {
   writeLines(c("", "# Normalisation"),codefile)
-  length.normalization <- match.arg(length.normalization, c("RPKM", "TPM", "none", "gwRPKM"))
+  length.normalization <- match.arg(length.normalization, c("RPKM", "TPM", "none"))
   data.transformation <- match.arg(data.transformation, c("log2", "asin(sqrt)", "sqrt"))
-  if (length.normalization == "none" || length.normalization == "asPredictor") {
+  if (length.normalization == "none") {
     writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
                  "lib.size <- colSums(count.matrix(cdata)) * nf"),
                codefile)
@@ -386,29 +322,14 @@ writeNormalization <- function(norm.method, length.normalization, data.transform
       writeLines("data.norm <- sweep((count.matrix(cdata)) / length.matrix(cdata), 2, lib.size, '/')", codefile)
     }
     if (data.transformation != "asin(sqrt)") writeLines("data.norm <- data.norm * 1e9", codefile)
-  } else if (length.normalization == "gwRPKM") {
-    if (data.transformation != "log2") stop("gwRPKM normalisation is only available for the log2 transformation.")
-    writeLines(c(paste("nf <- edgeR::calcNormFactors(count.matrix(cdata), method = '", norm.method, "')", sep = ''),
-                 "lib.size <- colSums(count.matrix(cdata)) * nf",
-                 "data.norm.none <- sweep(count.matrix(cdata) + 0.5, 2, lib.size + 1, '/')",
-                 "data.norm.none <- data.norm.none * 1e9",
-                 "get_gwRPKM <- function(i) {",
-                 "    fitLength <- lm(log2(data.norm.none[i, ]) ~ log2(length.matrix(cdata)[i, ]))",
-                 "    if (is.na(fitLength$coefficients[2])) return(log2(data.norm.none[i, ])) ## All lengths are the same",
-                 "    return(log2(data.norm.none[i, ]) - fitLength$coefficients[2] * log2(length.matrix(cdata)[i, ]))",
-                 "}",
-                 "data.trans <- t(sapply(1:nrow(data.norm.none), get_gwRPKM))"),
-               codefile)
   }
-  if (length.normalization != "gwRPKM") {
-    writeLines(c("", "# Transformation"),codefile)
-    if (data.transformation == "log2") {
-      writeLines("data.trans <- log2(data.norm)", codefile)
-    } else if (data.transformation == "asin(sqrt)") {
-      writeLines("data.trans <- asin(sqrt(data.norm))", codefile)
-    } else if (data.transformation == "sqrt") {
-      writeLines("data.trans <- sqrt(data.norm)", codefile)
-    }
+  writeLines(c("", "# Transformation"),codefile)
+  if (data.transformation == "log2") {
+    writeLines("data.trans <- log2(data.norm)", codefile)
+  } else if (data.transformation == "asin(sqrt)") {
+    writeLines("data.trans <- asin(sqrt(data.norm))", codefile)
+  } else if (data.transformation == "sqrt") {
+    writeLines("data.trans <- sqrt(data.norm)", codefile)
   }
   writeLines("rownames(data.trans) <- rownames(count.matrix(cdata))", codefile)
 }

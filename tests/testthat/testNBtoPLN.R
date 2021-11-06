@@ -31,6 +31,54 @@ test_that("NB to PLN simple", {
   expect_equal(sd(sample_pln) - sd_nb, 0, tolerance = 0.07)
 })
 
+test_that("NB to PLN phylo - errors", {
+  skip_if_not_installed("phylolm")
+  
+  set.seed(18420318)
+  
+  ## Parameters
+  n <- 20
+  ntaxa <- 8
+  
+  ## Tree
+  tree <- ape::read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+
+  ## NB
+  mean_nb <- 1:ntaxa * 100
+  dispersion_nb <- 1:ntaxa/2 / 100
+  
+  sd_nb <- sqrt(mean_nb + dispersion_nb * mean_nb^2)
+  
+  sample_nb <- t(matrix(rnbinom(n = ntaxa * n,
+                                mu = mean_nb, 
+                                size = 1 / dispersion_nb), nrow = ntaxa))
+  
+  ## PLN
+  names(mean_nb) <- tree$tip.label
+  names(dispersion_nb) <- tree$tip.label
+  
+  expect_error(get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), 1.2),
+               "`prop.var.tree` should be between 0 and 1.")
+  
+  params_PLN <- get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), 1.0)
+  
+  expect_error(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[1:10, ], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "`log_means` and `log_variance_sample should have as many rows as the length of `log_variance_phylo`.")
+  
+  expect_error(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[, 3:8], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "log means` should have as many columns as the number of taxa in the tree.")
+  
+  expect_warning(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[, c(2, 1, 3:8)], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "`log means` was not sorted in the correct order, when compared with the tips label. I am re-ordering it.")
+  
+  pplm <- params_PLN$log_means
+  colnames(pplm) <- c("W", colnames(params_PLN$log_means[, 2:8]))
+  expect_error(simulatePhyloPoissonLogNormal(tree, pplm, params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+                 "`log means` names do not match the tip labels.")
+  
+  
+})
+
 test_that("NB to PLN phylo - star tree", {
   skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")

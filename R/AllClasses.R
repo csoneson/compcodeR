@@ -477,20 +477,9 @@ check_phyloCompData <- function(object) {
   ## Tree
   if (!is.null(phylo.tree(object)) && length(phylo.tree(object)) != 0) {
     if (!inherits(phylo.tree(object), "phylo")) stop("object 'tree' is not of class 'phylo'.")
+    if (is.null(phylo.tree(object)$tip.label)) return("The tips of the phylogeny are not named.")
     if (length(count.matrix(object)) != 0) {
-      tmp <- try(checkParamMatrix(count.matrix(object), "count.matrix", phylo.tree(object)),
-                 silent = TRUE)
-      if (inherits(tmp, 'try-error')) return(geterrmessage())
-    }
-    if (length(length.matrix(object)) != 0) {
-      tmp <- try(checkParamMatrix(length.matrix(object), "length.matrix", phylo.tree(object)),
-                 silent = TRUE)
-      if (inherits(tmp, 'try-error')) return(geterrmessage())
-    }
-    if (length(sample.annotations(object)) != 0) {
-      tmp <- try(checkParamMatrix(sample.annotations(object), "sample.annotations", phylo.tree(object), transpose = TRUE),
-                 silent = TRUE)
-      if (inherits(tmp, 'try-error')) return(geterrmessage())
+      if (!all(phylo.tree(object)$tip.label == colnames(count.matrix(object)))) return("Column names of count.matrix do not match the tip labels.")
     }
     if (length(sample.annotations(object)$id.species) != 0) {
       ids <- sample.annotations(object)$id.species
@@ -670,6 +659,7 @@ phyloCompDataFromCompData <- function(compDataObject,
 #'                                  
 convertListTophyloCompData <- function(inp.list) {
   compData <- convertListTocompData(inp.list)
+  if (is.null(compData)) return(NULL)
   if (is.null(inp.list$tree)) inp.list$tree <- list()
   if (length(inp.list$tree) == 0) attr(inp.list$tree, "class") <- "phylo"
   phyloCompDataFromCompData(compData,
