@@ -886,7 +886,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   }
   
   ## Phylogenetic heatmap
-  if (length(phylo.tree(data.set)) != 0) { # There is a tree
+  if (length(phylo.tree(data.set)) != 0 && info.parameters(data.set)$n.diffexp > 0) { # There is a tree, and there are some DE genes
     if (!requireNamespace("ggtree", quietly = TRUE) || !requireNamespace("tidytree", quietly = TRUE)) {
       warning("Packages 'ggtree' and 'tidytree' are needed for phylogenetic heatmap plot. Skipping.", call. = FALSE)
     } else {
@@ -907,9 +907,8 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                    "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
                    "log2.pseudocounts <- log2(pseudocounts)",
                    "",
-                   "maxGene <- info.parameters(data.set)$n.diffexp",
-                   "Z1 <- log2.pseudocounts[1:maxGene, ]",
-                   "Z2 <- log2.pseudocounts[maxGene + 1:maxGene, ]",
+                   "Z1 <- log2.pseudocounts[which(variable.annotations(data.set)$differential.expression == 1), ]",
+                   "Z2 <- log2.pseudocounts[which(variable.annotations(data.set)$differential.expression == 0)[seq_len(nrow(Z1))], ]",
                    "",
                    "gh <- gheatmap(gt, t(Z1), offset = 0.1, width = 5, colnames = FALSE)",
                    "gh <- gheatmap(gh, t(Z2), offset = 5.2, width = 5, colnames = FALSE)",
@@ -917,10 +916,10 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                    "gh",
                    "```"), codefile)
       writeLines(c("",
-                   "Tips colored by true differential expression status.",
-                   "Only the first `r 2*maxGene` genes are represented.",
-                   "The first block of `r maxGene` genes are differencially expressed between condition 1 and 2.",
-                   "The second block of `r maxGene` genes are not differencially expressed."),
+                   "Tips are colored by the true differential expression status.",
+                   "Only a subset of `r nrow(Z1) + nrow(Z2)` genes are represented.",
+                   "The first block of `r nrow(Z1)` genes are differentially expressed between condition 1 and 2.",
+                   "The second block of `r nrow(Z2)` genes are not differentially expressed."),
                  codefile)
     }
   }
@@ -945,7 +944,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   }
   ##
   if (length(length.matrix(data.set)) != 0) { # There are lengths
-    writeLines("### lengths: mean versus variance (log2)", codefile)
+    writeLines("### Lengths: mean versus variance (log2)", codefile)
     writeLines(c(
       "```{r lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
       "length.matrix_species <- length.matrix(data.set)[, !duplicated(sample.annotations(data.set)$id.species)]",
