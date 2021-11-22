@@ -920,7 +920,8 @@ test_that("runDiffExp works - with lengths", {
   expect_equal(method.names(tmp), list())
   
   if (requireNamespace("DESeq2", quietly = TRUE)) {
-    runDiffExp(
+    expect_message(
+      runDiffExp(
       data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
       result.extent = "DESeq2.length",
       Rmdfunction = "DESeq2.length.createRmd",
@@ -930,6 +931,8 @@ test_that("runDiffExp works - with lengths", {
       impute.outliers = TRUE,
       extra.design.covariates = NULL,
       nas_as_ones = FALSE
+    ),
+    "there might be some NAs in the adjusted p values computed by DESeq2"
     )
   }
   # limma is in Imports
@@ -1108,6 +1111,7 @@ test_that("runDiffExp works - phylo", {
   expect_equal(method.names(tmp), list())
   
   if (requireNamespace("DESeq2", quietly = TRUE)) {
+    expect_message(
     runDiffExp(
       data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
       result.extent = "DESeq2.length",
@@ -1118,6 +1122,8 @@ test_that("runDiffExp works - phylo", {
       impute.outliers = TRUE,
       extra.design.covariates = NULL,
       nas_as_ones = TRUE
+    ),
+    "all NAs in adjusted p values are replaced by 1"
     )
   }
   # limma is in Imports
