@@ -102,7 +102,7 @@ rpois_robust <- function(n, lambda) {
   
   sim <- rep(NA, n)
   sim[!too_large] <- rpois(N_not_too_large, lambda[!too_large])
-  sim[too_large] <- round(rnorm(N_too_large, mean = lambda, sd = sqrt(lambda)))
+  sim[too_large] <- round(rnorm(N_too_large, mean = lambda[too_large], sd = sqrt(lambda[too_large])))
   
   return(sim)
 }

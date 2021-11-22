@@ -10,7 +10,7 @@ test_that("rpois coincides with rpois_robust", {
   set.seed(20200317)
   rprob <- rpois_robust(3, lambda)
   
-  expect_equal(rp[1:2], rprob[1:2], tolerance = 0.01)
+  expect_equal(rp, rprob, tolerance = 0.01)
   
   expect_error(rpois_robust(3, lambda[1:2]), "`lambda` must be of length `n` in `rpois_robust`.")
   
