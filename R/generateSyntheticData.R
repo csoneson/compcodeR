@@ -936,7 +936,7 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                  "",
                  "sampleDists <- dist( t( log2.pseudocounts ) )",
                  "sampleDistMatrix <- as.matrix(sampleDists)",
-                 "heatmap(sampleDistMatrix, col = viridis::viridis(256, option = 'plasma', direction = 1, end = 0.9))",
+                 "heatmap(sampleDistMatrix, col = hcl.colors(256, palette = 'Plasma'))",
                  "```"), codefile)
     writeLines(c("",
                  "Note: the heatmap tree is the correlation tree (the phylogeny is not taken into account in this plot)."),
