@@ -14,6 +14,7 @@
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
+#' @param nas_as_ones Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.
 #' 
 #' @details 
 #' The lengths matrix is used as a normalization factor and applied to the \code{DESeq2}
@@ -64,7 +65,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                                     fit.type, test, beta.prior = TRUE, 
                                     independent.filtering = TRUE, cooks.cutoff = TRUE, 
                                     impute.outliers = TRUE,
-                                    extra.design.covariates = NULL) {
+                                    extra.design.covariates = NULL,
+                                    nas_as_ones = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2.length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -108,8 +110,13 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                  paste("DESeq2.length.ds.clean <- DESeq2::DESeq(DESeq2.length.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
                  "DESeq2.length.ds <- DESeq2.length.ds.clean"), codefile)
   }
-  writeLines(c(paste("DESeq2.length.results <- DESeq2::results(DESeq2.length.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
-               "DESeq2.length.pvalues <- DESeq2.length.results$pvalue", 
+  writeLines(paste("DESeq2.length.results <- DESeq2::results(DESeq2.length.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
+             codefile)  
+  if (nas_as_ones) {
+    # see https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#i-want-to-benchmark-deseq2-comparing-to-other-de-tools.
+    writeLines("DESeq2.length.results$padj <- ifelse(is.na(DESeq2.length.results$padj), 1, DESeq2.length.results$padj)", codefile)  
+  }
+  writeLines(c("DESeq2.length.pvalues <- DESeq2.length.results$pvalue", 
                "DESeq2.length.adjpvalues <- DESeq2.length.results$padj", 
                "DESeq2.length.logFC <- DESeq2.length.results$log2FoldChange", 
                "DESeq2.length.score <- 1 - DESeq2.length.pvalues", 

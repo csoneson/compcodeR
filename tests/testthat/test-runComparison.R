@@ -928,7 +928,8 @@ test_that("runDiffExp works - with lengths", {
       test = "Wald", beta.prior = TRUE,
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
-      extra.design.covariates = NULL
+      extra.design.covariates = NULL,
+      nas_as_ones = FALSE
     )
   }
   # limma is in Imports
@@ -1115,7 +1116,8 @@ test_that("runDiffExp works - phylo", {
       test = "Wald", beta.prior = TRUE,
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
-      extra.design.covariates = NULL
+      extra.design.covariates = NULL,
+      nas_as_ones = TRUE
     )
   }
   # limma is in Imports
