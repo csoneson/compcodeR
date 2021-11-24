@@ -982,7 +982,7 @@ test_that("runDiffExp works - with lengths", {
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
       extra.design.covariates = NULL,
-      nas_as_ones = FALSE
+      nas.as.ones = FALSE
     ),
     "there might be some NAs in the adjusted p values computed by DESeq2"
     )
@@ -1174,7 +1174,7 @@ test_that("runDiffExp works - phylo", {
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
       extra.design.covariates = NULL,
-      nas_as_ones = TRUE
+      nas.as.ones = TRUE
     ),
     "all NAs in adjusted p values are replaced by 1"
     )
