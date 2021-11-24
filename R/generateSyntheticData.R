@@ -39,7 +39,7 @@
 #' @param effect.size The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
 #' @param tree a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
-#' @param prop.var.tree the proportion of the common variance explained by the tree. Default to 1.
+#' @param prop.var.tree the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length \code{n.vars}. Default to 1.
 #' @param model.process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
 #' @param selection.strength if the process is "OU", the selection strength parameter.
 #' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
@@ -153,6 +153,18 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
     if (fraction.non.overdispersed != 0) {
       stop("The Phylogenetic Poisson lognormal distribution is always over-dispersed.")
     }
+    
+    ## Check Proportion
+    if (!is.vector(prop.var.tree)) {
+      stop("`prop.var.tree` should be a vector or a scalar.")
+    }
+    if (length(prop.var.tree) != n.vars) {
+      if (length(prop.var.tree) != 1) stop("`prop.var.tree` should be a vector of length the number of genes, or a scalar (in which case it will be recycled).")
+    }
+    if (any(prop.var.tree > 1.0 | prop.var.tree < 0.0)) {
+      stop("All entries of `prop.var.tree` should be between 0 and 1.")
+    }
+    
   } else {
     ## Check id.condition (non phylogenetic)
     if (!is.null(id.condition)) {
@@ -476,7 +488,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'nEff' = nEffNaive(tree, id.condition, model.process, selection.strength),
 	                        'nEffRatio' = nEffRatio(tree, id.condition, model.process, selection.strength))
 	if (use_tree) {
-	  info.parameters <- c(info.parameters, list('prop.var.tree' = prop.var.tree))
+	  variable.annotations$prop.var.tree <- prop.var.tree
 	  sample.annotations$id.condition <-  id.condition
 	}
 	if (use_lengths) {

@@ -225,7 +225,13 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispersions, pr
   }
   
   ## Check Proportion
-  if (prop.var.tree > 1.0 || prop.var.tree < 0.0) {
+  if (!is.vector(prop.var.tree)) {
+    stop("`prop.var.tree` should be a vector.")
+  }
+  if (length(prop.var.tree) != P) {
+    if (length(prop.var.tree) != 1) stop("`prop.var.tree` should be a vector of length the number of genes, or a scalar (in which case it will be recycled).")
+  }
+  if (any(prop.var.tree > 1.0 | prop.var.tree < 0.0)) {
     stop("`prop.var.tree` should be between 0 and 1.")
   }
   

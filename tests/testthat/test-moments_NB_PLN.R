@@ -523,7 +523,7 @@ test_that("Moments of the Negative Binomial and Log Normal are the same, with sh
   
 })
 
-test_that("Moments of the Negative Binomial and Log Normal are the same, with shift, random tree, with replicates", {
+test_that("Moments of the Negative Binomial and Log Normal are the same, with shift, random tree, with replicates and varying prop.var.tree", {
   
   tdir <- tempdir()
   
@@ -628,7 +628,7 @@ test_that("Moments of the Negative Binomial and Log Normal are the same, with sh
                                                   lengths.relmeans = NULL,
                                                   lengths.dispersions = NULL,
                                                   lengths.phylo = FALSE,
-                                                  prop.var.tree = 0.9
+                                                  prop.var.tree = runif(n.vars)
   )
   
   
