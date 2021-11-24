@@ -524,6 +524,7 @@ test_that("Moments of the Negative Binomial and Log Normal are the same, with sh
 })
 
 test_that("Moments of the Negative Binomial and Log Normal are the same, with shift, random tree, with replicates and varying prop.var.tree", {
+  skip_if_not_installed("phytools")
   
   tdir <- tempdir()
   
