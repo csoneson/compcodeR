@@ -709,14 +709,31 @@ test_that("runDiffExp works", {
     )
   }
   if (requireNamespace("DESeq2", quietly = TRUE)) {
-    runDiffExp(
-      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-      result.extent = "DESeq2",
-      Rmdfunction = "DESeq2.createRmd",
-      output.directory = tdir, fit.type = "parametric",
-      test = "Wald", beta.prior = TRUE,
-      independent.filtering = TRUE, cooks.cutoff = TRUE,
-      impute.outliers = TRUE
+    expect_message(
+      runDiffExp(
+        data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+        result.extent = "DESeq2",
+        Rmdfunction = "DESeq2.createRmd",
+        output.directory = tdir, fit.type = "parametric",
+        test = "Wald", beta.prior = TRUE,
+        independent.filtering = TRUE, cooks.cutoff = TRUE,
+        impute.outliers = TRUE,
+        nas.as.ones = FALSE
+      ),
+      "there might be some NAs in the adjusted p values computed by DESeq2"
+    )
+    expect_message(
+      runDiffExp(
+        data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+        result.extent = "DESeq2_nona",
+        Rmdfunction = "DESeq2.createRmd",
+        output.directory = tdir, fit.type = "parametric",
+        test = "Wald", beta.prior = TRUE,
+        independent.filtering = TRUE, cooks.cutoff = TRUE,
+        impute.outliers = TRUE,
+        nas.as.ones = TRUE
+      ),
+      "all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods"
     )
   }
   if (requireNamespace("DSS", quietly = TRUE)) {
@@ -817,11 +834,11 @@ test_that("runDiffExp works", {
     )
   }
   
-  methods <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR.exact",
+  methods <- c("baySeq", "DESeq2", "DESeq2_nona", "DSS", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq", 
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
-  pkgs <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR",
+  pkgs <- c("baySeq", "DESeq2", "DESeq2", "DSS", "EBSeq", "edgeR",
             "edgeR", "limma", "NBPSeq", "NOISeq", 
             "limma", "TCC", "genefilter", "limma",
             "genefilter")

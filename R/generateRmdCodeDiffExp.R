@@ -266,6 +266,8 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
 #' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
+#' @param nas.as.ones Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.
+#' 
 #' @export 
 #' @author Charlotte Soneson
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -287,7 +289,8 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
 DESeq2.createRmd <- function(data.path, result.path, codefile, 
                              fit.type, test, beta.prior = TRUE, 
                              independent.filtering = TRUE, cooks.cutoff = TRUE, 
-                             impute.outliers = TRUE) {
+                             impute.outliers = TRUE,
+                             nas.as.ones = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -306,8 +309,16 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
                  paste("DESeq2.ds.clean <- DESeq2::DESeq(DESeq2.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
                  "DESeq2.ds <- DESeq2.ds.clean"), codefile)
   }
-  writeLines(c(paste("DESeq2.results <- DESeq2::results(DESeq2.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
-               "DESeq2.pvalues <- DESeq2.results$pvalue", 
+  writeLines(paste("DESeq2.results <- DESeq2::results(DESeq2.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
+             codefile) 
+  if (nas.as.ones) {
+    # see https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#i-want-to-benchmark-deseq2-comparing-to-other-de-tools.
+    message("As `nas.as.ones=TRUE`, all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+    writeLines("DESeq2.length.results$padj <- ifelse(is.na(DESeq2.length.results$padj), 1, DESeq2.length.results$padj)", codefile)  
+  } else {
+    message("As `nas.as.ones=FALSE`, there might be some NAs in the adjusted p values computed by DESeq2. This might bias the comparison of the results with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+  }
+  writeLines(c("DESeq2.pvalues <- DESeq2.results$pvalue", 
                "DESeq2.adjpvalues <- DESeq2.results$padj", 
                "DESeq2.logFC <- DESeq2.results$log2FoldChange", 
                "DESeq2.score <- 1 - DESeq2.pvalues", 

@@ -4,17 +4,9 @@
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{DESeq2} package and the corresponding publications. 
 #' 
+#' @inheritParams DESeq2.createRmd
 #' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
-#' @param result.path The path to the file where the result object will be saved.
-#' @param codefile The path to the file where the code will be written.
-#' @param fit.type The fitting method used to get the dispersion-mean relationship. Possible values are \code{"parametric"}, \code{"local"} and \code{"mean"}.
-#' @param test The test to use. Possible values are \code{"Wald"} and \code{"LRT"}.
-#' @param beta.prior Whether or not to put a zero-mean normal prior on the non-intercept coefficients. Default is \code{TRUE}. 
-#' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
-#' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
-#' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
-#' @param nas.as.ones Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.
 #' 
 #' @details 
 #' The lengths matrix is used as a normalization factor and applied to the \code{DESeq2}
