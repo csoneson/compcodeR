@@ -136,10 +136,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
 #' 
-#' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
-#' @param result.path The path to the file where the result object will be saved.
-#' @param codefile The path to the file where the code will be written.
-#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+#' @inheritParams DESeq2.length.createRmd
+#' @inheritParams voom.limma.createRmd 
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param length.normalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
