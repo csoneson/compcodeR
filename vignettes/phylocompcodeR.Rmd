@@ -298,15 +298,13 @@ with the following added slots:
   * `id.species` [`class character` or `numeric`] -- the species for each sample.
   Should match with the `tip.label` of the `tree` slot.
 
-* When produced with `generateSyntheticData`, the `info.parameters` list has added entry:
-  * `prop.var.tree` [`class numeric`] -- the proportion of the variance explained by the phylogeny.
-
 * When produced with `generateSyntheticData`, the `variable.annotations` data frame has an added columns:
 
   * `lengths.relmeans` [`class numeric`] -- the true mean values used in the simulations of the OG lengths.
   * `lengths.dispersions` [`class numeric`] -- the true dispersion values used in the simulations of the OG lengths.
   * `M.value.TPM` [`class numeric`] -- the estimated log2-fold change between conditions 1 and 2 for each OG using TPM length normalization. 
   * `A.value.TPM` [`class numeric`] -- the estimated average expression in conditions 1 and 2 for each OG using TPM length normalization.
+  * `prop.var.tree` [`class numeric`] -- the proportion of the variance explained by the phylogeny for each gene.
 
 The same way as the `compData` object, the `phyloCompData` object needs to be saved to a file with extension `.rds`.
 

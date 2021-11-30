@@ -14,7 +14,8 @@ DESeq2.length.createRmd(
   independent.filtering = TRUE,
   cooks.cutoff = TRUE,
   impute.outliers = TRUE,
-  extra.design.covariates = NULL
+  extra.design.covariates = NULL,
+  nas.as.ones = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ DESeq2.length.createRmd(
 \item{impute.outliers}{Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.}
 
 \item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
+
+\item{nas.as.ones}{Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.

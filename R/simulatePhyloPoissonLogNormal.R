@@ -68,43 +68,13 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   log_lambda <- resids + log_means
   
   ## Poisson
-  counts <- matrix(rpois_robust(N * P, exp(log_lambda)), ncol = N)
+  counts <- matrix(rpois(N * P, exp(log_lambda)), ncol = N)
   
   ## Names
   colnames(counts) <- colnames(log_lambda) <- tree$tip.label
   
   return(list(log_lambda = log_lambda,
               counts = counts))
-}
-
-#' @title Robust rpois
-#'
-#' @description
-#' When \code{lambda < 0.999 * .Machine$integer.max}, this function uses the vanilla \code{\link[stats]{rpois}} function.
-#' When lambda is larger, it uses the Gaussian approximation.
-#'
-#' @details
-#' Idea comes from: https://stackoverflow.com/questions/23770926/rpois-generates-na-with-large-means-lambda-in-r
-#' 
-#' @param n number of random values to return.
-#' @param lambda vector of (non-negative) means. Must be of length n.
-#' 
-#' @return A vector of n random draws.
-#' 
-#' @keywords internal
-#' 
-rpois_robust <- function(n, lambda) {
-  if (n != length(lambda)) stop("`lambda` must be of length `n` in `rpois_robust`.")
-  
-  too_large <- lambda >= 0.999 * .Machine$integer.max
-  N_too_large <- sum(too_large)
-  N_not_too_large <- n - N_too_large
-  
-  sim <- rep(NA, n)
-  sim[!too_large] <- rpois(N_not_too_large, lambda[!too_large])
-  sim[too_large] <- round(rnorm(N_too_large, mean = lambda, sd = sqrt(lambda)))
-  
-  return(sim)
 }
 
 #' @title Check Matrix Parameter
@@ -255,7 +225,13 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispersions, pr
   }
   
   ## Check Proportion
-  if (prop.var.tree > 1.0 || prop.var.tree < 0.0) {
+  if (!is.vector(prop.var.tree)) {
+    stop("`prop.var.tree` should be a vector.")
+  }
+  if (length(prop.var.tree) != P) {
+    if (length(prop.var.tree) != 1) stop("`prop.var.tree` should be a vector of length the number of genes, or a scalar (in which case it will be recycled).")
+  }
+  if (any(prop.var.tree > 1.0 | prop.var.tree < 0.0)) {
     stop("`prop.var.tree` should be between 0 and 1.")
   }
   

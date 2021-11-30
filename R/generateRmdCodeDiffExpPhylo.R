@@ -4,15 +4,8 @@
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{DESeq2} package and the corresponding publications. 
 #' 
+#' @inheritParams DESeq2.createRmd
 #' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
-#' @param result.path The path to the file where the result object will be saved.
-#' @param codefile The path to the file where the code will be written.
-#' @param fit.type The fitting method used to get the dispersion-mean relationship. Possible values are \code{"parametric"}, \code{"local"} and \code{"mean"}.
-#' @param test The test to use. Possible values are \code{"Wald"} and \code{"LRT"}.
-#' @param beta.prior Whether or not to put a zero-mean normal prior on the non-intercept coefficients. Default is \code{TRUE}. 
-#' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
-#' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
-#' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{DESeq2}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' 
 #' @details 
@@ -64,7 +57,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                                     fit.type, test, beta.prior = TRUE, 
                                     independent.filtering = TRUE, cooks.cutoff = TRUE, 
                                     impute.outliers = TRUE,
-                                    extra.design.covariates = NULL) {
+                                    extra.design.covariates = NULL,
+                                    nas.as.ones = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2.length", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -108,8 +102,16 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
                  paste("DESeq2.length.ds.clean <- DESeq2::DESeq(DESeq2.length.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
                  "DESeq2.length.ds <- DESeq2.length.ds.clean"), codefile)
   }
-  writeLines(c(paste("DESeq2.length.results <- DESeq2::results(DESeq2.length.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
-               "DESeq2.length.pvalues <- DESeq2.length.results$pvalue", 
+  writeLines(paste("DESeq2.length.results <- DESeq2::results(DESeq2.length.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
+             codefile)  
+  if (nas.as.ones) {
+    # see https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#i-want-to-benchmark-deseq2-comparing-to-other-de-tools.
+    message("As `nas.as.ones=TRUE`, all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+    writeLines("DESeq2.length.results$padj <- ifelse(is.na(DESeq2.length.results$padj), 1, DESeq2.length.results$padj)", codefile)  
+  } else {
+    message("As `nas.as.ones=FALSE`, there might be some NAs in the adjusted p values computed by DESeq2. This might bias the comparison of the results with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+  }
+  writeLines(c("DESeq2.length.pvalues <- DESeq2.length.results$pvalue", 
                "DESeq2.length.adjpvalues <- DESeq2.length.results$padj", 
                "DESeq2.length.logFC <- DESeq2.length.results$log2FoldChange", 
                "DESeq2.length.score <- 1 - DESeq2.length.pvalues", 
@@ -134,10 +136,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
 #' 
-#' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
-#' @param result.path The path to the file where the result object will be saved.
-#' @param codefile The path to the file where the code will be written.
-#' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
+#' @inheritParams DESeq2.length.createRmd
+#' @inheritParams voom.limma.createRmd 
 #' @param extra.design.covariates A vector containing the names of extra control variables to be passed to the design matrix of \code{limma}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.
 #' @param length.normalization one of "none" (no length correction), "TPM", or "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.

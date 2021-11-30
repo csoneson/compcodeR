@@ -414,6 +414,58 @@ test_that("generateSyntheticData works - with lengths and phylo", {
   idcond <- c(1, 1, 1, 1, 2, 2, 2, 2)
   names(idcond) <- tree$tip.label
   
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 50, 
+      samples.per.cond = 4, n.diffexp = 0,
+      tree = tree,
+      id.species =  idsp,
+      id.condition = idcond,
+      output.file = NULL,
+      prop.var.tree = c(0.1, 0.1)
+    ),
+    "should be a vector of length the number of genes"
+  )
+  
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 50, 
+      samples.per.cond = 4, n.diffexp = 0,
+      tree = tree,
+      id.species =  idsp,
+      id.condition = idcond,
+      output.file = NULL,
+      prop.var.tree = c(1.1, rep(0.1, 48), 2)
+    ),
+    "All entries of `prop.var.tree` should be between 0 and 1"
+  )
+  
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 50, 
+      samples.per.cond = 4, n.diffexp = 0,
+      tree = tree,
+      id.species =  idsp,
+      id.condition = idcond,
+      output.file = NULL,
+      prop.var.tree = 1.1
+    ),
+    "All entries of `prop.var.tree` should be between 0 and 1"
+  )
+  
+  expect_error(
+    generateSyntheticData(
+      dataset = "B_625_625", n.vars = 50, 
+      samples.per.cond = 4, n.diffexp = 0,
+      tree = tree,
+      id.species =  idsp,
+      id.condition = idcond,
+      output.file = NULL,
+      prop.var.tree = matrix(0.1, 10, 5)
+    ),
+    "should be a vector"
+  )
+  
   ## No DEGs
   set.seed(1)
   tmp <- generateSyntheticData(
@@ -657,14 +709,31 @@ test_that("runDiffExp works", {
     )
   }
   if (requireNamespace("DESeq2", quietly = TRUE)) {
-    runDiffExp(
-      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-      result.extent = "DESeq2",
-      Rmdfunction = "DESeq2.createRmd",
-      output.directory = tdir, fit.type = "parametric",
-      test = "Wald", beta.prior = TRUE,
-      independent.filtering = TRUE, cooks.cutoff = TRUE,
-      impute.outliers = TRUE
+    expect_message(
+      runDiffExp(
+        data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+        result.extent = "DESeq2",
+        Rmdfunction = "DESeq2.createRmd",
+        output.directory = tdir, fit.type = "parametric",
+        test = "Wald", beta.prior = TRUE,
+        independent.filtering = TRUE, cooks.cutoff = TRUE,
+        impute.outliers = TRUE,
+        nas.as.ones = FALSE
+      ),
+      "there might be some NAs in the adjusted p values computed by DESeq2"
+    )
+    expect_message(
+      runDiffExp(
+        data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+        result.extent = "DESeq2_nona",
+        Rmdfunction = "DESeq2.createRmd",
+        output.directory = tdir, fit.type = "parametric",
+        test = "Wald", beta.prior = TRUE,
+        independent.filtering = TRUE, cooks.cutoff = TRUE,
+        impute.outliers = TRUE,
+        nas.as.ones = TRUE
+      ),
+      "all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods"
     )
   }
   if (requireNamespace("DSS", quietly = TRUE)) {
@@ -765,11 +834,11 @@ test_that("runDiffExp works", {
     )
   }
   
-  methods <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR.exact",
+  methods <- c("baySeq", "DESeq2", "DESeq2_nona", "DSS", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq", 
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
-  pkgs <- c("baySeq", "DESeq2", "DSS", "EBSeq", "edgeR",
+  pkgs <- c("baySeq", "DESeq2", "DESeq2", "DSS", "EBSeq", "edgeR",
             "edgeR", "limma", "NBPSeq", "NOISeq", 
             "limma", "TCC", "genefilter", "limma",
             "genefilter")
@@ -920,7 +989,8 @@ test_that("runDiffExp works - with lengths", {
   expect_equal(method.names(tmp), list())
   
   if (requireNamespace("DESeq2", quietly = TRUE)) {
-    runDiffExp(
+    expect_message(
+      runDiffExp(
       data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
       result.extent = "DESeq2.length",
       Rmdfunction = "DESeq2.length.createRmd",
@@ -928,7 +998,10 @@ test_that("runDiffExp works - with lengths", {
       test = "Wald", beta.prior = TRUE,
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
-      extra.design.covariates = NULL
+      extra.design.covariates = NULL,
+      nas.as.ones = FALSE
+    ),
+    "there might be some NAs in the adjusted p values computed by DESeq2"
     )
   }
   # limma is in Imports
@@ -1077,7 +1150,7 @@ test_that("runDiffExp works - phylo", {
   expect_equal(ncol(sample.annotations(tmp)), 4)
   expect_is(variable.annotations(tmp), "data.frame")
   expect_equal(nrow(variable.annotations(tmp)), 489)
-  expect_equal(ncol(variable.annotations(tmp)), 22)
+  expect_equal(ncol(variable.annotations(tmp)), 23)
   expect_is(info.parameters(tmp), "list")
   expect_equal(info.parameters(tmp)$n.diffexp, 50)
   expect_equal(info.parameters(tmp)$dataset, "B_625_625")
@@ -1098,6 +1171,7 @@ test_that("runDiffExp works - phylo", {
   expect_equal(info.parameters(tmp)$maxfact, 1.4)
   expect_equal(info.parameters(tmp)$nEff, 0.3636364, tolerance = 1e-7)
   expect_equal(info.parameters(tmp)$nEffRatio, info.parameters(tmp)$nEff) # n/4 = 1
+  expect_equal(unique(variable.annotations(tmp)$prop.var.tree), 1.0)
   expect_equal(filtering(tmp), "total count >= 1 ;  median cpm >= 0")
   expect_is(analysis.date(tmp), "character")
   expect_equal(analysis.date(tmp), "")
@@ -1107,6 +1181,7 @@ test_that("runDiffExp works - phylo", {
   expect_equal(method.names(tmp), list())
   
   if (requireNamespace("DESeq2", quietly = TRUE)) {
+    expect_message(
     runDiffExp(
       data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
       result.extent = "DESeq2.length",
@@ -1115,7 +1190,10 @@ test_that("runDiffExp works - phylo", {
       test = "Wald", beta.prior = TRUE,
       independent.filtering = TRUE, cooks.cutoff = TRUE,
       impute.outliers = TRUE,
-      extra.design.covariates = NULL
+      extra.design.covariates = NULL,
+      nas.as.ones = TRUE
+    ),
+    "all NAs in adjusted p values are replaced by 1"
     )
   }
   # limma is in Imports
