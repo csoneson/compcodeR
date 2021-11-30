@@ -314,7 +314,7 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
   if (nas.as.ones) {
     # see https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#i-want-to-benchmark-deseq2-comparing-to-other-de-tools.
     message("As `nas.as.ones=TRUE`, all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
-    writeLines("DESeq2.length.results$padj <- ifelse(is.na(DESeq2.length.results$padj), 1, DESeq2.length.results$padj)", codefile)  
+    writeLines("DESeq2.results$padj <- ifelse(is.na(DESeq2.results$padj), 1, DESeq2.results$padj)", codefile)  
   } else {
     message("As `nas.as.ones=FALSE`, there might be some NAs in the adjusted p values computed by DESeq2. This might bias the comparison of the results with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
   }
