@@ -1,8 +1,8 @@
 ---
-title: "Including inter-species measurements in differential expression analysis of RNAseq data with the phylocompcodeR package"
+title: "Including inter-species measurements in differential expression analysis of RNAseq data with the compcodeR package"
 author: "Paul Bastide & Mélina Gallopin"
 date: "`r Sys.Date()`"
-package: phylocompcodeR
+package: compcodeR
 output: 
   BiocStyle::html_document:
       toc: true
@@ -24,21 +24,21 @@ options(width = 55)
 ```
 
 ```{r setup}
-library(phylocompcodeR)
+library(compcodeR)
 ```
 
 # Introduction
 
-`phylocompcodeR` is built on the `r Biocpkg("compcodeR")` R package,
-that can generate RNAseq counts data and compare the relative performances of 
+The `r Biocpkg("compcodeR")` R package
+can generate RNAseq counts data and compare the relative performances of 
 various popular differential analysis detection tools (@Soneson2013).
 
-`phylocompcodeR` uses the same framework as the `r Biocpkg("compcodeR")`,
-with the added possibility to generate "orthologous gene" (OG) expression 
+Using the same framework, this document shows how
+to generate "orthologous gene" (OG) expression 
 for different species, taking into account their varying lengths, and 
 their phylogenetic relationships, as encoded by an evolutionary tree. 
 
-This vignette provides a tutorial on how to use the added functionalities of `phylocompcodeR`.
+This vignette provides a tutorial on how to use the "phylogenetic" functionalities of `r Biocpkg("compcodeR")`.
 It assumes that the reader is already familiar with the [`compcodeR` package vignette](compcodeR.html).
 
 # The `phyloCompData` class
@@ -70,21 +70,16 @@ In this section, we recall this workflow, stressing out the added functionalitie
 
 ## Phylogenetic Tree
 
-The simulations are performed following the description by @Bastide2021.
+The simulations are performed following the description by @Bastide2022.
 
 We use here the phylogenetic tree issued from @Stern2017, normalized to unit height,
 that has $14$ species with up to 3 replicates, for a total number of sample equal to
 $34$ (see Figure below).
 
-```{r tree, eval = FALSE}
+```{r tree, eval = TRUE}
 library(ape)
-tree <- system.file("extdata", "Stern2018.tree", package = "phylocompcodeR")
+tree <- system.file("extdata", "Stern2018.tree", package = "compcodeR")
 tree <- read.tree(tree)
-```
-
-```{r tree2, eval = TRUE, echo = FALSE}
-library(ape)
-tree <- read.tree("Stern2018.tree")
 ```
 
 Note that any other tree could be used, for instance randomly generated
@@ -152,7 +147,7 @@ alt_BM <- generateSyntheticData(dataset = "alt_BM",
                                 tree = tree,                      ## Phylogenetic tree
                                 id.species = id_species,          ## Species structure of samples
                                 id.condition = id_cond,           ## Condition design
-                                model_process = "BM",             ## The latent trait follows a BM
+                                model.process = "BM",             ## The latent trait follows a BM
                                 prop.var.tree = 0.9,              ## Tree accounts for 90% of the variance
                                 lengths.relmeans = "auto",        ## OG length mean and dispersion
                                 lengths.dispersions = "auto")     ## are taken from an empirical exemple
@@ -216,17 +211,17 @@ runDiffExp(data.file = "alt_BM_repl1.rds",
            result.extent = "lengthNorm.limma", Rmdfunction = "lengthNorm.limma.createRmd",
            output.directory = ".",
            norm.method = "TMM",
-           lengthNormalization = "TPM",
-           dataTransformation = "log2",
-           trend = FALSE, blockFactor = "id.species")
+           length.normalization = "TPM",
+           data.transformation = "log2",
+           trend = FALSE, block.factor = "id.species")
 runDiffExp(data.file = "alt_BM_repl1.rds",
            result.extent = "phylolm", Rmdfunction = "phylolm.createRmd",
            output.directory = ".",
            norm.method = "TMM",
            model = "BM", measurement_error = TRUE,
-           extraDesignFactors = NULL,
-           lengthNormalization = "TPM",
-           dataTransformation = "log2")
+           extra.design.covariates = NULL,
+           length.normalization = "TPM",
+           data.transformation = "log2")
 ```
 
 As for a regular `r Biocpkg("compcodeR")` analysis,
@@ -258,17 +253,28 @@ The constructor method will make sure that the tree is consistent with the count
 and length matrices, with the same dimensions and consistent species names.
 
 ```{r create-compData, eval=TRUE}
-count.matrix <- round(matrix(1000*runif(4000), 1000))
-sample.annotations <- data.frame(condition = c(1, 1, 2, 2))
-info.parameters <- list(dataset = "mydata", uID = "123456")
-tree <- ape::rphylo(4, 1, 0)
-length.matrix <- round(matrix(1000*runif(4000), 1000))
+## Phylogentic tree with replicates
+tree <- read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+## Sample annotations
+sample.annotations <- data.frame(
+  condition = c(1, 1, 1, 1, 2, 2, 2, 2),                 # Condition of each sample
+  id.species = c("A", "A", "A", "B", "C", "C", "D", "D") # Species of each sample
+  )
+## Count Matrix
+count.matrix <- round(matrix(1000*runif(8000), 1000))
+## Length Matrix
+length.matrix <- round(matrix(1000*runif(8000), 1000))
+## Names must match
 colnames(count.matrix) <- colnames(length.matrix) <- rownames(sample.annotations) <- tree$tip.label
+## Extra infos
+info.parameters <- list(dataset = "mydata", uID = "123456")
+## Creation of the object
 cpd <- phyloCompData(count.matrix = count.matrix,
                      sample.annotations = sample.annotations,
                      info.parameters = info.parameters,
                      tree = tree,
                      length.matrix = length.matrix)
+## Check
 check_phyloCompData(cpd)
 ```
 
@@ -288,12 +294,9 @@ with the following added slots:
 * `tree` [`class phylo`] (**mandatory**) -- the phylogenetic tree describing the relationships between samples.
 * `length.matrix` [`class matrix`] (**mandatory**) -- the OG length matrix, with rows representing genes and columns representing samples.
 
-* When produced with `generateSyntheticData`, the `sample.annotations` data frame has an added column:
+* When produced with `generateSyntheticData`, the `sample.annotations` data frame has added column:
   * `id.species` [`class character` or `numeric`] -- the species for each sample.
   Should match with the `tip.label` of the `tree` slot.
-
-* When produced with `generateSyntheticData`, the `info.parameters` list has added entry:
-  * `prop.var.tree` [`class numeric`] -- the proportion of the variance explained by the phylogeny.
 
 * When produced with `generateSyntheticData`, the `variable.annotations` data frame has an added columns:
 
@@ -301,6 +304,7 @@ with the following added slots:
   * `lengths.dispersions` [`class numeric`] -- the true dispersion values used in the simulations of the OG lengths.
   * `M.value.TPM` [`class numeric`] -- the estimated log2-fold change between conditions 1 and 2 for each OG using TPM length normalization. 
   * `A.value.TPM` [`class numeric`] -- the estimated average expression in conditions 1 and 2 for each OG using TPM length normalization.
+  * `prop.var.tree` [`class numeric`] -- the proportion of the variance explained by the phylogeny for each gene.
 
 The same way as the `compData` object, the `phyloCompData` object needs to be saved to a file with extension `.rds`.
 

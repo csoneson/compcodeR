@@ -16,8 +16,8 @@ lengths from the Negative Binomial distribution.}
 simulation of data from the Negative Binomial distribution.}
 }
 \value{
-A matrix of the same size as 'length_matrix', with normalization
-factors to be applied for each sample and each gene.
+A matrix of lengths, with as many columns as the number of species (length of id.species)
+and as many rows as the number of parameters in lengths.relmeans.
 }
 \description{
 Simulate a length matrix of size n.vars times n.sample, with the length of

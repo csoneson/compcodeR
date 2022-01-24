@@ -46,7 +46,7 @@ getNegativeBinomialParameters(
 A list of parameters for each entry of the count matrix:
 \describe{
 \item{count_means}{a matrix of mean for each gene and sample.}
-\item{count_dispertions}{a matrix of dispersions for each gene and sample.}
+\item{count_dispersions}{a matrix of dispersions for each gene and sample.}
 }
 }
 \description{

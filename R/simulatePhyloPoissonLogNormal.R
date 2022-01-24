@@ -18,7 +18,7 @@
 #' species n columns. Column names should match the tree taxa names.
 #' @param log_variance_phylo a vector of length p of phylogenetic variances for 
 #' the BM in the log space for each gene.
-#' @param log_variance_sample a matrix of size p x n of environemental variances
+#' @param log_variance_sample a matrix of size p x n of environmental variances
 #' for individual variations in the log space, for each gene and species.
 #' Column names should match the tree taxa names.
 #' 
@@ -30,7 +30,7 @@
 #' 
 #' @keywords internal
 #' 
-simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample, model_process = "BM", selection.strength = 0) {
+simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, log_variance_sample, model.process = "BM", selection.strength = 0) {
   
   ## Check for packages
   if (!requireNamespace("ape", quietly = TRUE) || !requireNamespace("phylolm", quietly = TRUE)) {
@@ -50,28 +50,13 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   }
   
   ## Phylogenetic simulation of log(lambda)
-  # resids <- mvMORPH::mvSIM(tree = tree,
-  #                          nsim = P,
-  #                          error = 0,
-  #                          model = model_process,
-  #                          param = params_process)
-  
-  # resids <- ape::rTraitMult(phy = tree,
-  #                           model = function(x, l) return(x + rnorm(length(x), 0, sqrt(l))),
-  #                           p = P,
-  #                           root.value = rep(0.0, P))
-  
   resids <- phylolm::rTrait(n = P,
                             phy = tree,
-                            model = model_process,
+                            model = model.process,
                             parameters = list(sigma2 = 1, ancestral.state = 0, optimal.value = 0, alpha = selection.strength),
                             plot.tree = FALSE)
   
-  # V <- ape::vcv(tree)
-  # resids <- matrix(rnorm(N * P, mean = 0, sd = 1), nrow = N)
-  # resids <- t(chol(V)) %*% resids
-  
-  log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model_process, selection.strength)
+  log_sd_phylo <- scale_variance_process(log_variance_phylo, tree, model.process, selection.strength)
   
   ## phylo variances
   resids <- resids * log_sd_phylo
@@ -83,43 +68,13 @@ simulatePhyloPoissonLogNormal <- function(tree, log_means, log_variance_phylo, l
   log_lambda <- resids + log_means
   
   ## Poisson
-  counts <- matrix(rpois_robust(N * P, exp(log_lambda)), ncol = N)
+  counts <- matrix(rpois(N * P, exp(log_lambda)), ncol = N)
   
   ## Names
   colnames(counts) <- colnames(log_lambda) <- tree$tip.label
   
   return(list(log_lambda = log_lambda,
               counts = counts))
-}
-
-#' @title Robust rpois
-#'
-#' @description
-#' When \code{lambda < 0.999 * .Machine$integer.max}, this function uses the vanilla \code{\link[stats]{rpois}} function.
-#' When lambda is larger, it uses the Gaussian approximation.
-#'
-#' @details
-#' Idea comes from: https://stackoverflow.com/questions/23770926/rpois-generates-na-with-large-means-lambda-in-r
-#' 
-#' @param n number of random values to return.
-#' @param lambda vector of (non-negative) means. Must be of length n.
-#' 
-#' @return A vector of n random draws.
-#' 
-#' @keywords internal
-#' 
-rpois_robust <- function(n, lambda) {
-  if (n != length(lambda)) stop("`lambda` must be of length `n` in `rpois_robust`.")
-  
-  too_large <- lambda >= 0.999 * .Machine$integer.max
-  N_too_large <- sum(too_large)
-  N_not_too_large <- n - N_too_large
-  
-  sim <- rep(NA, n)
-  sim[!too_large] <- rpois(N_not_too_large, lambda[!too_large])
-  sim[too_large] <- round(rnorm(N_too_large, mean = lambda, sd = sqrt(lambda)))
-  
-  return(sim)
 }
 
 #' @title Check Matrix Parameter
@@ -130,48 +85,27 @@ rpois_robust <- function(n, lambda) {
 #' @param x matrix of parameters being tested.
 #' @param name name of the parameter.
 #' @param tree A phylogenetic tree with n tips.
-#' @param transpose Should the transpose of the matrix be taken ? Default to FALSE.
 #' 
 #' @keywords internal
 #' 
-checkParamMatrix <- function(x, name, tree, transpose = FALSE) {
+checkParamMatrix <- function(x, name, tree) {
   N <- length(tree$tip.label)
   
-  if (!transpose) {
-    if (ncol(x) != N) {
-      stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
-    }
-    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
-    if (is.null(colnames(x))){
-      warning(paste0("Columns of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
-      colnames(x) <- tree$tip.label
-    } else {
-      if (!all(tree$tip.label == colnames(x))){
-        correspondances <- match(tree$tip.label, colnames(x))
-        if (length(unique(correspondances)) != length(tree$tip.label)){
-          stop(paste0("`", name, "` names do not match the tip labels."))
-        }
-        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
-        x <- x[, correspondances, drop = FALSE]
-      }
-    }
+  if (ncol(x) != N) {
+    stop(paste0("`", name, "` should have as many columns as the number of taxa in the tree."))
+  }
+  if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
+  if (is.null(colnames(x))){
+    warning(paste0("Columns of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
+    colnames(x) <- tree$tip.label
   } else {
-    if (nrow(x) != N) {
-      stop(paste0("`", name, "` should have as many rows as the number of taxa in the tree."))
-    }
-    if (is.null(tree$tip.label)) stop("The tips of the phylogeny are not named.")
-    if (is.null(rownames(x))){
-      warning(paste0("Rows of `", name, "` are not named. I'm naming them, assuming they are in the same order as the tree."))
-      rownames(x) <- tree$tip.label
-    } else {
-      if (!all(tree$tip.label == rownames(x))){
-        correspondances <- match(tree$tip.label, rownames(x))
-        if (length(unique(correspondances)) != length(tree$tip.label)){
-          stop(paste0("`", name, "` names do not match the tip labels."))
-        }
-        warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
-        x <- x[correspondances, , drop = FALSE]
+    if (!all(tree$tip.label == colnames(x))){
+      correspondances <- match(tree$tip.label, colnames(x))
+      if (length(na.omit(unique(correspondances))) != length(tree$tip.label)){
+        stop(paste0("`", name, "` names do not match the tip labels."))
       }
+      warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
+      x <- x[, correspondances, drop = FALSE]
     }
   }
   return(x)
@@ -201,7 +135,7 @@ checkParamVector <- function(x, name, tree) {
   } else {
     if (!all(tree$tip.label == names(x))){
       correspondances <- match(tree$tip.label, names(x))
-      if (length(unique(correspondances)) != length(tree$tip.label)){
+      if (length(na.omit(unique(correspondances))) != length(tree$tip.label)){
         stop(paste0("`", name, "` names do not match the tip labels."))
       }
       warning(paste0("`", name, "` was not sorted in the correct order, when compared with the tips label. I am re-ordering it."))
@@ -250,7 +184,7 @@ add_replicates <- function(tree, r) {
   tree_rep <- tree
   # Add replicates
   for (tip_label in tree$tip.label) {
-    for (rep in 1:r) {
+    for (rep in seq_len(r)) {
       tree_rep <- phytools::bind.tip(tree_rep, tip.label = paste0(tip_label, "_", rep),
                                      where = which(tree_rep$tip.label == tip_label))
     }
@@ -263,40 +197,46 @@ add_replicates <- function(tree, r) {
 #' @title Compute log means and variances
 #'
 #' @description 
-#' From the parameters of a negative binomial (count_means and count_dispertions),
+#' From the parameters of a negative binomial (count_means and count_dispersions),
 #' compute the parameters of a phylogenetic Poisson log-normal with the
 #' same expectations and variances.
 #' 
 #' @param count_means a matrix with the number of genes p rows and the number of
 #' species n columns. Column names should match the tree taxa names.
-#' @param count_dispertions a matrix of size p x n, for each gene and species.
+#' @param count_dispersions a matrix of size p x n, for each gene and species.
 #' Column names should match the tree taxa names.
 #' 
 #' @return A list, with:
 #' \describe{
 #' \item{log_means}{the p x n matrix of log-means for Poisson-lognormal simulations.}
 #' \item{log_variance_phylo}{the p vector of phylogenetic log-variances for Poisson-lognormal simulations.}
-#' \item{log_variance_sample}{the p x n matrix of environemental log-variances for Poisson-lognormal simulations.}
+#' \item{log_variance_sample}{the p x n matrix of environmental log-variances for Poisson-lognormal simulations.}
 #' }
 #' 
 #' @keywords internal
 #' 
-get_poisson_log_normal_parameters <- function(count_means, count_dispertions, prop.var.tree) {
+get_poisson_log_normal_parameters <- function(count_means, count_dispersions, prop.var.tree) {
   N <- ncol(count_means)
   P <- nrow(count_means)
   
   ## Check Dimension
-  if (nrow(count_dispertions) != P || ncol(count_dispertions) != N) {
-    stop("`count_means` and `count_dispertions` should have the same dimensions.")
+  if (nrow(count_dispersions) != P || ncol(count_dispersions) != N) {
+    stop("`count_means` and `count_dispersions` should have the same dimensions.")
   }
   
   ## Check Proportion
-  if (prop.var.tree > 1.0 || prop.var.tree < 0.0) {
+  if (!is.vector(prop.var.tree)) {
+    stop("`prop.var.tree` should be a vector.")
+  }
+  if (length(prop.var.tree) != P) {
+    if (length(prop.var.tree) != 1) stop("`prop.var.tree` should be a vector of length the number of genes, or a scalar (in which case it will be recycled).")
+  }
+  if (any(prop.var.tree > 1.0 | prop.var.tree < 0.0)) {
     stop("`prop.var.tree` should be between 0 and 1.")
   }
   
   ## Parameters of the PLN
-  params_PLN <- NB_to_PLN(count_means, count_dispertions)
+  params_PLN <- NB_to_PLN(count_means, count_dispersions)
   log_means <- params_PLN$log_means_pln
   log_variances_all <- params_PLN$log_variances_pln
   
@@ -319,12 +259,12 @@ get_poisson_log_normal_parameters <- function(count_means, count_dispertions, pr
 #' @title Negative Binomial to Poisson Log-Normal
 #'
 #' @description 
-#' From the parameters of a negative binomial (mean and dispertion),
+#' From the parameters of a negative binomial (mean and dispersion),
 #' compute the parameters of a Poisson log-normal with the
 #' same expectation and variance.
 #' 
 #' @param mean mean of the negative binomial.
-#' @param dispertion dispersion of the negative binomial.
+#' @param dispersion dispersion of the negative binomial.
 #' 
 #' @return A list, with:
 #' \describe{
@@ -357,21 +297,21 @@ NB_to_PLN <- function(mean, dispersion) {
 #' @keywords internal
 #' 
 simulateDataPhylo <- function(count_means,
-                              count_dispertions,
+                              count_dispersions,
                               tree, prop.var.tree,
-                              model_process = "BM", selection.strength = 0) {
+                              model.process = "BM", selection.strength = 0) {
   ### Initialize data matrix
-  colnames(count_means) <- colnames(count_dispertions) <- tree$tip.label
+  colnames(count_means) <- colnames(count_dispersions) <- tree$tip.label
   
   ### Get Equivalent Phylogenetic Poisson log-normal parameters
-  params_poisson_lognormal <- get_poisson_log_normal_parameters(count_means, count_dispertions, prop.var.tree)
+  params_poisson_lognormal <- get_poisson_log_normal_parameters(count_means, count_dispersions, prop.var.tree)
   
   ### Simulate Data
   res_sim <- simulatePhyloPoissonLogNormal(tree,
                                            params_poisson_lognormal$log_means,
                                            params_poisson_lognormal$log_variance_phylo,
                                            params_poisson_lognormal$log_variance_sample,
-                                           model_process = model_process,
+                                           model.process = model.process,
                                            selection.strength = selection.strength)
   return(res_sim$counts)
 }
@@ -379,7 +319,7 @@ simulateDataPhylo <- function(count_means,
 #' @title Scale the variances
 #'
 #' @description 
-#' Scale the variances of the process simulation so that they are equel to log_variance_phylo.
+#' Scale the variances of the process simulation so that they are equal to log_variance_phylo.
 #' 
 #' @inheritParams generateSyntheticData 
 #' @inheritParams simulateData
@@ -388,8 +328,8 @@ simulateDataPhylo <- function(count_means,
 #' 
 #' @keywords internal
 #' 
-scale_variance_process <- function(log_variance_phylo, tree, model_process, selection.strength) {
-  fac <- get_model_factor(model_process, selection.strength, tree)
+scale_variance_process <- function(log_variance_phylo, tree, model.process, selection.strength) {
+  fac <- get_model_factor(model.process, selection.strength, tree)
   return(fac %*% t(sqrt(log_variance_phylo)))
 }
 
@@ -404,11 +344,11 @@ scale_variance_process <- function(log_variance_phylo, tree, model_process, sele
 #' 
 #' @keywords internal
 #' 
-get_model_factor <- function(model_process, selection.strength, tree) {
+get_model_factor <- function(model.process, selection.strength, tree) {
   heights <- ape::node.depth.edgelength(tree)[1:length(tree$tip.label)]
-  if (model_process == "BM" || selection.strength == 0) {
+  if (model.process == "BM" || selection.strength == 0) {
     return(sqrt(1 / heights))
-  } else if (model_process == "OU") {
+  } else if (model.process == "OU") {
     return(sqrt(1 / expm1(-2 * selection.strength * heights) * (-2 * selection.strength)))
   } else {
     stop("Process not yet implemented.")
@@ -443,9 +383,9 @@ generateLengthsPhylo <- function(tree, id.species, lengths.relmeans, lengths.dis
                                                 S2 = NULL, prob.S2 = 0, sum.S2 = 0, truedispersions.S2 = 0, nfact_length.S2 = matrix(NA, 0, 0),
                                                 seq.depths = rep(1.0, ntaxa))
   lengths_unique <- simulateDataPhylo(params_simus$count_means,
-                                      params_simus$count_dispertions,
+                                      params_simus$count_dispersions,
                                       tree = tree_sp, prop.var.tree = 1.0,
-                                      model_process = "BM", selection.strength = 0) 
+                                      model.process = "BM", selection.strength = 0) 
   length_matrix <- lengths_unique[, id.species]
   return(length_matrix)
 }
@@ -455,160 +395,6 @@ trim_tree <- function(tree, id.species) {
   tree_sp <- ape::keep.tip(tree, tips_to_keep)
   tree_sp$tip.label <- as.character(unique(id.species))
   return(tree_sp)
-}
-
-#' @title Multiplying factor for Non central Fisher
-#'
-#' @description 
-#' Under the alternative hypothesis, multiplying factor for the non-central Fisher
-#' distribution parameter, compared to the case where samples are iid and of equal size.
-#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
-#' If it is below 1.0, then the problem is "harder".
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-deltaFisher <- function(tree, id.condition, model, selection.strength) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-    Vinv <- diag(1, n)
-  } else {
-    # Check vector order
-    id.condition <- checkParamVector(id.condition, "id.condition", tree)
-    # tree
-    n <- length(tree$tip.label)
-    if (model == "OU") model <- "OUfixedRoot"
-    V <- ape::vcv(phylolm::transf.branch.lengths(tree, model = model, list(alpha = selection.strength))$tree)
-    Vinv <- try(solve(V))
-    if (inherits(Vinv, 'try-error')) Vinv <- ginv(V)
-  }
-  # Intercept
-  X <- rep(1, n)
-  # Model matrix
-  Z <- stats::model.matrix(~factor(id.condition))[, -1, drop = FALSE]
-  deltaF <- (diag(1, n) -  X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv) %*% Z
-  deltaF <- t(deltaF) %*% Vinv %*% deltaF
-  # deltaF <- t(Z) %*% Vinv %*% Z - t(Z) %*% Vinv %*% X %*% solve(t(X) %*% Vinv %*% X) %*% t(X) %*% Vinv %*% Z
-  return(unname(as.vector(deltaF)) / n * 4)
-}
-
-# deltaFisherPhylolm <- function(tree, id.condition) {
-#   if (length(unique(id.condition)) != 2) stop("There should be only two conditions")
-#   if (is.null(tree)) return(deltaFisher(tree, id.condition))
-#   # Check vector order
-#   id.condition <- checkParamVector(id.condition, "id.condition", tree)
-#   # tree
-#   n <- length(tree$tip.label)
-#   # phylolm
-#   e1 <- rnorm(n)
-#   names(e1) <- tree$tip.label
-#   phyfit <- phylolm::phylolm(e1 ~ as.factor(id.condition), phy = tree)
-#   vv <- phyfit$vcov
-#   pp <- solve(vv) * n / (n - 2)
-#   deltaF <- (pp[2, 2] - pp[1, 2] * pp[2, 1] / pp[1, 1]) * phyfit$sigma2
-#   return(deltaF / n * 4)
-# }
-
-#' @title Multiplying factor for Non central Student
-#'
-#' @description 
-#' Under the alternative hypothesis, multiplying factor for the non-central Student
-#' distribution parameter, compared to the case where samples are iid and of equal size.
-#' If the factor is above 1.0, then the problem is "easier" than this the null problem.
-#' If it is below 1.0, then the problem is "harder".
-#' WARNING: This can be identified to the Student distribution only when \code{id.condition} has exactly two factors.
-#' Otherwise, this is just the square root of the non-central Fisher factor (see \code{\link{deltaFisher}}).
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-deltaStudent <- function(tree, id.condition, model, selection.strength) {
-  return(sqrt(deltaFisher(tree, id.condition, model, selection.strength)))
-}
-
-vanillaPowerFisher <- function(tree, id.condition,  model, selection.strength, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d1 = 2 - 1
-  d2 = n - 2
-  qq = qf(level, d1, d2)
-  ncc <- deltaFisher(tree, id.condition, model, selection.strength) * n / 4
-  pow <- pf(qq, d1, d2, ncc, lower.tail = FALSE)
-  return(pow)
-}
-
-#' @title Vanilla Power
-#'
-#' @description 
-#' Power of the Student t-test between the two conditions for a Gaussian vector
-#' of data, with unit effect size (expectation) and variance.
-#' The tree-induced variance is taken into account.
-#' WARNING: This is only valid when \code{id.condition} has exactelly two factors.
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param model The trait evolution model. One of "BM" or "OU".
-#' @param selection.strength If \code{model="OU"}, the selection strength parameter.
-#' @param level The level of the t-test.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-vanillaPowerStudent <- function(tree, id.condition, model, selection.strength, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d2 = n - 2
-  qq = qt(1 - (1 - level)/2, d2)
-  ncc <- deltaStudent(tree, id.condition, model, selection.strength) * sqrt(n / 4)
-  pow <- pt(qq, d2,  ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
-  pow
-}
-
-#' @title Vanilla Power for Independent Data
-#'
-#' @description 
-#' Power of the Student t-test between the two conditions for an independent
-#' Gaussian vector of data, with unit effect size (expectation) and variance.
-#' WARNING: This is only valid when \code{id.condition} has exactly two factors.
-#' 
-#' @param tree A phylogenetic tree. If \code{NULL}, samples are assumed to be iid.
-#' @param id.condition A named vector giving the state of each tip (sample).
-#' @param level The level of the t-test.
-#' 
-#' @return The multiplying factor.
-#' 
-#' @keywords internal
-#' 
-vanillaPowerStudentInd <- function(tree, id.condition, level = 0.95) {
-  if (is.null(tree)) {
-    n <- length(id.condition)
-  } else {
-    n <- length(tree$tip.label)
-  }
-  d2 = n - 2
-  qq = qt(1 - (1 - level)/2, d2)
-  ncc <- sqrt(n / 4)
-  pow <- pt(qq, d2, ncc, lower.tail = FALSE) - pt(-qq, d2, ncc, lower.tail = TRUE)
-  pow
 }
 
 #' @title Effective Sample Size
@@ -725,12 +511,12 @@ nEffPhylolm <- function(tree, id.condition, model, selection.strength) {
 #' id_cond <- rep(rep(0:1, each = 2), ntips / 4)
 #' names(id_cond) <- tree$tip.label
 #' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
-#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' compcodeR:::nEffRatio(tree, id_cond, "BM", 0)
 #' ## Bloc cond : nEff smaller than 1
 #' id_cond <- rep(0:1, each = ntips / 2)
 #' names(id_cond) <- tree$tip.label
 #' plot(tree); ape::tiplabels(pch = 21, col = id_cond, bg = id_cond)
-#' phylocompcodeR:::nEffRatio(tree, id_cond, "BM", 0)
+#' compcodeR:::nEffRatio(tree, id_cond, "BM", 0)
 #' 
 #' @keywords internal
 #' 

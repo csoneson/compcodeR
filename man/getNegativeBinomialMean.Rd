@@ -19,9 +19,9 @@ getNegativeBinomialMean(
 )
 }
 \arguments{
-\item{i}{gene indice.}
+\item{i}{gene index.}
 
-\item{j}{sample indice.}
+\item{j}{sample index.}
 
 \item{S1}{Indices in condition 1.}
 

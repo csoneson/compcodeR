@@ -6,7 +6,7 @@
 \usage{
 get_poisson_log_normal_parameters(
   count_means,
-  count_dispertions,
+  count_dispersions,
   prop.var.tree
 )
 }
@@ -14,7 +14,7 @@ get_poisson_log_normal_parameters(
 \item{count_means}{a matrix with the number of genes p rows and the number of
 species n columns. Column names should match the tree taxa names.}
 
-\item{count_dispertions}{a matrix of size p x n, for each gene and species.
+\item{count_dispersions}{a matrix of size p x n, for each gene and species.
 Column names should match the tree taxa names.}
 }
 \value{
@@ -22,11 +22,11 @@ A list, with:
 \describe{
 \item{log_means}{the p x n matrix of log-means for Poisson-lognormal simulations.}
 \item{log_variance_phylo}{the p vector of phylogenetic log-variances for Poisson-lognormal simulations.}
-\item{log_variance_sample}{the p x n matrix of environemental log-variances for Poisson-lognormal simulations.}
+\item{log_variance_sample}{the p x n matrix of environmental log-variances for Poisson-lognormal simulations.}
 }
 }
 \description{
-From the parameters of a negative binomial (count_means and count_dispertions),
+From the parameters of a negative binomial (count_means and count_dispersions),
 compute the parameters of a phylogenetic Poisson log-normal with the
 same expectations and variances.
 }

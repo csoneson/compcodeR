@@ -4,14 +4,14 @@
 \alias{get_model_factor}
 \title{Get the scaling factor}
 \usage{
-get_model_factor(model_process, selection.strength, tree)
+get_model_factor(model.process, selection.strength, tree)
 }
 \arguments{
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 }
 \value{
 A vector N of factors.

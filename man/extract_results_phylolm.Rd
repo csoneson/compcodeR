@@ -2,7 +2,7 @@
 % Please edit documentation in R/phylolmMethods.R
 \name{extract_results_phylolm}
 \alias{extract_results_phylolm}
-\title{Extract phylom results}
+\title{Extract phylolm results}
 \usage{
 extract_results_phylolm(phylo_lm_obj)
 }
@@ -18,7 +18,7 @@ A list, with:
 }
 }
 \description{
-Extrat results from a phylolm object.
+Extract results from a phylolm object.
 The coefficient of interest must be named "condition".
 }
 \keyword{internal}

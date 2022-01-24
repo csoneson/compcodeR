@@ -6,19 +6,19 @@
 \usage{
 simulateDataPhylo(
   count_means,
-  count_dispertions,
+  count_dispersions,
   tree,
   prop.var.tree,
-  model_process = "BM",
+  model.process = "BM",
   selection.strength = 0
 )
 }
 \arguments{
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
-\item{prop.var.tree}{the proportion of the common variance explained by the tree. Default to 1.}
+\item{prop.var.tree}{the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length \code{n.vars}. Default to 1.}
 
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 }

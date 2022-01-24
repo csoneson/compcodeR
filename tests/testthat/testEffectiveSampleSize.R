@@ -12,6 +12,7 @@ test_that("Errors", {
 
 test_that("Naive vs phylolm", {
   skip_if_not_installed("phylolm")
+  skip_if_not_installed("phytools")
   
   ## Tree
   set.seed(1289)

@@ -7,14 +7,14 @@
 scale_variance_process(
   log_variance_phylo,
   tree,
-  model_process,
+  model.process,
   selection.strength
 )
 }
 \arguments{
-\item{tree}{a phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
 
-\item{model_process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
 
 \item{selection.strength}{if the process is "OU", the selection strength parameter.}
 }
@@ -22,6 +22,6 @@ scale_variance_process(
 A matrix N * P of factors to multiply the simulated phylogenetic residuals.
 }
 \description{
-Scale the variances of the process simulation so that they are equel to log_variance_phylo.
+Scale the variances of the process simulation so that they are equal to log_variance_phylo.
 }
 \keyword{internal}

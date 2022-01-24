@@ -31,6 +31,60 @@ test_that("NB to PLN simple", {
   expect_equal(sd(sample_pln) - sd_nb, 0, tolerance = 0.07)
 })
 
+test_that("NB to PLN phylo - errors", {
+  skip_if_not_installed("phylolm")
+  
+  set.seed(18420318)
+  
+  ## Parameters
+  n <- 20
+  ntaxa <- 8
+  
+  ## Tree
+  tree <- ape::read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+
+  ## NB
+  mean_nb <- 1:ntaxa * 100
+  dispersion_nb <- 1:ntaxa/2 / 100
+  
+  sd_nb <- sqrt(mean_nb + dispersion_nb * mean_nb^2)
+  
+  sample_nb <- t(matrix(rnbinom(n = ntaxa * n,
+                                mu = mean_nb, 
+                                size = 1 / dispersion_nb), nrow = ntaxa))
+  
+  ## PLN
+  names(mean_nb) <- tree$tip.label
+  names(dispersion_nb) <- tree$tip.label
+  
+  expect_error(get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), 1.2),
+               "`prop.var.tree` should be between 0 and 1.")
+  
+  expect_error(get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), c(0.1, 0.2)),
+               "should be a vector of length the number of genes")
+  
+  expect_error(get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), matrix(0.1, 2, 2)),
+               "`prop.var.tree` should be a vector")
+  
+  params_PLN <- get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), 1.0)
+  
+  expect_error(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[1:10, ], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "`log_means` and `log_variance_sample should have as many rows as the length of `log_variance_phylo`.")
+  
+  expect_error(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[, 3:8], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "log means` should have as many columns as the number of taxa in the tree.")
+  
+  expect_warning(simulatePhyloPoissonLogNormal(tree, params_PLN$log_means[, c(2, 1, 3:8)], params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+               "`log means` was not sorted in the correct order, when compared with the tips label. I am re-ordering it.")
+  
+  pplm <- params_PLN$log_means
+  colnames(pplm) <- c("W", colnames(params_PLN$log_means[, 2:8]))
+  expect_error(simulatePhyloPoissonLogNormal(tree, pplm, params_PLN$log_variance_phylo, params_PLN$log_variance_sample),
+                 "`log means` names do not match the tip labels.")
+  
+  
+})
+
 test_that("NB to PLN phylo - star tree", {
   skip_if_not_installed("phangorn")
   skip_if_not_installed("phylolm")
@@ -309,7 +363,7 @@ test_that("NB to PLN phylo - random tree - OU", {
                                                params_PLN$log_means,
                                                params_PLN$log_variance_phylo,
                                                params_PLN$log_variance_sample,
-                                               model_process = "OU",
+                                               model.process = "OU",
                                                selection.strength = selection.strength)
   
   sample_ln <- sample_ppln$log_lambda
@@ -557,7 +611,7 @@ test_that("NB to PLN phylo - random tree - OU - Not Unit Length - With Rep - Uni
                                                params_PLN$log_means,
                                                params_PLN$log_variance_phylo,
                                                params_PLN$log_variance_sample,
-                                               model_process = "OU",
+                                               model.process = "OU",
                                                selection.strength = selection.strength)
   
   sample_ln <- sample_ppln$log_lambda
@@ -578,4 +632,79 @@ test_that("NB to PLN phylo - random tree - OU - Not Unit Length - With Rep - Uni
   
   expect_equal(V_ln_pagel, V_ln)
   
+})
+
+test_that("NB to PLN phylo - random tree - variable prop.var.tree", {
+  skip_if_not_installed("phangorn")
+  skip_if_not_installed("phylolm")
+  
+  set.seed(18420318)
+  
+  ## Parameters
+  n <- 10000
+  ntaxa <- 4
+  
+  ## Tree
+  tree <- ape::rtree(ntaxa)
+  tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
+  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
+  tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
+  
+  ## NB
+  mean_nb <- 1:ntaxa * 100
+  dispersion_nb <- 1:ntaxa/2 / 100
+  
+  sd_nb <- sqrt(mean_nb + dispersion_nb * mean_nb^2)
+  
+  sample_nb <- t(matrix(rnbinom(n = ntaxa * n,
+                                mu = mean_nb, 
+                                size = 1 / dispersion_nb), nrow = ntaxa))
+  
+  ## PLN
+  names(mean_nb) <- tree$tip.label
+  names(dispersion_nb) <- tree$tip.label
+  
+  prop.var.tree <- runif(n)
+  
+  params_PLN <- get_poisson_log_normal_parameters(rep(1, n) %*% t(mean_nb), rep(1, n) %*% t(dispersion_nb), prop.var.tree)
+  
+  sample_ppln <- simulatePhyloPoissonLogNormal(tree, params_PLN$log_means, params_PLN$log_variance_phylo, params_PLN$log_variance_sample)
+  
+  sample_ln <- sample_ppln$log_lambda
+  sample_pln <- sample_ppln$counts
+  rm(sample_ppln)
+  
+  mean_ln <- params_PLN$log_means[1, ]
+  sd_ln <- sqrt((params_PLN$log_variance_phylo + params_PLN$log_variance_sample)[1, ])
+  
+  ## Comparisons NB
+  expect_equivalent(colMeans(sample_nb), mean_nb, tolerance = 0.001)
+  expect_equivalent(matrixStats::colSds(sample_nb), sd_nb, tolerance = 0.01)
+  
+  ## Comparison log lambda
+  expect_equivalent(colMeans(sample_ln),mean_ln, tolerance = 0.001)
+  expect_equivalent(matrixStats::colSds(sample_ln), sd_ln, tolerance = 0.01)
+  
+  ## Comparisons PLN
+  expect_equivalent(colMeans(sample_pln), mean_nb, tolerance = 0.001)
+  expect_equivalent(matrixStats::colSds(sample_pln), sd_nb, tolerance = 0.01)
+  
+  ## Always the same total variance
+  for (i in 1:ntaxa) {
+    expect_equivalent(params_PLN$log_variance_phylo + params_PLN$log_variance_sample[, i],
+                      rep(params_PLN$log_variance_phylo[1] + params_PLN$log_variance_sample[1, i], n))
+  }
+  
+  ## Phylogenetic covariances - Pagel
+  C_tree <- ape::vcv(tree)
+  for (ng in sample(n, 100)) { ## test for only 100 genes at random
+    V_ln <- C_tree * params_PLN$log_variance_phylo[ng] + diag(params_PLN$log_variance_sample[ng, ])
+    V_ln_pagel <- (params_PLN$log_variance_phylo[ng] + params_PLN$log_variance_sample[ng, 1]) * ape::vcv(phylolm::transf.branch.lengths(tree, model = "lambda", list(lambda = prop.var.tree[ng]))$tree)
+    for (i in 1:(ntaxa-1)) {
+      for (j in (i+1):ntaxa) {
+        expect_equal(V_ln_pagel[i, j], V_ln[i, j], scale = V_ln[i, j])
+      }
+    }
+  }
+
 })

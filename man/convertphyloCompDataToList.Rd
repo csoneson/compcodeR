@@ -13,10 +13,15 @@ convertphyloCompDataToList(cpd)
 Given a \code{phyloCompData} object, convert it to a list.
 }
 \examples{
+tree <- ape::read.tree(
+  text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"
+  )
+id.species <- factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+names(id.species) <- tree$tip.label
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100,
-                                    id.species = factor(1:10),
-                                    tree = ape::rphylo(10, 1, 0))
+                                    samples.per.cond = 4, n.diffexp = 100,
+                                    tree = tree,
+                                    id.species = id.species)
 mydata.list <- convertcompDataToList(mydata.obj)
 
 }

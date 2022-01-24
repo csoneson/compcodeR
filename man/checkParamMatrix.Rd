@@ -4,7 +4,7 @@
 \alias{checkParamMatrix}
 \title{Check Matrix Parameter}
 \usage{
-checkParamMatrix(x, name, tree, transpose = FALSE)
+checkParamMatrix(x, name, tree)
 }
 \arguments{
 \item{x}{matrix of parameters being tested.}
@@ -12,8 +12,6 @@ checkParamMatrix(x, name, tree, transpose = FALSE)
 \item{name}{name of the parameter.}
 
 \item{tree}{A phylogenetic tree with n tips.}
-
-\item{transpose}{Should the transpose of the matrix be taken ? Default to FALSE.}
 }
 \description{
 Check that the parameters are compatible with the tree. Throws an error if not.

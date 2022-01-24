@@ -11,14 +11,14 @@ phylolm.createRmd(
   norm.method,
   model = "BM",
   measurement_error = TRUE,
-  extraDesignFactors = NULL,
-  lengthNormalization = "RPKM",
-  dataTransformation = "log2",
+  extra.design.covariates = NULL,
+  length.normalization = "RPKM",
+  data.transformation = "log2",
   ...
 )
 }
 \arguments{
-\item{data.path}{The path to a .rds file containing the \code{compData} object that will be used for the differential expression analysis.}
+\item{data.path}{The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.}
 
 \item{result.path}{The path to the file where the result object will be saved.}
 
@@ -30,11 +30,11 @@ phylolm.createRmd(
 
 \item{measurement_error}{A logical value indicating whether there is measurement error. Default to TRUE.}
 
-\item{extraDesignFactors}{A vector containing the extra factors to be passed to the design matrix of \code{DESeq2}. All the factors need to be a \code{sample.annotations} from the \code{\link{compData}} object. It should not contain the "condition" factor column, that will be added automatically.}
+\item{extra.design.covariates}{A vector containing the names of extra control variables to be passed to the design matrix of \code{phyolm}. All the covariates need to be a column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.}
 
-\item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
+\item{length.normalization}{one of "none" (no correction), "TPM" or "RPKM" (default). See details.}
 
-\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
+\item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.}
 
 \item{...}{Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.}
 }
@@ -48,13 +48,35 @@ A function to generate code that can be run to perform differential expression a
 For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
 
 
-The \code{length.matrix} field of the \code{compData}
-object is used to normalize the counts. 
-\describe{
-\item{\code{none}:}{No length normalization.}
-\item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
-\item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
-}
+The \code{length.matrix} field of the \code{phyloCompData} object 
+is used to normalize the counts, using one of the following formulas:
+* \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
+* \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
+* \code{length.normalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
+
+where \eqn{N_{gi}} is the count for gene g and sample i,
+where \eqn{L_{gi}} is the length of gene g in sample i,
+and \eqn{NF_i} is the normalization for sample i,
+normalized using \code{calcNormFactors} of the \code{edgeR} package.
+
+The function specified by the \code{data.transformation} is then applied
+to the normalized count matrix.
+
+The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
+and dropped from the normalization 
+when the transformation is something else than \code{log2}.
+
+The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
+the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
+be applied to real numbers smaller than 1.
+
+The \code{design} model used in the \code{\link[phylolm]{phylolm}}
+uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
+as well as all the covariates named in \code{extra.design.covariates}.
+For example, if \code{extra.design.covariates = c("var1", "var2")}, then
+\code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
+in the \code{\link[phylolm]{phylolm}} function will be:
+\code{~ condition + var1 + var2}.
 }
 \examples{
 try(
@@ -69,18 +91,27 @@ mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
                                     lengths.relmeans = rpois(1000, 1000),
                                     lengths.dispersions = rgamma(1000, 1, 1),
                                     output.file = file.path(tmpdir, "mydata.rds"))
-## Add annotations
-sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, 5))
+## Add covariates
+## Model fitted is count.matrix ~ condition + test_factor + test_reg
+sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
            Rmdfunction = "phylolm.createRmd", 
            output.directory = tmpdir,
            norm.method = "TMM",
-           extraDesignFactors = c("test_factor", "test_reg"),
-           lengthNormalization = "RPKM")
+           extra.design.covariates = c("test_factor", "test_reg"),
+           length.normalization = "RPKM")
 })
 }
 \references{
 Ho, L. S. T. and Ane, C. 2014. "A linear-time algorithm for Gaussian and non-Gaussian trait evolution models". Systematic Biology 63(3):397-408.
+
+Law, C.W., Chen, Y., Shi, W. et al. (2014) voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biol 15, R29.
+
+Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604.
+}
+\author{
+Charlotte Soneson, Paul Bastide, Mélina Gallopin
 }

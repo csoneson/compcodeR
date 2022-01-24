@@ -1,14 +1,16 @@
-Package: phylocompcodeR
+Package: compcodeR
 Type: Package
 Title: RNAseq data simulation, differential expression analysis and
     performance comparison of differential expression methods
-<<<<<<< HEAD
-Version: 1.29.0.9999
-=======
-Version: 1.31.0
->>>>>>> upstream/master
-Authors@R: c(person("Charlotte", "Soneson", role = c("aut", "cre"), 
-    email = "charlottesoneson@gmail.com", comment = c(ORCID = "0000-0003-3833-2169")))
+Version: 1.31.1
+Authors@R: c(
+    person("Charlotte", "Soneson", role = c("aut", "cre"), 
+           email = "charlottesoneson@gmail.com", comment = c(ORCID = "0000-0003-3833-2169")),
+    person("Paul", "Bastide", role = "aut",
+           email = "paul.bastide@umontpellier.fr", comment = c(ORCID = "0000-0002-8084-9893")),
+    person("Mélina", "Gallopin", role = "aut",
+           email = "melina.gallopin@u-psud.fr", comment = c(ORCID = "0000-0002-2431-7825 "))
+           )
 Description: This package provides extensive functionality for
     comparing results obtained by different methods for
     differential expression analysis of RNAseq data. It also
@@ -61,13 +63,13 @@ Suggests:
     testthat,
     ggtree,
     tidytree,
-    compcodeR,
-    phylolimma
+    statmod,
+    covr
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
 biocViews: ImmunoOncology, RNASeq, DifferentialExpression
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 URL: https://github.com/csoneson/compcodeR
 BugReports: https://github.com/csoneson/compcodeR/issues
 Encoding: UTF-8

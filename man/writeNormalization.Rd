@@ -6,17 +6,17 @@
 \usage{
 writeNormalization(
   norm.method,
-  lengthNormalization,
-  dataTransformation,
+  length.normalization,
+  data.transformation,
   codefile
 )
 }
 \arguments{
 \item{norm.method}{The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}}
 
-\item{lengthNormalization}{one of "none" (no correction), "TPM", "RPKM" (default) or "gwRPKM". See details.}
+\item{length.normalization}{one of "none" (no correction), "TPM", "RPKM" (default). See details.}
 
-\item{dataTransformation}{one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.}
+\item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.}
 
 \item{codefile}{}
 }
@@ -24,7 +24,7 @@ writeNormalization(
 Generate a \code{.Rmd} file containing code to normalize data.
 }
 \details{
-The \code{length.matrix} field of the \code{compData}
+The \code{length.matrix} field of the \code{phyloCompData}
 object is used to normalize the counts. 
 \describe{
 \item{\code{none}:}{No length normalization.}

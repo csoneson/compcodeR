@@ -1,8 +1,8 @@
 if (requireNamespace("testthat", quietly = TRUE)) {
   
   library(testthat)
-  library(phylocompcodeR)
+  library(compcodeR)
   
-  test_check("phylocompcodeR")
+  test_check("compcodeR")
   
 }
