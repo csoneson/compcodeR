@@ -1004,8 +1004,11 @@ performComparison <- function(panel) {
 #' @param output.directory The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.
 #' @param check.table Logical, should the input table be checked for consistency. Default \code{TRUE}.
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated.
+#' @param save.result.table Logical, should the intermediate result table be saved for future use ? Default to \code{FALSE}.
+#' @param knit.results Logical, should the Rmd be generated and knitted ? Default to \code{TRUE}. If \code{FALSE}, no comparison report is generated, and only the intermediate result table is saved (if \code{save.result.table=TRUE}).
 #' @return
-#' The function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+#' If \code{knit.results=TRUE}, the function will create a comparison report, named \strong{compcodeR_report<timestamp>.html}, in the \code{output.directory}. It will also create subfolders named \code{compcodeR_code} and \code{compcodeR_figure}, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+#' If \code{save.result.table=TRUE}, the function will also create a comparison report, named \strong{compcodeR_result_table_<timestamp>.rds} in the \code{output.directory}, containing the result table.
 #' @export
 #' @author Charlotte Soneson
 #' @examples
@@ -1042,7 +1045,14 @@ runComparison <- function(file.table,
                           parameters, 
                           output.directory, 
                           check.table = TRUE, 
-                          out.width = NULL) {
+                          out.width = NULL,
+                          save.result.table = FALSE,
+                          knit.results = TRUE) {
+  
+  ## Check arguments
+  if (!save.result.table && !knit.results) {
+    stop("At least on of 'save.result.table' or 'knit.results' must be set to TRUE, otherwise the function does not produce anything.")
+  }
   
   checkClass(file.table, "file.table", "data.frame")
   checkClass(output.directory, "output.directory", "character")
@@ -1195,34 +1205,85 @@ runComparison <- function(file.table,
                                            ".rds", sep = ""))
   saveRDS(setup.parameters, setup.parameters.file)
   
-  createResultsRmdFile(setup.parameters.file,
+  if (save.result.table) {
+    doSaveResultsTable(setup.parameters.file,
                        output.file = file.path(output.directory, 
-                                               paste("compcodeR_report_", 
+                                               paste("compcodeR_result_table_", 
                                                      timestamp, 
-                                                     ".Rmd", sep = "")))
-  
-  ## Generate the HTML file
-  knit2html(input = file.path(output.directory, paste("compcodeR_report_",
-                                                      timestamp, 
-                                                      ".Rmd", sep = "")),
-            output = file.path(output.directory, paste("compcodeR_report_",
-                                                       timestamp, 
-                                                       ".html", sep = "")),
-            title = 'compcodeR results', 
-            envir = new.env())
-  
-  ## Remove the .Rmd file
-  if (!save.rmdfile) {
-    file.remove(file.path(output.directory, paste("compcodeR_report_",
-                                                  timestamp, 
-                                                  ".Rmd", sep = "")))
+                                                     ".rds", sep = "")))
   }
   
-  ## Generate the HTML files containing the code for all compared instances
-  generateCodeHTMLs(setup.parameters$file.info$input.files, 
-                    file.path(output.directory, "compcodeR_code"))
-  
+  if (knit.results) {
+    createResultsRmdFile(setup.parameters.file,
+                         output.file = file.path(output.directory, 
+                                                 paste("compcodeR_report_", 
+                                                       timestamp, 
+                                                       ".Rmd", sep = "")))
+    
+    ## Generate the HTML file
+    out <- knitr::knit(input = file.path(output.directory, paste("compcodeR_report_",
+                                                                 timestamp, 
+                                                                 ".Rmd", sep = "")),
+                       output = file.path(output.directory, paste("compcodeR_report_",
+                                                                  timestamp, 
+                                                                  ".md", sep = "")),
+                       envir =  new.env())
+    markdown::markdownToHTML(file = out,
+                             output = file.path(output.directory, paste("compcodeR_report_",
+                                                                        timestamp, 
+                                                                        ".html", sep = "")),
+                             encoding = "UTF-8",
+                             title = "compcodeR results")
+    
+    ## Remove the .Rmd file
+    if (!save.rmdfile) {
+      file.remove(file.path(output.directory, paste("compcodeR_report_",
+                                                    timestamp, 
+                                                    ".Rmd", sep = "")))
+      file.remove(file.path(output.directory, paste("compcodeR_report_",
+                                                    timestamp, 
+                                                    ".md", sep = "")))
+    }
+    
+    ## Generate the HTML files containing the code for all compared instances
+    generateCodeHTMLs(setup.parameters$file.info$input.files, 
+                      file.path(output.directory, "compcodeR_code"))
+  }
   message("Done!")
+}
+
+# Save the result table for further plotting
+# 
+# This function is generally not called by the user.
+# 
+# @author Charlotte Soneson, Paul Bastide
+doSaveResultsTable <- function(setup.parameters.file, output.file) {
+  ## Check that the output file ends with .rds
+  if (!(substr(output.file, nchar(output.file) - 3, nchar(output.file)) == ".rds")) {
+    output.file <- sub(strsplit(output.file, "\\.")[[1]][length(strsplit(output.file, "\\.")[[1]])], "rds", output.file)
+  }
+  
+  ## Load the setup parameters
+  setup.parameters <- readRDS(setup.parameters.file)
+  setup.parameters$incl.nbr.samples <- as.numeric(setup.parameters$incl.nbr.samples)
+  setup.parameters$incl.replicates <- as.numeric(setup.parameters$incl.replicates)
+  if (all(!is.na(setup.parameters$incl.nbr.samples))) {
+    setup.parameters$incl.nbr.samples <- sort(setup.parameters$incl.nbr.samples)
+  }
+  if (all(!is.na(setup.parameters$incl.replicates))) {
+    setup.parameters$incl.replicates <- sort(setup.parameters$incl.replicates)
+  }
+  
+  ## Create the result table
+  if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'nbrtpfp', 'nbrsign', 'mcc') %in% setup.parameters$comparisons)) {
+    res.table <- createResultTable(setup.parameters)
+    if (any(!is.na(setup.parameters$incl.nbr.samples))) {
+      res.table <- padResultTable(res.table)
+    }
+  }
+  
+  ## Create the result table
+  saveRDS(res.table, file = output.file)
 }
 
 # Check the compatibility of data sets used for method comparison 
