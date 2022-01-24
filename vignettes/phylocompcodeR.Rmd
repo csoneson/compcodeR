@@ -70,7 +70,7 @@ In this section, we recall this workflow, stressing out the added functionalitie
 
 ## Phylogenetic Tree
 
-The simulations are performed following the description by @Bastide2021.
+The simulations are performed following the description by @Bastide2022.
 
 We use here the phylogenetic tree issued from @Stern2017, normalized to unit height,
 that has $14$ species with up to 3 replicates, for a total number of sample equal to
