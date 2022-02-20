@@ -10,6 +10,9 @@
     <loc>/articles/index.html</loc>
   </url>
   <url>
+    <loc>/articles/phylocompcodeR.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -17,6 +20,9 @@
   </url>
   <url>
     <loc>/reference/DESeq2.createRmd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/DESeq2.length.createRmd.html</loc>
   </url>
   <url>
     <loc>/reference/DSS.createRmd.html</loc>
@@ -28,16 +34,31 @@
     <loc>/reference/NBPSeq.createRmd.html</loc>
   </url>
   <url>
+    <loc>/reference/NB_to_PLN.html</loc>
+  </url>
+  <url>
     <loc>/reference/NOISeq.prenorm.createRmd.html</loc>
   </url>
   <url>
     <loc>/reference/TCC.createRmd.html</loc>
   </url>
   <url>
+    <loc>/reference/add_replicates.html</loc>
+  </url>
+  <url>
     <loc>/reference/baySeq.createRmd.html</loc>
   </url>
   <url>
     <loc>/reference/checkDataObject.html</loc>
+  </url>
+  <url>
+    <loc>/reference/checkParamMatrix.html</loc>
+  </url>
+  <url>
+    <loc>/reference/checkParamVector.html</loc>
+  </url>
+  <url>
+    <loc>/reference/checkSpecies.html</loc>
   </url>
   <url>
     <loc>/reference/checkTableConsistency.html</loc>
@@ -49,6 +70,9 @@
     <loc>/reference/check_compData_results.html</loc>
   </url>
   <url>
+    <loc>/reference/check_phyloCompData.html</loc>
+  </url>
+  <url>
     <loc>/reference/compData-class.html</loc>
   </url>
   <url>
@@ -58,10 +82,19 @@
     <loc>/reference/compcodeR-package.html</loc>
   </url>
   <url>
+    <loc>/reference/computeFactorLengths.html</loc>
+  </url>
+  <url>
     <loc>/reference/convertListTocompData.html</loc>
   </url>
   <url>
+    <loc>/reference/convertListTophyloCompData.html</loc>
+  </url>
+  <url>
     <loc>/reference/convertcompDataToList.html</loc>
+  </url>
+  <url>
+    <loc>/reference/convertphyloCompDataToList.html</loc>
   </url>
   <url>
     <loc>/reference/edgeR.GLM.createRmd.html</loc>
@@ -70,19 +103,70 @@
     <loc>/reference/edgeR.exact.createRmd.html</loc>
   </url>
   <url>
+    <loc>/reference/extract_results_phylolm.html</loc>
+  </url>
+  <url>
     <loc>/reference/generateCodeHTMLs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/generateLengths.html</loc>
+  </url>
+  <url>
+    <loc>/reference/generateLengthsPhylo.html</loc>
   </url>
   <url>
     <loc>/reference/generateSyntheticData.html</loc>
   </url>
   <url>
+    <loc>/reference/getNegativeBinomialDispersion.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getNegativeBinomialMean.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getNegativeBinomialParameters.html</loc>
+  </url>
+  <url>
+    <loc>/reference/getTree.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_model_factor.html</loc>
+  </url>
+  <url>
+    <loc>/reference/get_poisson_log_normal_parameters.html</loc>
+  </url>
+  <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/lengthNorm.limma.createRmd.html</loc>
   </url>
   <url>
     <loc>/reference/listcreateRmd.html</loc>
   </url>
   <url>
     <loc>/reference/logcpm.limma.createRmd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/nEffNaive.html</loc>
+  </url>
+  <url>
+    <loc>/reference/nEffRatio.html</loc>
+  </url>
+  <url>
+    <loc>/reference/phyloCompData-class.html</loc>
+  </url>
+  <url>
+    <loc>/reference/phyloCompData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/phyloCompDataFromCompData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/phylolm.createRmd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/phylolm_analysis.html</loc>
   </url>
   <url>
     <loc>/reference/runComparison.html</loc>
@@ -94,7 +178,25 @@
     <loc>/reference/runDiffExp.html</loc>
   </url>
   <url>
+    <loc>/reference/scale_variance_process.html</loc>
+  </url>
+  <url>
     <loc>/reference/show-compData-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/show-phyloCompData-method.html</loc>
+  </url>
+  <url>
+    <loc>/reference/show_compData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulateData.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulateDataPhylo.html</loc>
+  </url>
+  <url>
+    <loc>/reference/simulatePhyloPoissonLogNormal.html</loc>
   </url>
   <url>
     <loc>/reference/sqrtcpm.limma.createRmd.html</loc>
@@ -110,5 +212,8 @@
   </url>
   <url>
     <loc>/reference/voom.ttest.createRmd.html</loc>
+  </url>
+  <url>
+    <loc>/reference/writeNormalization.html</loc>
   </url>
 </urlset>

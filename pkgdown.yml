@@ -1,7 +1,8 @@
 pandoc: 2.7.3
-pkgdown: 1.9000.9000.9000
-pkgdown_sha: 987a046cc853235ecd0083b3d6152e74094d7728
+pkgdown: 2.0.2.9000
+pkgdown_sha: ae7363faac9040a473a54fb3d770decdfb8dfec1
 articles:
   compcodeR: compcodeR.html
-last_built: 2021-10-30T13:10Z
+  phylocompcodeR: phylocompcodeR.html
+last_built: 2022-02-20T10:47Z
 
