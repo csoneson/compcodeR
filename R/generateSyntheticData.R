@@ -126,7 +126,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
       stop("Package 'ape' is needed for phylogenetic simulations.", call. = FALSE)
     }
     ## Check Tree
-    if (class(tree) != "phylo") {
+    if (!inherits(tree, "phylo")) {
       stop("The `tree` must be of class `phylo` from package `ape`.")
     }
     ## Check that the tree has the right number of species
