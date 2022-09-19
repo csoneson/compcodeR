@@ -222,7 +222,7 @@ test_that("NB to PLN phylo - random tree", {
       if (V_tot[i, j] != 0) {
         expect_equivalent(cov(sample_pln[, i], sample_pln[, j]), V_tot[i, j], tolerance = 0.1, scale = V_tot[i, j])
       } else {
-        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 0.4)
+        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 1.0)
       }
     }
   }
@@ -241,9 +241,7 @@ test_that("NB to PLN phylo - star tree with repetitions", {
   
   ## Tree
   tree <- ape::stree(ntaxa, type = "star")
-  tree <- ape::compute.brlen(tree, runif, min = 0, max = 1)
-  tree <- phangorn::nnls.tree(ape::cophenetic.phylo(tree), tree, rooted = TRUE, trace = 0) # force ultrametric
-  tree$edge.length <- tree$edge.length / max(ape::node.depth.edgelength(tree))
+  tree <- ape::compute.brlen(tree, 1.0)
   
   ## Repetitions
   r <- 2
@@ -405,7 +403,7 @@ test_that("NB to PLN phylo - random tree - OU", {
       if (V_tot[i, j] != 0) {
         expect_equivalent(cov(sample_pln[, i], sample_pln[, j]), V_tot[i, j], tolerance = 0.06, scale = V_tot[i, j])
       } else {
-        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 0.6)
+        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 1.0)
       }
     }
   }
@@ -498,7 +496,7 @@ test_that("NB to PLN phylo - random tree - Not Unit Length", {
       if (V_tot[i, j] != 0) {
         expect_equivalent(cov(sample_pln[, i], sample_pln[, j]), V_tot[i, j], tolerance = 0.06, scale = V_tot[i, j])
       } else {
-        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 0.6)
+        expect_equivalent(cov(sample_pln[, i], sample_pln[, j]) - V_tot[i, j], 0, tolerance = 1.0)
       }
     }
   }
@@ -687,7 +685,7 @@ test_that("NB to PLN phylo - random tree - variable prop.var.tree", {
   
   ## Comparisons PLN
   expect_equivalent(colMeans(sample_pln), mean_nb, tolerance = 0.001)
-  expect_equivalent(matrixStats::colSds(sample_pln), sd_nb, tolerance = 0.01)
+  expect_equivalent(matrixStats::colSds(sample_pln), sd_nb, tolerance = 0.05)
   
   ## Always the same total variance
   for (i in 1:ntaxa) {
