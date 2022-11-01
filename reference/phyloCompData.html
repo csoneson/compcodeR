@@ -18,7 +18,7 @@ with sequence length and phylogeny related information."><!-- mathjax --><script
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -30,7 +30,7 @@ with sequence length and phylogeny related information."><!-- mathjax --><script
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -65,28 +65,32 @@ with sequence length and phylogeny related information.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">phyloCompData</span><span class="op">(</span>
-  <span class="va">count.matrix</span>,
-  <span class="va">sample.annotations</span>,
-  <span class="va">info.parameters</span>,
-  variable.annotations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,
-  filtering <span class="op">=</span> <span class="st">"no info"</span>,
-  analysis.date <span class="op">=</span> <span class="st">""</span>,
-  package.version <span class="op">=</span> <span class="st">""</span>,
-  method.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  code <span class="op">=</span> <span class="st">""</span>,
-  result.table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,
-  tree <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,
-  length.matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_integer_</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">phyloCompData</span><span class="op">(</span></span>
+<span>  <span class="va">count.matrix</span>,</span>
+<span>  <span class="va">sample.annotations</span>,</span>
+<span>  <span class="va">info.parameters</span>,</span>
+<span>  variable.annotations <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  filtering <span class="op">=</span> <span class="st">"no info"</span>,</span>
+<span>  analysis.date <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  package.version <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  method.names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  code <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  result.table <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  tree <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  length.matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA_integer_</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>count.matrix</dt>
 <dd><p>A count matrix, with genes as rows and observations as columns.</p></dd>
+
+
 <dt>sample.annotations</dt>
 <dd><p>A data frame, containing at least one column named 'condition', encoding the grouping of the observations into two groups, and one column named <code>id.species</code> of factors giving the species for each sample if the tree is specified. The row names should be the same as the column names of count.matrix. <code>Class data.frame</code>.</p></dd>
+
+
 <dt>info.parameters</dt>
 <dd><p>A list containing information regarding simulation parameters etc. The only mandatory entries are <code>dataset</code> and <code>uID</code>, but it may contain entries such as the ones listed below (see <code>generateSyntheticData</code> for more detailed information about each of these entries).</p><ul><li><p><code>dataset</code>: an informative name or identifier of the data set (e.g., summarizing the simulation settings).</p></li>
 <li><p><code>samples.per.cond</code></p></li>
@@ -107,6 +111,8 @@ with sequence length and phylogeny related information.</p>
 <li><p><code>effect.size</code></p></li>
 <li><p><code>uID</code>: a unique ID for the data set. In contrast to <code>dataset</code>, the <code>uID</code> is unique e.g. for each instance of replicated data sets generated with the same simulation settings.</p></li>
 </ul></dd>
+
+
 <dt>variable.annotations</dt>
 <dd><p>A data frame with variable annotations (with number of rows equal to the number of rows in <code>count.matrix</code>, that is, the number of variables in the data set). Not mandatory, but may contain columns such as the ones listed below. If present, the row names should be the same as the row names of the <code>count.matrix</code>.</p><ul><li><p><code>truedispersions.S1</code>: the true dispersion for each gene in condition S1.</p></li>
 <li><p><code>truedispersions.S2</code>: the true dispersion for each gene in condition S2.</p></li>
@@ -127,16 +133,28 @@ with sequence length and phylogeny related information.</p>
 <li><p><code>downregulation</code>: a binary vector indicating which genes are simulated to be downregulated in condition S2 compared to condition S1.</p></li>
 <li><p><code>differential.expression</code>: a binary vector indicating which genes are simulated to be differentially expressed in condition S2 compared to condition S1.</p></li>
 </ul></dd>
+
+
 <dt>filtering</dt>
 <dd><p>A character string containing information about the filtering that has been applied to the data set.</p></dd>
+
+
 <dt>analysis.date</dt>
 <dd><p>If a differential expression analysis has been performed, a character string detailing when it was performed.</p></dd>
+
+
 <dt>package.version</dt>
 <dd><p>If a differential expression analysis has been performed, a character string giving the version of the differential expression packages that were applied.</p></dd>
+
+
 <dt>method.names</dt>
 <dd><p>If a differential expression analysis has been performed, a list with entries <code>full.name</code> and <code>short.name</code>, giving the full name of the differential expression method (may including version number and parameter settings) and a short name or abbreviation.</p></dd>
+
+
 <dt>code</dt>
 <dd><p>If a differential expression analysis has been performed, a character string containing the code that was run to perform the analysis. The code should be in R markdown format, and can be written to an HTML file using the <code><a href="generateCodeHTMLs.html">generateCodeHTMLs</a></code> function.</p></dd>
+
+
 <dt>result.table</dt>
 <dd><p>If a differential expression analysis has been performed, a data frame containing the results of the analysis. The number of rows should be equal to the number of rows in <code>count.matrix</code> and if present, the row names should be identical. The only mandatory column is <code>score</code>, which gives a score for each gene, where a higher score suggests a "more highly differentially expressed" gene. Different comparison functions use different columns of this table, if available. The list below gives the columns that are used by the interfaced methods.</p><ul><li><p><code>pvalue</code> nominal p-values</p></li>
 <li><p><code>adjpvalue</code> p-values adjusted for multiple comparisons</p></li>
@@ -150,14 +168,21 @@ with sequence length and phylogeny related information.</p>
 <li><p><code>dispersion.S1</code> dispersion estimates in condition S1</p></li>
 <li><p><code>dispersion.S2</code> dispersion estimates in condition S2</p></li>
 </ul></dd>
+
+
 <dt>tree</dt>
 <dd><p>The phylogenetic tree describing the relationships between samples. The taxa names of the <code>tree</code> should be the same as the column names of the <code>count.matrix</code>.</p></dd>
+
+
 <dt>length.matrix</dt>
 <dd><p>The length matrix, with genes as rows and samples as columns. The column names of the <code>length.matrix</code> should be the same as the column names of the <code>count.matrix</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code>phyloCompData</code> object.</p>
+    
+
+<p>A <code>phyloCompData</code> object.</p>
     </div>
     <div id="author">
     <h2>Author</h2>
@@ -166,18 +191,18 @@ with sequence length and phylogeny related information.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span></span>
-<span class="r-in">  text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span></span>
-<span class="r-in">  <span class="op">)</span></span>
-<span class="r-in"><span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">sample.annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span class="r-in">                                 id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">info.parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, uID <span class="op">=</span> <span class="st">"123456"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">length.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">count.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">length.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">sample.annotations</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
-<span class="r-in"><span class="va">cpd</span> <span class="op">&lt;-</span> <span class="fu">phyloCompData</span><span class="op">(</span><span class="va">count.matrix</span>, <span class="va">sample.annotations</span>, <span class="va">info.parameters</span>,</span>
-<span class="r-in">                     tree <span class="op">=</span> <span class="va">tree</span>, length.matrix <span class="op">=</span> <span class="va">length.matrix</span><span class="op">)</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sample.annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                 id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">info.parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, uID <span class="op">=</span> <span class="st">"123456"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">length.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">count.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">length.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">sample.annotations</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span></span>
+<span class="r-in"><span><span class="va">cpd</span> <span class="op">&lt;-</span> <span class="fu">phyloCompData</span><span class="op">(</span><span class="va">count.matrix</span>, <span class="va">sample.annotations</span>, <span class="va">info.parameters</span>,</span></span>
+<span class="r-in"><span>                     tree <span class="op">=</span> <span class="va">tree</span>, length.matrix <span class="op">=</span> <span class="va">length.matrix</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -192,7 +217,7 @@ with sequence length and phylogeny related information.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

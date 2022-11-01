@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -46,7 +46,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -75,13 +75,16 @@
 
       
 
-      </header><script src="phylocompcodeR_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Including inter-species measurements in differential expression analysis of RNAseq data with the compcodeR package</h1>
-                        <h4 data-toc-skip class="author">Paul Bastide &amp; Mélina Gallopin</h4>
+      <h1 data-toc-skip>Including inter-species measurements in
+differential expression analysis of RNAseq data with the compcodeR
+package</h1>
+                        <h4 data-toc-skip class="author">Paul Bastide
+&amp; Mélina Gallopin</h4>
             
-            <h4 data-toc-skip class="date">2022-02-20</h4>
+            <h4 data-toc-skip class="date">2022-11-01</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/vignettes/phylocompcodeR.Rmd" class="external-link"><code>vignettes/phylocompcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>phylocompcodeR.Rmd</code></div>
@@ -91,313 +94,442 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR" class="external-link">compcodeR</a></span><span class="op">)</span>
-<span class="co">#&gt; Loading required package: sm</span>
-<span class="co">#&gt; Package 'sm', version 2.2-5.7: type help(sm) for summary information</span>
-<span class="co">#&gt; Warning in fun(libname, pkgname): no display name and</span>
-<span class="co">#&gt; no $DISPLAY environment variable</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR" class="external-link">compcodeR</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: sm</span></span>
+<span><span class="co">#&gt; Package 'sm', version 2.2-5.7: type help(sm) for summary information</span></span>
+<span><span class="co">#&gt; Warning in fun(libname, pkgname): no display name and</span></span>
+<span><span class="co">#&gt; no $DISPLAY environment variable</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> R package can generate RNAseq counts data and compare the relative performances of various popular differential analysis detection tools (<span class="citation">Soneson and Delorenzi (2013)</span>).</p>
-<p>Using the same framework, this document shows how to generate “orthologous gene” (OG) expression for different species, taking into account their varying lengths, and their phylogenetic relationships, as encoded by an evolutionary tree.</p>
-<p>This vignette provides a tutorial on how to use the “phylogenetic” functionalities of <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em>. It assumes that the reader is already familiar with the <a href="compcodeR.html"><code>compcodeR</code> package vignette</a>.</p>
+<p>The <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+R package can generate RNAseq counts data and compare the relative
+performances of various popular differential analysis detection tools
+(<span class="citation">Soneson and Delorenzi (2013)</span>).</p>
+<p>Using the same framework, this document shows how to generate
+“orthologous gene” (OG) expression for different species, taking into
+account their varying lengths, and their phylogenetic relationships, as
+encoded by an evolutionary tree.</p>
+<p>This vignette provides a tutorial on how to use the “phylogenetic”
+functionalities of <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>.
+It assumes that the reader is already familiar with the <a href="compcodeR.html"><code>compcodeR</code> package vignette</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-phylocompdata-class">The <code>phyloCompData</code> class<a class="anchor" aria-label="anchor" href="#the-phylocompdata-class"></a>
 </h2>
-<p>The <code>phyloCompData</code> class extends the <code>compData</code> class of the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> package to account for phylogeny and length information needed in the representation of OG expression data.</p>
-<p>A <code>phyloCompData</code> object contains all the slots of a <a href="compcodeR.html#the-compdata-class"><code>compData</code> object</a>, with an added slot containing a phylogenetic tree with <a href="https://CRAN.R-project.org/package=ape" class="external-link"><code>ape</code></a> format <code>phylo</code>, and a length matrix. It can also contain some added variable information, such as species names. More detailed information about the <code>phyloCompData</code> class are available in the section on <a href="#the-extended-data-object">the phylo data object</a>. After conducting a differential expression analysis, the <code>phyloCompData</code> object has the same added information than the <code>compData</code> object (see <a href="compcodeR.html#the-result-object">the result object</a> in the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> package vignette).</p>
+<p>The <code>phyloCompData</code> class extends the
+<code>compData</code> class of the <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+package to account for phylogeny and length information needed in the
+representation of OG expression data.</p>
+<p>A <code>phyloCompData</code> object contains all the slots of a <a href="compcodeR.html#the-compdata-class"><code>compData</code>
+object</a>, with an added slot containing a phylogenetic tree with <a href="https://CRAN.R-project.org/package=ape" class="external-link"><code>ape</code></a>
+format <code>phylo</code>, and a length matrix. It can also contain some
+added variable information, such as species names. More detailed
+information about the <code>phyloCompData</code> class are available in
+the section on <a href="#the-extended-data-object">the phylo data
+object</a>. After conducting a differential expression analysis, the
+<code>phyloCompData</code> object has the same added information than
+the <code>compData</code> object (see <a href="compcodeR.html#the-result-object">the result object</a> in the
+<em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+package vignette).</p>
 </div>
 <div class="section level2">
 <h2 id="a-sample-workflow">A sample workflow<a class="anchor" aria-label="anchor" href="#a-sample-workflow"></a>
 </h2>
-<p>The workflow for working with the inter-species extension is very similar to the <a href="compcodeR.html#a-sample-workflow">already existing workflow</a> of the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> package. In this section, we recall this workflow, stressing out the added functionalities.</p>
+<p>The workflow for working with the inter-species extension is very
+similar to the <a href="compcodeR.html#a-sample-workflow">already
+existing workflow</a> of the <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+package. In this section, we recall this workflow, stressing out the
+added functionalities.</p>
 <div class="section level3">
 <h3 id="phylogenetic-tree">Phylogenetic Tree<a class="anchor" aria-label="anchor" href="#phylogenetic-tree"></a>
 </h3>
 <p>The simulations are performed following the description by <span class="citation">Bastide et al. (2022)</span>.</p>
-<p>We use here the phylogenetic tree issued from <span class="citation">Stern et al. (2017)</span>, normalized to unit height, that has <span class="math inline">\(14\)</span> species with up to 3 replicates, for a total number of sample equal to <span class="math inline">\(34\)</span> (see Figure below).</p>
+<p>We use here the phylogenetic tree issued from <span class="citation">Stern et al. (2017)</span>, normalized to unit height,
+that has <span class="math inline">\(14\)</span> species with up to 3
+replicates, for a total number of sample equal to <span class="math inline">\(34\)</span> (see Figure below).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span>
-<span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Stern2018.tree"</span>, package <span class="op">=</span> <span class="st">"compcodeR"</span><span class="op">)</span>
-<span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span></code></pre></div>
-<p>Note that any other tree could be used, for instance randomly generated using a birth-death process, see e.g. function <code>rphylo</code> in the <a href="https://CRAN.R-project.org/package=ape" class="external-link"><code>ape</code></a> package.</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span></span>
+<span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Stern2018.tree"</span>, package <span class="op">=</span> <span class="st">"compcodeR"</span><span class="op">)</span></span>
+<span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span></span></code></pre></div>
+<p>Note that any other tree could be used, for instance randomly
+generated using a birth-death process, see e.g. function
+<code>rphylo</code> in the <a href="https://CRAN.R-project.org/package=ape" class="external-link"><code>ape</code></a>
+package.</p>
 </div>
 <div class="section level3">
 <h3 id="condition-design">Condition Design<a class="anchor" aria-label="anchor" href="#condition-design"></a>
 </h3>
-<p>To conduct a differential analysis, each species must be attributed a condition. Because of the phylogenetic structure, the condition design does matter, and have a strong influence on the data produced. Here, we assume that the conditions are mapped on the tree in a balanced way (“alt” design), which is the “best case scenario”.</p>
+<p>To conduct a differential analysis, each species must be attributed a
+condition. Because of the phylogenetic structure, the condition design
+does matter, and have a strong influence on the data produced. Here, we
+assume that the conditions are mapped on the tree in a balanced way
+(“alt” design), which is the “best case scenario”.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># link each sample to a species</span>
-<span class="va">id_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"_.*"</span>, <span class="st">""</span>, <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span>
-<span class="co"># Assign a condition to each species</span>
-<span class="va">species_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">id_species</span><span class="op">)</span>
-<span class="va">species_names</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">species_names</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">]</span>
-<span class="va">cond_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cond_species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">species_names</span>
-<span class="co"># map them on the tree</span>
-<span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="va">id_species</span>
-<span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="va">cond_species</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span><span class="op">]</span>
-<span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></code></pre></div>
-<p>We can plot the assigned conditions on the tree to visualize them.</p>
+<code class="sourceCode R"><span><span class="co"># link each sample to a species</span></span>
+<span><span class="va">id_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">sub</a></span><span class="op">(</span><span class="st">"_.*"</span>, <span class="st">""</span>, <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
+<span><span class="co"># Assign a condition to each species</span></span>
+<span><span class="va">species_names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">id_species</span><span class="op">)</span></span>
+<span><span class="va">species_names</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">species_names</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">cond_species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">species_names</span><span class="op">)</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cond_species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">species_names</span></span>
+<span><span class="co"># map them on the tree</span></span>
+<span><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="va">id_species</span></span>
+<span><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="va">cond_species</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">as.vector</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span></code></pre></div>
+<p>We can plot the assigned conditions on the tree to visualize
+them.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/plot.TCC.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span>, label.offset <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">19</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#D55E00"</span>, <span class="st">"#009E73"</span><span class="op">)</span><span class="op">[</span><span class="va">id_cond</span><span class="op">]</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span>, label.offset <span class="op">=</span> <span class="fl">0.01</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">19</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#D55E00"</span>, <span class="st">"#009E73"</span><span class="op">)</span><span class="op">[</span><span class="va">id_cond</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <div class="figure" style="text-align: center">
 <img src="phylocompcodeR_files/figure-html/unnamed-chunk-2-1.png" alt="Phylogenetic tree with $14$ species and $34$ samples, with two conditions" width="700"><p class="caption">
-Phylogenetic tree with <span class="math inline">\(14\)</span> species and <span class="math inline">\(34\)</span> samples, with two conditions
+Phylogenetic tree with <span class="math inline">\(14\)</span> species
+and <span class="math inline">\(34\)</span> samples, with two conditions
 </p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="simulating-data">Simulating data<a class="anchor" aria-label="anchor" href="#simulating-data"></a>
 </h3>
-<p>Using this tree with associated condition design, we can then generate a dataset using a “phylogenetic Poisson Log Normal” (pPLN) distribution. We use here a Brownian Motion (BM) model of evolution for the latent phylogenetic log normal continuous trait, and assume that the phylogenetic model accounts for <span class="math inline">\(90\%\)</span> of the latent trait variance (i.e. there is an added uniform intra-species variance representing <span class="math inline">\(10\%\)</span> of the total latent trait variation). Using the <code>"auto"</code> setup, the counts are simulated so that they match empirical moments found in <span class="citation">Stern and Crandall (2018)</span>. OG lengths are also drawn from a pPLN model, so that their moments match those of the empirical dataset of <span class="citation">Stern and Crandall (2018)</span>. We choose to simulate <span class="math inline">\(2000\)</span> OGs, <span class="math inline">\(10\%\)</span> of which are differentially expressed, with an effect size of <span class="math inline">\(3\)</span>.</p>
-<p>The following code creates a <code>phyloCompData</code> object containing the simulated data set and saves it to a file named <code>"alt_BM_repl1.rds"</code>.</p>
+<p>Using this tree with associated condition design, we can then
+generate a dataset using a “phylogenetic Poisson Log Normal” (pPLN)
+distribution. We use here a Brownian Motion (BM) model of evolution for
+the latent phylogenetic log normal continuous trait, and assume that the
+phylogenetic model accounts for <span class="math inline">\(90\%\)</span> of the latent trait variance
+(i.e. there is an added uniform intra-species variance representing
+<span class="math inline">\(10\%\)</span> of the total latent trait
+variation). Using the <code>"auto"</code> setup, the counts are
+simulated so that they match empirical moments found in <span class="citation">Stern and Crandall (2018)</span>. OG lengths are also
+drawn from a pPLN model, so that their moments match those of the
+empirical dataset of <span class="citation">Stern and Crandall
+(2018)</span>. We choose to simulate <span class="math inline">\(2000\)</span> OGs, <span class="math inline">\(10\%\)</span> of which are differentially
+expressed, with an effect size of <span class="math inline">\(3\)</span>.</p>
+<p>The following code creates a <code>phyloCompData</code> object
+containing the simulated data set and saves it to a file named
+<code>"alt_BM_repl1.rds"</code>.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12890926</span><span class="op">)</span>
-<span class="va">alt_BM</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"alt_BM"</span>,
-                                n.vars <span class="op">=</span> <span class="fl">2000</span>, samples.per.cond <span class="op">=</span> <span class="fl">17</span>,
-                                n.diffexp <span class="op">=</span> <span class="fl">200</span>, repl.id <span class="op">=</span> <span class="fl">1</span>,
-                                seqdepth <span class="op">=</span> <span class="fl">1e7</span>, effect.size <span class="op">=</span> <span class="fl">3</span>,
-                                fraction.upregulated <span class="op">=</span> <span class="fl">0.5</span>,
-                                output.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,
-                                <span class="co">## Phylogenetic parameters</span>
-                                tree <span class="op">=</span> <span class="va">tree</span>,                      <span class="co">## Phylogenetic tree</span>
-                                id.species <span class="op">=</span> <span class="va">id_species</span>,          <span class="co">## Species structure of samples</span>
-                                id.condition <span class="op">=</span> <span class="va">id_cond</span>,           <span class="co">## Condition design</span>
-                                model.process <span class="op">=</span> <span class="st">"BM"</span>,             <span class="co">## The latent trait follows a BM</span>
-                                prop.var.tree <span class="op">=</span> <span class="fl">0.9</span>,              <span class="co">## Tree accounts for 90% of the variance</span>
-                                lengths.relmeans <span class="op">=</span> <span class="st">"auto"</span>,        <span class="co">## OG length mean and dispersion</span>
-                                lengths.dispersions <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>     <span class="co">## are taken from an empirical exemple</span></code></pre></div>
-<p>The <code>summarizeSyntheticDataSet</code> works the same way as in the base <a href="compcodeR.html"><code>compcodeR</code> package</a>, generating a report that summarize all the parameters used in the simulation, and showing some diagnostic plots.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">12890926</span><span class="op">)</span></span>
+<span><span class="va">alt_BM</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"alt_BM"</span>,</span>
+<span>                                n.vars <span class="op">=</span> <span class="fl">2000</span>, samples.per.cond <span class="op">=</span> <span class="fl">17</span>,</span>
+<span>                                n.diffexp <span class="op">=</span> <span class="fl">200</span>, repl.id <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                                seqdepth <span class="op">=</span> <span class="fl">1e7</span>, effect.size <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>                                fraction.upregulated <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                                output.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,</span>
+<span>                                <span class="co">## Phylogenetic parameters</span></span>
+<span>                                tree <span class="op">=</span> <span class="va">tree</span>,                      <span class="co">## Phylogenetic tree</span></span>
+<span>                                id.species <span class="op">=</span> <span class="va">id_species</span>,          <span class="co">## Species structure of samples</span></span>
+<span>                                id.condition <span class="op">=</span> <span class="va">id_cond</span>,           <span class="co">## Condition design</span></span>
+<span>                                model.process <span class="op">=</span> <span class="st">"BM"</span>,             <span class="co">## The latent trait follows a BM</span></span>
+<span>                                prop.var.tree <span class="op">=</span> <span class="fl">0.9</span>,              <span class="co">## Tree accounts for 90% of the variance</span></span>
+<span>                                lengths.relmeans <span class="op">=</span> <span class="st">"auto"</span>,        <span class="co">## OG length mean and dispersion</span></span>
+<span>                                lengths.dispersions <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>     <span class="co">## are taken from an empirical exemple</span></span></code></pre></div>
+<p>The <code>summarizeSyntheticDataSet</code> works the same way as in
+the base <a href="compcodeR.html"><code>compcodeR</code> package</a>,
+generating a report that summarize all the parameters used in the
+simulation, and showing some diagnostic plots.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/summarizeSyntheticDataSet.html">summarizeSyntheticDataSet</a></span><span class="op">(</span>data.set <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>, 
-                          output.filename <span class="op">=</span> <span class="st">"alt_BM_repl1_datacheck.html"</span><span class="op">)</span></code></pre></div>
-<p>When applied to a <code>phyloCompData</code> object, it provides some extra diagnostics, related to the phylogenetic nature of the data. In particular, it contains MA-plots with TPM-normalized expression levels to take OG length into account, which generally makes the original signal clearer.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/summarizeSyntheticDataSet.html">summarizeSyntheticDataSet</a></span><span class="op">(</span>data.set <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>, </span>
+<span>                          output.filename <span class="op">=</span> <span class="st">"alt_BM_repl1_datacheck.html"</span><span class="op">)</span></span></code></pre></div>
+<p>When applied to a <code>phyloCompData</code> object, it provides some
+extra diagnostics, related to the phylogenetic nature of the data. In
+particular, it contains MA-plots with TPM-normalized expression levels
+to take OG length into account, which generally makes the original
+signal clearer.</p>
 <div class="figure" style="text-align: center">
 <img src="phylocompcodeR_check_figure/maplot-trueDEstatus-1.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the same plot, but using TPM-normalized estimated expression levels." width="324"><img src="phylocompcodeR_check_figure/maplot-trueDEstatus-logTPM-1.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the same plot, but using TPM-normalized estimated expression levels." width="324"><p class="caption">
-Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the same plot, but using TPM-normalized estimated expression levels.
+Example figures from the summarization report generated for a simulated
+data set. The top panel shows an MA plot, with the genes colored by the
+true differential expression status. The bottom panel shows the same
+plot, but using TPM-normalized estimated expression levels.
 </p>
 </div>
-<p>It also shows a log2 normalized counts heatmap plotted along the phylogeny, illustrating the phylogenetic structure of the differentially expressed OGs.</p>
+<p>It also shows a log2 normalized counts heatmap plotted along the
+phylogeny, illustrating the phylogenetic structure of the differentially
+expressed OGs.</p>
 <div class="figure" style="text-align: center">
 <img src="phylocompcodeR_check_figure/maplot-phyloHeatmap-1.png" alt="Example figures from the summarization report generated for a simulated data set. The tips colored by true differential expression status. Only the first 400 genes are represented. The first block of 200 genes are differencially expressed between condition 1 and 2. The second block of 200 genes are not differencially expressed." width="324"><p class="caption">
-Example figures from the summarization report generated for a simulated data set. The tips colored by true differential expression status. Only the first 400 genes are represented. The first block of 200 genes are differencially expressed between condition 1 and 2. The second block of 200 genes are not differencially expressed.
+Example figures from the summarization report generated for a simulated
+data set. The tips colored by true differential expression status. Only
+the first 400 genes are represented. The first block of 200 genes are
+differencially expressed between condition 1 and 2. The second block of
+200 genes are not differencially expressed.
 </p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="performing-differential-expression-analysis">Performing differential expression analysis<a class="anchor" aria-label="anchor" href="#performing-differential-expression-analysis"></a>
 </h3>
-<p>Differential expression analysis can be conducted using the same framework used in the <a href="compcodeR.html#performing-differential-expression-analysis"><code>compcodeR</code> package</a>, through the <code>runDiffExp</code> function.</p>
-<p>All the standard methods can be used. To account for the phylogenetic nature of the data and for the varying length of the OGs, some methods have been added to the pool.</p>
-<p>The code below applies three differential expression methods to the data set generated above: the <em><a href="https://bioconductor.org/packages/3.15/DESeq2" class="external-link">DESeq2</a></em> method adapted for varying lengths, the <code>log2(TPM)</code> transformation for length normalization, combined with <em><a href="https://bioconductor.org/packages/3.15/limma" class="external-link">limma</a></em>, using the <code>trend</code> empirical Bayes correction, and accounting for species-related correlations, and the phylogenetic regression tool <a href="https://CRAN.R-project.org/package=phylolm" class="external-link"><code>phylolm</code></a> applied on the same <code>log2(TPM)</code>.</p>
+<p>Differential expression analysis can be conducted using the same
+framework used in the <a href="compcodeR.html#performing-differential-expression-analysis"><code>compcodeR</code>
+package</a>, through the <code>runDiffExp</code> function.</p>
+<p>All the standard methods can be used. To account for the phylogenetic
+nature of the data and for the varying length of the OGs, some methods
+have been added to the pool.</p>
+<p>The code below applies three differential expression methods to the
+data set generated above: the <em><a href="https://bioconductor.org/packages/3.16/DESeq2" class="external-link">DESeq2</a></em>
+method adapted for varying lengths, the <code>log2(TPM)</code>
+transformation for length normalization, combined with <em><a href="https://bioconductor.org/packages/3.16/limma" class="external-link">limma</a></em>,
+using the <code>trend</code> empirical Bayes correction, and accounting
+for species-related correlations, and the phylogenetic regression tool
+<a href="https://CRAN.R-project.org/package=phylolm" class="external-link"><code>phylolm</code></a>
+applied on the same <code>log2(TPM)</code>.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,
-           result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>,
-           output.directory <span class="op">=</span> <span class="st">"."</span>,
-           fit.type <span class="op">=</span> <span class="st">"parametric"</span>, test <span class="op">=</span> <span class="st">"Wald"</span><span class="op">)</span>
-<span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,
-           result.extent <span class="op">=</span> <span class="st">"lengthNorm.limma"</span>, Rmdfunction <span class="op">=</span> <span class="st">"lengthNorm.limma.createRmd"</span>,
-           output.directory <span class="op">=</span> <span class="st">"."</span>,
-           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,
-           length.normalization <span class="op">=</span> <span class="st">"TPM"</span>,
-           data.transformation <span class="op">=</span> <span class="st">"log2"</span>,
-           trend <span class="op">=</span> <span class="cn">FALSE</span>, block.factor <span class="op">=</span> <span class="st">"id.species"</span><span class="op">)</span>
-<span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,
-           result.extent <span class="op">=</span> <span class="st">"phylolm"</span>, Rmdfunction <span class="op">=</span> <span class="st">"phylolm.createRmd"</span>,
-           output.directory <span class="op">=</span> <span class="st">"."</span>,
-           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,
-           model <span class="op">=</span> <span class="st">"BM"</span>, measurement_error <span class="op">=</span> <span class="cn">TRUE</span>,
-           extra.design.covariates <span class="op">=</span> <span class="cn">NULL</span>,
-           length.normalization <span class="op">=</span> <span class="st">"TPM"</span>,
-           data.transformation <span class="op">=</span> <span class="st">"log2"</span><span class="op">)</span></code></pre></div>
-<p>As for a regular <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> analysis, example calls are provided in the reference manual (see the help pages for the <code>runDiffExp</code> function), and a list of all available methods can be obtained with the <code><a href="../reference/listcreateRmd.html">listcreateRmd()</a></code> function.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,</span>
+<span>           result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>,</span>
+<span>           output.directory <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>           fit.type <span class="op">=</span> <span class="st">"parametric"</span>, test <span class="op">=</span> <span class="st">"Wald"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,</span>
+<span>           result.extent <span class="op">=</span> <span class="st">"lengthNorm.limma"</span>, Rmdfunction <span class="op">=</span> <span class="st">"lengthNorm.limma.createRmd"</span>,</span>
+<span>           output.directory <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,</span>
+<span>           length.normalization <span class="op">=</span> <span class="st">"TPM"</span>,</span>
+<span>           data.transformation <span class="op">=</span> <span class="st">"log2"</span>,</span>
+<span>           trend <span class="op">=</span> <span class="cn">FALSE</span>, block.factor <span class="op">=</span> <span class="st">"id.species"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"alt_BM_repl1.rds"</span>,</span>
+<span>           result.extent <span class="op">=</span> <span class="st">"phylolm"</span>, Rmdfunction <span class="op">=</span> <span class="st">"phylolm.createRmd"</span>,</span>
+<span>           output.directory <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,</span>
+<span>           model <span class="op">=</span> <span class="st">"BM"</span>, measurement_error <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>           extra.design.covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>           length.normalization <span class="op">=</span> <span class="st">"TPM"</span>,</span>
+<span>           data.transformation <span class="op">=</span> <span class="st">"log2"</span><span class="op">)</span></span></code></pre></div>
+<p>As for a regular <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+analysis, example calls are provided in the reference manual (see the
+help pages for the <code>runDiffExp</code> function), and a list of all
+available methods can be obtained with the <code><a href="../reference/listcreateRmd.html">listcreateRmd()</a></code>
+function.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="../reference/listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt;  [1] "baySeq.createRmd"          </span>
-<span class="co">#&gt;  [2] "DESeq2.createRmd"          </span>
-<span class="co">#&gt;  [3] "DESeq2.length.createRmd"   </span>
-<span class="co">#&gt;  [4] "DSS.createRmd"             </span>
-<span class="co">#&gt;  [5] "EBSeq.createRmd"           </span>
-<span class="co">#&gt;  [6] "edgeR.exact.createRmd"     </span>
-<span class="co">#&gt;  [7] "edgeR.GLM.createRmd"       </span>
-<span class="co">#&gt;  [8] "lengthNorm.limma.createRmd"</span>
-<span class="co">#&gt;  [9] "logcpm.limma.createRmd"    </span>
-<span class="co">#&gt; [10] "NBPSeq.createRmd"          </span>
-<span class="co">#&gt; [11] "NOISeq.prenorm.createRmd"  </span>
-<span class="co">#&gt; [12] "phylolm.createRmd"         </span>
-<span class="co">#&gt; [13] "sqrtcpm.limma.createRmd"   </span>
-<span class="co">#&gt; [14] "TCC.createRmd"             </span>
-<span class="co">#&gt; [15] "ttest.createRmd"           </span>
-<span class="co">#&gt; [16] "voom.limma.createRmd"      </span>
-<span class="co">#&gt; [17] "voom.ttest.createRmd"</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "baySeq.createRmd"          </span></span>
+<span><span class="co">#&gt;  [2] "DESeq2.createRmd"          </span></span>
+<span><span class="co">#&gt;  [3] "DESeq2.length.createRmd"   </span></span>
+<span><span class="co">#&gt;  [4] "DSS.createRmd"             </span></span>
+<span><span class="co">#&gt;  [5] "EBSeq.createRmd"           </span></span>
+<span><span class="co">#&gt;  [6] "edgeR.exact.createRmd"     </span></span>
+<span><span class="co">#&gt;  [7] "edgeR.GLM.createRmd"       </span></span>
+<span><span class="co">#&gt;  [8] "lengthNorm.limma.createRmd"</span></span>
+<span><span class="co">#&gt;  [9] "logcpm.limma.createRmd"    </span></span>
+<span><span class="co">#&gt; [10] "NBPSeq.createRmd"          </span></span>
+<span><span class="co">#&gt; [11] "NOISeq.prenorm.createRmd"  </span></span>
+<span><span class="co">#&gt; [12] "phylolm.createRmd"         </span></span>
+<span><span class="co">#&gt; [13] "sqrtcpm.limma.createRmd"   </span></span>
+<span><span class="co">#&gt; [14] "TCC.createRmd"             </span></span>
+<span><span class="co">#&gt; [15] "ttest.createRmd"           </span></span>
+<span><span class="co">#&gt; [16] "voom.limma.createRmd"      </span></span>
+<span><span class="co">#&gt; [17] "voom.ttest.createRmd"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="comparing-results-from-several-differential-expression-methods">Comparing results from several differential expression methods<a class="anchor" aria-label="anchor" href="#comparing-results-from-several-differential-expression-methods"></a>
 </h3>
-<p>Given that the <code>phyloCompData</code> object has the same structure with respect to the slots added by the differential expression analysis (see <a href="compcodeR.html#the-result-object">the result object</a>, the procedure to compare results from several differential expression methods is exactly the same as for a <code>compData</code> object, and can be found in the <a href="compcodeR.html#comparing-results-from-several-differential-expression-methods">corresponding section</a> section of the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> vignette.</p>
+<p>Given that the <code>phyloCompData</code> object has the same
+structure with respect to the slots added by the differential expression
+analysis (see <a href="compcodeR.html#the-result-object">the result
+object</a>, the procedure to compare results from several differential
+expression methods is exactly the same as for a <code>compData</code>
+object, and can be found in the <a href="compcodeR.html#comparing-results-from-several-differential-expression-methods">corresponding
+section</a> section of the <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+vignette.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="using-your-own-data">Using your own data<a class="anchor" aria-label="anchor" href="#using-your-own-data"></a>
 </h2>
-<p><a href="compcodeR.html#using-your-own-data">As for a <code>compData</code> object</a>, it is still possible to input user-defined data to produce a <code>phyloCompData</code> object for differential expression methods comparisons. One only needs to provide the additional information needed, that is the phylogenetic tree, and the length matrix. The constructor method will make sure that the tree is consistent with the count and length matrices, with the same dimensions and consistent species names.</p>
+<p><a href="compcodeR.html#using-your-own-data">As for a
+<code>compData</code> object</a>, it is still possible to input
+user-defined data to produce a <code>phyloCompData</code> object for
+differential expression methods comparisons. One only needs to provide
+the additional information needed, that is the phylogenetic tree, and
+the length matrix. The constructor method will make sure that the tree
+is consistent with the count and length matrices, with the same
+dimensions and consistent species names.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">## Phylogentic tree with replicates</span>
-<span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span>text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span><span class="op">)</span>
-<span class="co">## Sample annotations</span>
-<span class="va">sample.annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,                 <span class="co"># Condition of each sample</span>
-  id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span> <span class="co"># Species of each sample</span>
-  <span class="op">)</span>
-<span class="co">## Count Matrix</span>
-<span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span>
-<span class="co">## Length Matrix</span>
-<span class="va">length.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span>
-<span class="co">## Names must match</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">count.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">length.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">sample.annotations</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span>
-<span class="co">## Extra infos</span>
-<span class="va">info.parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, uID <span class="op">=</span> <span class="st">"123456"</span><span class="op">)</span>
-<span class="co">## Creation of the object</span>
-<span class="va">cpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phyloCompData.html">phyloCompData</a></span><span class="op">(</span>count.matrix <span class="op">=</span> <span class="va">count.matrix</span>,
-                     sample.annotations <span class="op">=</span> <span class="va">sample.annotations</span>,
-                     info.parameters <span class="op">=</span> <span class="va">info.parameters</span>,
-                     tree <span class="op">=</span> <span class="va">tree</span>,
-                     length.matrix <span class="op">=</span> <span class="va">length.matrix</span><span class="op">)</span>
-<span class="co">## Check</span>
-<span class="fu"><a href="../reference/check_phyloCompData.html">check_phyloCompData</a></span><span class="op">(</span><span class="va">cpd</span><span class="op">)</span>
-<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## Phylogentic tree with replicates</span></span>
+<span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span>text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span><span class="op">)</span></span>
+<span><span class="co">## Sample annotations</span></span>
+<span><span class="va">sample.annotations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  condition <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,                 <span class="co"># Condition of each sample</span></span>
+<span>  id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span> <span class="co"># Species of each sample</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="co">## Count Matrix</span></span>
+<span><span class="va">count.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## Length Matrix</span></span>
+<span><span class="va">length.matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="fl">8000</span><span class="op">)</span>, <span class="fl">1000</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">## Names must match</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">count.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">length.matrix</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">sample.annotations</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
+<span><span class="co">## Extra infos</span></span>
+<span><span class="va">info.parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, uID <span class="op">=</span> <span class="st">"123456"</span><span class="op">)</span></span>
+<span><span class="co">## Creation of the object</span></span>
+<span><span class="va">cpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/phyloCompData.html">phyloCompData</a></span><span class="op">(</span>count.matrix <span class="op">=</span> <span class="va">count.matrix</span>,</span>
+<span>                     sample.annotations <span class="op">=</span> <span class="va">sample.annotations</span>,</span>
+<span>                     info.parameters <span class="op">=</span> <span class="va">info.parameters</span>,</span>
+<span>                     tree <span class="op">=</span> <span class="va">tree</span>,</span>
+<span>                     length.matrix <span class="op">=</span> <span class="va">length.matrix</span><span class="op">)</span></span>
+<span><span class="co">## Check</span></span>
+<span><span class="fu"><a href="../reference/check_phyloCompData.html">check_phyloCompData</a></span><span class="op">(</span><span class="va">cpd</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="providing-your-own-differential-expression-code">Providing your own differential expression code<a class="anchor" aria-label="anchor" href="#providing-your-own-differential-expression-code"></a>
 </h2>
-<p>To use your own differential expression code, you can follow the <a href="compcodeR.html#providing-your-own-differential-expression-code">base <code>compcodeR</code> instructions</a> in the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> vignette.</p>
+<p>To use your own differential expression code, you can follow the <a href="compcodeR.html#providing-your-own-differential-expression-code">base
+<code>compcodeR</code> instructions</a> in the <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="the-extended-data-object">The extended data object<a class="anchor" aria-label="anchor" href="#the-extended-data-object"></a>
 </h2>
-<p>The <code>phylocompData</code> data object is an S4 object that extends <a href="compcodeR.html#the-data-object">the <code>compData</code> object</a>, with the following added slots:</p>
+<p>The <code>phylocompData</code> data object is an S4 object that
+extends <a href="compcodeR.html#the-data-object">the
+<code>compData</code> object</a>, with the following added slots:</p>
 <ul>
-<li><p><code>tree</code> [<code>class phylo</code>] (<strong>mandatory</strong>) – the phylogenetic tree describing the relationships between samples.</p></li>
-<li><p><code>length.matrix</code> [<code>class matrix</code>] (<strong>mandatory</strong>) – the OG length matrix, with rows representing genes and columns representing samples.</p></li>
+<li><p><code>tree</code> [<code>class phylo</code>]
+(<strong>mandatory</strong>) – the phylogenetic tree describing the
+relationships between samples.</p></li>
+<li><p><code>length.matrix</code> [<code>class matrix</code>]
+(<strong>mandatory</strong>) – the OG length matrix, with rows
+representing genes and columns representing samples.</p></li>
 <li>
-<p>When produced with <code>generateSyntheticData</code>, the <code>sample.annotations</code> data frame has added column:</p>
+<p>When produced with <code>generateSyntheticData</code>, the
+<code>sample.annotations</code> data frame has added column:</p>
 <ul>
 <li>
-<code>id.species</code> [<code>class character</code> or <code>numeric</code>] – the species for each sample. Should match with the <code>tip.label</code> of the <code>tree</code> slot.</li>
+<code>id.species</code> [<code>class character</code> or
+<code>numeric</code>] – the species for each sample. Should match with
+the <code>tip.label</code> of the <code>tree</code> slot.</li>
 </ul>
 </li>
 <li>
-<p>When produced with <code>generateSyntheticData</code>, the <code>variable.annotations</code> data frame has an added columns:</p>
+<p>When produced with <code>generateSyntheticData</code>, the
+<code>variable.annotations</code> data frame has an added columns:</p>
 <ul>
 <li>
-<code>lengths.relmeans</code> [<code>class numeric</code>] – the true mean values used in the simulations of the OG lengths.</li>
+<code>lengths.relmeans</code> [<code>class numeric</code>] – the
+true mean values used in the simulations of the OG lengths.</li>
 <li>
-<code>lengths.dispersions</code> [<code>class numeric</code>] – the true dispersion values used in the simulations of the OG lengths.</li>
+<code>lengths.dispersions</code> [<code>class numeric</code>] – the
+true dispersion values used in the simulations of the OG lengths.</li>
 <li>
-<code>M.value.TPM</code> [<code>class numeric</code>] – the estimated log2-fold change between conditions 1 and 2 for each OG using TPM length normalization.</li>
+<code>M.value.TPM</code> [<code>class numeric</code>] – the
+estimated log2-fold change between conditions 1 and 2 for each OG using
+TPM length normalization.</li>
 <li>
-<code>A.value.TPM</code> [<code>class numeric</code>] – the estimated average expression in conditions 1 and 2 for each OG using TPM length normalization.</li>
+<code>A.value.TPM</code> [<code>class numeric</code>] – the
+estimated average expression in conditions 1 and 2 for each OG using TPM
+length normalization.</li>
 <li>
-<code>prop.var.tree</code> [<code>class numeric</code>] – the proportion of the variance explained by the phylogeny for each gene.</li>
+<code>prop.var.tree</code> [<code>class numeric</code>] – the
+proportion of the variance explained by the phylogeny for each
+gene.</li>
 </ul>
 </li>
 </ul>
-<p>The same way as the <code>compData</code> object, the <code>phyloCompData</code> object needs to be saved to a file with extension <code>.rds</code>.</p>
+<p>The same way as the <code>compData</code> object, the
+<code>phyloCompData</code> object needs to be saved to a file with
+extension <code>.rds</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-evaluation-metrics">The evaluation metrics<a class="anchor" aria-label="anchor" href="#the-evaluation-metrics"></a>
 </h2>
-<p>The evaluation metrics are unchanged, and described in the <a href="compcodeR.html#the-evaluation-metrics">corresponding section</a> section of the <em><a href="https://bioconductor.org/packages/3.15/compcodeR" class="external-link">compcodeR</a></em> vignette.</p>
+<p>The evaluation metrics are unchanged, and described in the <a href="compcodeR.html#the-evaluation-metrics">corresponding section</a>
+section of the <em><a href="https://bioconductor.org/packages/3.16/compcodeR" class="external-link">compcodeR</a></em>
+vignette.</p>
 </div>
 <div class="section level2">
 <h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
 </h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; R Under development (unstable) (2022-02-15 r81747)</span>
-<span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span>
-<span class="co">#&gt; Running under: macOS Big Sur/Monterey 10.16</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Matrix products: default</span>
-<span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span>
-<span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; locale:</span>
-<span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attached base packages:</span>
-<span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets </span>
-<span class="co">#&gt; [6] methods   base     </span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; other attached packages:</span>
-<span class="co">#&gt; [1] ape_5.6-1        compcodeR_1.31.1 sm_2.2-5.7      </span>
-<span class="co">#&gt; [4] BiocStyle_2.23.1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; loaded via a namespace (and not attached):</span>
-<span class="co">#&gt;  [1] sass_0.4.0          edgeR_3.37.0       </span>
-<span class="co">#&gt;  [3] jsonlite_1.7.3      gtools_3.9.2       </span>
-<span class="co">#&gt;  [5] modeest_2.4.0       bslib_0.3.1        </span>
-<span class="co">#&gt;  [7] highr_0.9           BiocManager_1.30.16</span>
-<span class="co">#&gt;  [9] yaml_2.3.4          pillar_1.7.0       </span>
-<span class="co">#&gt; [11] lattice_0.20-45     glue_1.6.1         </span>
-<span class="co">#&gt; [13] limma_3.51.5        rmutil_1.1.8       </span>
-<span class="co">#&gt; [15] digest_0.6.29       colorspace_2.0-2   </span>
-<span class="co">#&gt; [17] htmltools_0.5.2     timeDate_3043.102  </span>
-<span class="co">#&gt; [19] pkgconfig_2.0.3     bookdown_0.24      </span>
-<span class="co">#&gt; [21] purrr_0.3.4         scales_1.1.1       </span>
-<span class="co">#&gt; [23] tibble_3.1.6        stable_1.1.5       </span>
-<span class="co">#&gt; [25] generics_0.1.2      spatial_7.3-15     </span>
-<span class="co">#&gt; [27] ggplot2_3.3.5       ellipsis_0.3.2     </span>
-<span class="co">#&gt; [29] cachem_1.0.6        ROCR_1.0-11        </span>
-<span class="co">#&gt; [31] cli_3.2.0           magrittr_2.0.2     </span>
-<span class="co">#&gt; [33] crayon_1.5.0        memoise_2.0.1      </span>
-<span class="co">#&gt; [35] evaluate_0.15       fs_1.5.2           </span>
-<span class="co">#&gt; [37] fansi_1.0.2         nlme_3.1-155       </span>
-<span class="co">#&gt; [39] MASS_7.3-55         gplots_3.1.1       </span>
-<span class="co">#&gt; [41] textshaping_0.3.6   tools_4.2.0        </span>
-<span class="co">#&gt; [43] lifecycle_1.0.1     stringr_1.4.0      </span>
-<span class="co">#&gt; [45] munsell_0.5.0       locfit_1.5-9.4     </span>
-<span class="co">#&gt; [47] cluster_2.1.2       stabledist_0.7-1   </span>
-<span class="co">#&gt; [49] compiler_4.2.0      pkgdown_2.0.2.9000 </span>
-<span class="co">#&gt; [51] jquerylib_0.1.4     timeSeries_3062.100</span>
-<span class="co">#&gt; [53] caTools_1.18.2      systemfonts_1.0.4  </span>
-<span class="co">#&gt; [55] rlang_1.0.1         grid_4.2.0         </span>
-<span class="co">#&gt; [57] bitops_1.0-7        tcltk_4.2.0        </span>
-<span class="co">#&gt; [59] rmarkdown_2.11      vioplot_0.3.7      </span>
-<span class="co">#&gt; [61] gtable_0.3.0        markdown_1.1       </span>
-<span class="co">#&gt; [63] statip_0.2.3        R6_2.5.1           </span>
-<span class="co">#&gt; [65] zoo_1.8-9           knitr_1.37         </span>
-<span class="co">#&gt; [67] dplyr_1.0.8         fastmap_1.1.0      </span>
-<span class="co">#&gt; [69] utf8_1.2.2          clue_0.3-60        </span>
-<span class="co">#&gt; [71] fBasics_3042.89.1   rprojroot_2.0.2    </span>
-<span class="co">#&gt; [73] ragg_1.2.1          KernSmooth_2.23-20 </span>
-<span class="co">#&gt; [75] desc_1.4.0          stringi_1.7.6      </span>
-<span class="co">#&gt; [77] parallel_4.2.0      Rcpp_1.0.8         </span>
-<span class="co">#&gt; [79] png_0.1-7           vctrs_0.3.8        </span>
-<span class="co">#&gt; [81] rpart_4.1.16        tidyselect_1.1.1   </span>
-<span class="co">#&gt; [83] xfun_0.29</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.2.2 (2022-10-31)</span></span>
+<span><span class="co">#&gt; Platform: x86_64-apple-darwin17.0 (64-bit)</span></span>
+<span><span class="co">#&gt; Running under: macOS Big Sur ... 10.16</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets </span></span>
+<span><span class="co">#&gt; [6] methods   base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt; [1] ape_5.6-2        compcodeR_1.35.0 sm_2.2-5.7.1    </span></span>
+<span><span class="co">#&gt; [4] BiocStyle_2.25.0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;  [1] sass_0.4.2          edgeR_3.39.7       </span></span>
+<span><span class="co">#&gt;  [3] jsonlite_1.8.3      gtools_3.9.3       </span></span>
+<span><span class="co">#&gt;  [5] modeest_2.4.0       bslib_0.4.0        </span></span>
+<span><span class="co">#&gt;  [7] highr_0.9           BiocManager_1.30.19</span></span>
+<span><span class="co">#&gt;  [9] yaml_2.3.6          pillar_1.8.1       </span></span>
+<span><span class="co">#&gt; [11] lattice_0.20-45     glue_1.6.2         </span></span>
+<span><span class="co">#&gt; [13] limma_3.53.11       rmutil_1.1.10      </span></span>
+<span><span class="co">#&gt; [15] digest_0.6.30       colorspace_2.0-3   </span></span>
+<span><span class="co">#&gt; [17] htmltools_0.5.3     timeDate_4021.106  </span></span>
+<span><span class="co">#&gt; [19] pkgconfig_2.0.3     bookdown_0.29      </span></span>
+<span><span class="co">#&gt; [21] purrr_0.3.5         scales_1.2.1       </span></span>
+<span><span class="co">#&gt; [23] tibble_3.1.8        stable_1.1.6       </span></span>
+<span><span class="co">#&gt; [25] generics_0.1.3      spatial_7.3-15     </span></span>
+<span><span class="co">#&gt; [27] ggplot2_3.3.6       cachem_1.0.6       </span></span>
+<span><span class="co">#&gt; [29] ROCR_1.0-11         cli_3.4.1          </span></span>
+<span><span class="co">#&gt; [31] magrittr_2.0.3      memoise_2.0.1      </span></span>
+<span><span class="co">#&gt; [33] evaluate_0.17       fs_1.5.2           </span></span>
+<span><span class="co">#&gt; [35] fansi_1.0.3         nlme_3.1-160       </span></span>
+<span><span class="co">#&gt; [37] MASS_7.3-58.1       gplots_3.1.3       </span></span>
+<span><span class="co">#&gt; [39] textshaping_0.3.6   tools_4.2.2        </span></span>
+<span><span class="co">#&gt; [41] lifecycle_1.0.3     stringr_1.4.1      </span></span>
+<span><span class="co">#&gt; [43] munsell_0.5.0       locfit_1.5-9.6     </span></span>
+<span><span class="co">#&gt; [45] cluster_2.1.4       stabledist_0.7-1   </span></span>
+<span><span class="co">#&gt; [47] compiler_4.2.2      pkgdown_2.0.6.9000 </span></span>
+<span><span class="co">#&gt; [49] jquerylib_0.1.4     timeSeries_4021.105</span></span>
+<span><span class="co">#&gt; [51] caTools_1.18.2      systemfonts_1.0.4  </span></span>
+<span><span class="co">#&gt; [53] rlang_1.0.6         grid_4.2.2         </span></span>
+<span><span class="co">#&gt; [55] bitops_1.0-7        tcltk_4.2.2        </span></span>
+<span><span class="co">#&gt; [57] rmarkdown_2.17      vioplot_0.3.7      </span></span>
+<span><span class="co">#&gt; [59] gtable_0.3.1        markdown_1.3       </span></span>
+<span><span class="co">#&gt; [61] statip_0.2.3        R6_2.5.1           </span></span>
+<span><span class="co">#&gt; [63] zoo_1.8-11          knitr_1.40         </span></span>
+<span><span class="co">#&gt; [65] dplyr_1.0.10        fastmap_1.1.0      </span></span>
+<span><span class="co">#&gt; [67] utf8_1.2.2          clue_0.3-62        </span></span>
+<span><span class="co">#&gt; [69] fBasics_4021.93     rprojroot_2.0.3    </span></span>
+<span><span class="co">#&gt; [71] ragg_1.2.4          KernSmooth_2.23-20 </span></span>
+<span><span class="co">#&gt; [73] desc_1.4.2          stringi_1.7.8      </span></span>
+<span><span class="co">#&gt; [75] parallel_4.2.2      Rcpp_1.0.9         </span></span>
+<span><span class="co">#&gt; [77] png_0.1-7           vctrs_0.5.0        </span></span>
+<span><span class="co">#&gt; [79] rpart_4.1.19        tidyselect_1.2.0   </span></span>
+<span><span class="co">#&gt; [81] xfun_0.34</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references">
-<div id="ref-Bastide2022">
-<p>Bastide, Paul, Charlotte Soneson, Olivier Lespinet, and Mélina Gallopin. 2022. “Benchmark of Differential Gene Expression Analysis Methods for Inter-Species Rna-Seq Data Using a Phylogenetic Simulation Framework.” <em>bioRxiv Preprint</em>. <a href="https://doi.org/10.1101/2022.01.21.476612" class="external-link">https://doi.org/10.1101/2022.01.21.476612</a>.</p>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Bastide2022" class="csl-entry">
+Bastide, Paul, Charlotte Soneson, Olivier Lespinet, and Mélina Gallopin.
+2022. <span>“Benchmark of Differential Gene Expression Analysis Methods
+for Inter-Species RNA-Seq Data Using a Phylogenetic Simulation
+Framework.”</span> <em>bioRxiv Preprint</em>. <a href="https://doi.org/10.1101/2022.01.21.476612" class="external-link">https://doi.org/10.1101/2022.01.21.476612</a>.
 </div>
-<div id="ref-Soneson2013">
-<p>Soneson, Charlotte, and Mauro Delorenzi. 2013. “A Comparison of Methods for Differential Expression Analysis of RNA-seq Data.” <em>BMC Bioinformatics</em> 14: 91.</p>
+<div id="ref-Soneson2013" class="csl-entry">
+Soneson, Charlotte, and Mauro Delorenzi. 2013. <span>“A Comparison of
+Methods for Differential Expression Analysis of <span class="nocase">RNA-seq</span> Data.”</span> <em>BMC Bioinformatics</em>
+14: 91.
 </div>
-<div id="ref-Stern2017">
-<p>Stern, David B., Jesse Breinholt, Carlos Pedraza-Lara, Marilú López-Mejía, Christopher L. Owen, Heather Bracken-Grissom, James W. Fetzner, and Keith A. Crandall. 2017. “Phylogenetic Evidence from Freshwater Crayfishes That Cave Adaptation Is Not an Evolutionary Dead-End.” <em>Evolution</em> 71 (10): 2522–32. <a href="https://doi.org/10.1111/evo.13326" class="external-link">https://doi.org/10.1111/evo.13326</a>.</p>
+<div id="ref-Stern2017" class="csl-entry">
+Stern, David B., Jesse Breinholt, Carlos Pedraza-Lara, Marilú
+López-Mejía, Christopher L. Owen, Heather Bracken-Grissom, James W.
+Fetzner, and Keith A. Crandall. 2017. <span>“Phylogenetic Evidence from
+Freshwater Crayfishes That Cave Adaptation Is Not an Evolutionary
+Dead-End.”</span> <em>Evolution</em> 71 (10): 2522–32. <a href="https://doi.org/10.1111/evo.13326" class="external-link">https://doi.org/10.1111/evo.13326</a>.
 </div>
-<div id="ref-Stern2018">
-<p>Stern, David B., and Keith A. Crandall. 2018. “The Evolution of Gene Expression Underlying Vision Loss in Cave Animals.” <em>Molecular Biology and Evolution</em> 35 (8): 2005–14. <a href="https://doi.org/10.1093/molbev/msy106" class="external-link">https://doi.org/10.1093/molbev/msy106</a>.</p>
+<div id="ref-Stern2018" class="csl-entry">
+Stern, David B., and Keith A. Crandall. 2018. <span>“The Evolution of
+Gene Expression Underlying Vision Loss in Cave Animals.”</span>
+<em>Molecular Biology and Evolution</em> 35 (8): 2005–14. <a href="https://doi.org/10.1093/molbev/msy106" class="external-link">https://doi.org/10.1093/molbev/msy106</a>.
 </div>
 </div>
 </div>
@@ -420,7 +552,7 @@ Example figures from the summarization report generated for a simulated data set
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer>

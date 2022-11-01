@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,30 +63,41 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">runDiffExp</span><span class="op">(</span>
-  <span class="va">data.file</span>,
-  <span class="va">result.extent</span>,
-  <span class="va">Rmdfunction</span>,
-  output.directory <span class="op">=</span> <span class="st">"."</span>,
-  norm.path <span class="op">=</span> <span class="cn">TRUE</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">runDiffExp</span><span class="op">(</span></span>
+<span>  <span class="va">data.file</span>,</span>
+<span>  <span class="va">result.extent</span>,</span>
+<span>  <span class="va">Rmdfunction</span>,</span>
+<span>  output.directory <span class="op">=</span> <span class="st">"."</span>,</span>
+<span>  norm.path <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data.file</dt>
 <dd><p>The path to a <code>.rds</code> file containing the data on which the differential expression analysis will be performed, for example a <code>compData</code> object returned from <code><a href="generateSyntheticData.html">generateSyntheticData</a></code>.</p></dd>
+
+
 <dt>result.extent</dt>
 <dd><p>The extension that will be added to the data file name in order to construct the result file name. This can be for example the differential expression method together with a version number.</p></dd>
+
+
 <dt>Rmdfunction</dt>
 <dd><p>A function that creates an Rmd file containing the code that should be run to perform the differential expression analysis. All functions available through <code>compcodeR</code> can be listed using the <code><a href="listcreateRmd.html">listcreateRmd</a></code> function.</p></dd>
+
+
 <dt>output.directory</dt>
 <dd><p>The directory in which the result object will be saved.</p></dd>
+
+
 <dt>norm.path</dt>
 <dd><p>Logical, whether to include the full (absolute) path to the output object in the saved code.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments that will be passed to the <code>Rmdfunction</code>, such as parameter choices for the differential expression method.</p></dd>
+
 </dl></div>
     <div id="author">
     <h2>Author</h2>
@@ -95,11 +106,11 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span>
-<span class="r-in">                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "DESeq2.createRmd"           "DESeq2.length.createRmd"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "DSS.createRmd"              "EBSeq.createRmd"           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NBPSeq.createRmd"           "NOISeq.prenorm.createRmd"  </span>
@@ -109,12 +120,12 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> [13] "phylolm.createRmd"          "sqrtcpm.limma.createRmd"   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [15] "ttest.createRmd"            "voom.limma.createRmd"      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [17] "voom.ttest.createRmd"      </span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, </span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, </span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp3LxPBB/tempcode16ff799bdbf6.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da6b19eabe.Rmd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ordinary text without R code</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -129,66 +140,66 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ warning: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp3LxPBB/tempcode16ff799bdbf6.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da6b19eabe.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co">## The following list covers the currently available </span></span>
-<span class="r-in"><span class="co">## differential expression methods:</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"baySeq"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"baySeq.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"edgeR"</span>, </span>
-<span class="r-in">           equaldisp <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, fit.type <span class="op">=</span> <span class="st">"parametric"</span>, </span>
-<span class="r-in">           test <span class="op">=</span> <span class="st">"Wald"</span>, beta.prior <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span class="r-in">           independent.filtering <span class="op">=</span> <span class="cn">TRUE</span>, cooks.cutoff <span class="op">=</span> <span class="cn">TRUE</span>, </span>
-<span class="r-in">           impute.outliers <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"DSS"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"DSS.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"quantile"</span>, </span>
-<span class="r-in">           disp.trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"EBSeq"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"EBSeq.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"median"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.exact"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.exact.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span>
-<span class="r-in">           trend.method <span class="op">=</span> <span class="st">"movingave"</span>, disp.type <span class="op">=</span> <span class="st">"tagwise"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.GLM"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.GLM.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span>
-<span class="r-in">           disp.type <span class="op">=</span> <span class="st">"tagwise"</span>, disp.method <span class="op">=</span> <span class="st">"CoxReid"</span>, </span>
-<span class="r-in">           trended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"logcpm.limma"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"logcpm.limma.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"NBPSeq"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"NBPSeq.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span>
-<span class="r-in">           disp.method <span class="op">=</span> <span class="st">"NBP"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"NOISeq"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"NOISeq.prenorm.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"sqrtcpm.limma"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"sqrtcpm.limma.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"TCC"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"TCC.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"tmm"</span>, </span>
-<span class="r-in">           test.method <span class="op">=</span> <span class="st">"edger"</span>, iteration <span class="op">=</span> <span class="fl">3</span>, </span>
-<span class="r-in">           normFDR <span class="op">=</span> <span class="fl">0.1</span>, floorPDEG <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"ttest"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"ttest.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, </span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.ttest"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"voom.ttest.createRmd"</span>,</span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co">## The following list covers the currently available </span></span></span>
+<span class="r-in"><span><span class="co">## differential expression methods:</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"baySeq"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"baySeq.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"edgeR"</span>, </span></span>
+<span class="r-in"><span>           equaldisp <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, fit.type <span class="op">=</span> <span class="st">"parametric"</span>, </span></span>
+<span class="r-in"><span>           test <span class="op">=</span> <span class="st">"Wald"</span>, beta.prior <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>           independent.filtering <span class="op">=</span> <span class="cn">TRUE</span>, cooks.cutoff <span class="op">=</span> <span class="cn">TRUE</span>, </span></span>
+<span class="r-in"><span>           impute.outliers <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"DSS"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"DSS.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"quantile"</span>, </span></span>
+<span class="r-in"><span>           disp.trend <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"EBSeq"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"EBSeq.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"median"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.exact"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.exact.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span></span>
+<span class="r-in"><span>           trend.method <span class="op">=</span> <span class="st">"movingave"</span>, disp.type <span class="op">=</span> <span class="st">"tagwise"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.GLM"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.GLM.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span></span>
+<span class="r-in"><span>           disp.type <span class="op">=</span> <span class="st">"tagwise"</span>, disp.method <span class="op">=</span> <span class="st">"CoxReid"</span>, </span></span>
+<span class="r-in"><span>           trended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"logcpm.limma"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"logcpm.limma.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"NBPSeq"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"NBPSeq.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>, </span></span>
+<span class="r-in"><span>           disp.method <span class="op">=</span> <span class="st">"NBP"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"NOISeq"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"NOISeq.prenorm.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"sqrtcpm.limma"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"sqrtcpm.limma.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"TCC"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"TCC.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"tmm"</span>, </span></span>
+<span class="r-in"><span>           test.method <span class="op">=</span> <span class="st">"edger"</span>, iteration <span class="op">=</span> <span class="fl">3</span>, </span></span>
+<span class="r-in"><span>           normFDR <span class="op">=</span> <span class="fl">0.1</span>, floorPDEG <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"ttest"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"ttest.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, </span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.ttest"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"voom.ttest.createRmd"</span>,</span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="st">"."</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -203,7 +214,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

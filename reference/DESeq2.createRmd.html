@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,46 +63,67 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">DESeq2.createRmd</span><span class="op">(</span>
-  <span class="va">data.path</span>,
-  <span class="va">result.path</span>,
-  <span class="va">codefile</span>,
-  <span class="va">fit.type</span>,
-  <span class="va">test</span>,
-  beta.prior <span class="op">=</span> <span class="cn">TRUE</span>,
-  independent.filtering <span class="op">=</span> <span class="cn">TRUE</span>,
-  cooks.cutoff <span class="op">=</span> <span class="cn">TRUE</span>,
-  impute.outliers <span class="op">=</span> <span class="cn">TRUE</span>,
-  nas.as.ones <span class="op">=</span> <span class="cn">FALSE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">DESeq2.createRmd</span><span class="op">(</span></span>
+<span>  <span class="va">data.path</span>,</span>
+<span>  <span class="va">result.path</span>,</span>
+<span>  <span class="va">codefile</span>,</span>
+<span>  <span class="va">fit.type</span>,</span>
+<span>  <span class="va">test</span>,</span>
+<span>  beta.prior <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  independent.filtering <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  cooks.cutoff <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  impute.outliers <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  nas.as.ones <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data.path</dt>
 <dd><p>The path to a .rds file containing the <code>compData</code> object that will be used for the differential expression analysis.</p></dd>
+
+
 <dt>result.path</dt>
 <dd><p>The path to the file where the result object will be saved.</p></dd>
+
+
 <dt>codefile</dt>
 <dd><p>The path to the file where the code will be written.</p></dd>
+
+
 <dt>fit.type</dt>
 <dd><p>The fitting method used to get the dispersion-mean relationship. Possible values are <code>"parametric"</code>, <code>"local"</code> and <code>"mean"</code>.</p></dd>
+
+
 <dt>test</dt>
 <dd><p>The test to use. Possible values are <code>"Wald"</code> and <code>"LRT"</code>.</p></dd>
+
+
 <dt>beta.prior</dt>
 <dd><p>Whether or not to put a zero-mean normal prior on the non-intercept coefficients. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>independent.filtering</dt>
 <dd><p>Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA.</p></dd>
+
+
 <dt>cooks.cutoff</dt>
 <dd><p>The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.</p></dd>
+
+
 <dt>impute.outliers</dt>
 <dd><p>Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.</p></dd>
+
+
 <dt>nas.as.ones</dt>
-<dd><p>Whether or not adjusted p values that are returned as <code>NA</code> by <code>DESeq2</code> should be set to <code>1</code>. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the <code>DESeq2</code> vignette (available by running <code><a href="https://cran.rstudio.com/web/packages/DESeq2/vignettes/DESeq2.html" class="external-link">vignette("DESeq2", package = "DESeq2")</a></code>). Default to <code>FALSE</code>.</p></dd>
+<dd><p>Whether or not adjusted p values that are returned as <code>NA</code> by <code>DESeq2</code> should be set to <code>1</code>. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the <code>DESeq2</code> vignette (available by running <code><a href="https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html" class="external-link">vignette("DESeq2", package = "DESeq2")</a></code>). Default to <code>FALSE</code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The function generates a <code>.Rmd</code> file containing the code for performing the differential expression analysis. This file can be executed using e.g. the <code>knitr</code> package.</p>
+    
+
+<p>The function generates a <code>.Rmd</code> file containing the code for performing the differential expression analysis. This file can be executed using e.g. the <code>knitr</code> package.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -119,17 +140,17 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2" class="external-link">DESeq2</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span>
-<span class="r-in">                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>, </span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, fit.type <span class="op">=</span> <span class="st">"parametric"</span>,</span>
-<span class="r-in">           test <span class="op">=</span> <span class="st">"Wald"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mikelove/DESeq2" class="external-link">DESeq2</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"DESeq2.createRmd"</span>, </span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, fit.type <span class="op">=</span> <span class="st">"parametric"</span>,</span></span>
+<span class="r-in"><span>           test <span class="op">=</span> <span class="st">"Wald"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: DESeq2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: S4Vectors</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: stats4</span>
@@ -141,7 +162,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     IQR, mad, sd, var, xtabs</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> The following objects are masked from ‘package:base’:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>     Filter, Find, Map, Position, Reduce, anyDuplicated, append,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>     Filter, Find, Map, Position, Reduce, anyDuplicated, aperm, append,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     as.data.frame, basename, cbind, colnames, dirname, do.call,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     duplicated, eval, evalq, get, grep, grepl, intersect, is.unsorted,</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>     lapply, mapply, match, mget, order, paste, pmax, pmax.int, pmin,</span>
@@ -194,7 +215,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> As `nas.as.ones=FALSE`, there might be some NAs in the adjusted p values computed by DESeq2. This might bias the comparison of the results with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp3LxPBB/tempcode16ff57e3ae98.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da3f7d75b2.Rmd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ordinary text without R code</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -209,7 +230,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ warning: logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmp3LxPBB/tempcode16ff57e3ae98.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da3f7d75b2.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 </code></pre></div>
     </div>
@@ -225,7 +246,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

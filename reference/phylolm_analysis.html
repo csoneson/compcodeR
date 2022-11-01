@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,35 +63,48 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">phylolm_analysis</span><span class="op">(</span>
-  <span class="va">dat</span>,
-  <span class="va">design_data</span>,
-  <span class="va">design_formula</span>,
-  <span class="va">tree</span>,
-  <span class="va">model</span>,
-  <span class="va">measurement_error</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">phylolm_analysis</span><span class="op">(</span></span>
+<span>  <span class="va">dat</span>,</span>
+<span>  <span class="va">design_data</span>,</span>
+<span>  <span class="va">design_formula</span>,</span>
+<span>  <span class="va">tree</span>,</span>
+<span>  <span class="va">model</span>,</span>
+<span>  <span class="va">measurement_error</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>dat</dt>
 <dd><p>the data associated with a gene</p></dd>
+
+
 <dt>design_data</dt>
 <dd><p>design matrix</p></dd>
+
+
 <dt>design_formula</dt>
 <dd><p>design formula</p></dd>
+
+
 <dt>tree</dt>
 <dd><p>phylogenetic tree</p></dd>
+
+
 <dt>model</dt>
 <dd><p>the model to be used in phylolm</p></dd>
+
+
 <dt>measurement_error</dt>
 <dd><p>boolean</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A list, with:</p><dl><dt>pvalue</dt>
+    
+
+<p>A list, with:</p><dl><dt>pvalue</dt>
 <dd><p>the p value of the differential expression.</p></dd>
 
 <dt>logFC</dt>
@@ -115,7 +128,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,30 +63,39 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">simulateDataPhylo</span><span class="op">(</span>
-  <span class="va">count_means</span>,
-  <span class="va">count_dispersions</span>,
-  <span class="va">tree</span>,
-  <span class="va">prop.var.tree</span>,
-  model.process <span class="op">=</span> <span class="st">"BM"</span>,
-  selection.strength <span class="op">=</span> <span class="fl">0</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">simulateDataPhylo</span><span class="op">(</span></span>
+<span>  <span class="va">count_means</span>,</span>
+<span>  <span class="va">count_dispersions</span>,</span>
+<span>  <span class="va">tree</span>,</span>
+<span>  <span class="va">prop.var.tree</span>,</span>
+<span>  model.process <span class="op">=</span> <span class="st">"BM"</span>,</span>
+<span>  selection.strength <span class="op">=</span> <span class="fl">0</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>tree</dt>
 <dd><p>a dated phylogenetic tree of class <code><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">phylo</a></code> with `samples.per.cond * 2` species.</p></dd>
+
+
 <dt>prop.var.tree</dt>
 <dd><p>the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length <code>n.vars</code>. Default to 1.</p></dd>
+
+
 <dt>model.process</dt>
 <dd><p>the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".</p></dd>
+
+
 <dt>selection.strength</dt>
 <dd><p>if the process is "OU", the selection strength parameter.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Z a matrix with the data</p>
+    
+
+<p>Z a matrix with the data</p>
     </div>
 
   </div>
@@ -101,7 +110,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

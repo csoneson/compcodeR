@@ -42,7 +42,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -55,7 +55,7 @@
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -89,13 +89,13 @@
 <div class="section level2">
 <h2 id="compcoder">compcodeR<a class="anchor" aria-label="anchor" href="#compcoder"></a>
 </h2>
-
+<p><a href="https://github.com/csoneson/compcodeR/actions" class="external-link"><img src="https://github.com/csoneson/compcodeR/workflows/R-CMD-check/badge.svg" alt="R build status"></a></p>
 <p><strong>compcodeR</strong> is an R package that provides extensive functionality for comparing results obtained by different methods for differential expression analysis of (mainly) RNAseq data. It also contains functions for simulating count data and interfaces to several packages for performing the differential expression analysis.</p>
 <p>The release version of <strong>compcodeR</strong> can be installed via <a href="http://www.bioconductor.org/packages/release/bioc/html/compcodeR.html" class="external-link">Bioconductor</a>:</p>
-<pre><code><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span>
-<span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"compcodeR"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"BiocManager"</span><span class="op">)</span></span>
+<span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"compcodeR"</span><span class="op">)</span></span></code></pre>
 <p>The most recent (development) version can also be installed from GitHub directly:</p>
-<pre><code><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"csoneson/compcodeR"</span><span class="op">)</span></code></pre>
+<pre><code><span><span class="fu">BiocManager</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/BiocManager/man/install.html" class="external-link">install</a></span><span class="op">(</span><span class="st">"csoneson/compcodeR"</span><span class="op">)</span></span></code></pre>
 </div>
   </div>
 
@@ -133,12 +133,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/csoneson/compcodeR/actions" class="external-link"><img src="https://github.com/csoneson/compcodeR/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-</ul>
-</div>
+
 
   </div>
 </div>
@@ -151,7 +146,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer>

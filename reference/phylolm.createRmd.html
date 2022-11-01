@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,46 +63,67 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">phylolm.createRmd</span><span class="op">(</span>
-  <span class="va">data.path</span>,
-  <span class="va">result.path</span>,
-  <span class="va">codefile</span>,
-  <span class="va">norm.method</span>,
-  model <span class="op">=</span> <span class="st">"BM"</span>,
-  measurement_error <span class="op">=</span> <span class="cn">TRUE</span>,
-  extra.design.covariates <span class="op">=</span> <span class="cn">NULL</span>,
-  length.normalization <span class="op">=</span> <span class="st">"RPKM"</span>,
-  data.transformation <span class="op">=</span> <span class="st">"log2"</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">phylolm.createRmd</span><span class="op">(</span></span>
+<span>  <span class="va">data.path</span>,</span>
+<span>  <span class="va">result.path</span>,</span>
+<span>  <span class="va">codefile</span>,</span>
+<span>  <span class="va">norm.method</span>,</span>
+<span>  model <span class="op">=</span> <span class="st">"BM"</span>,</span>
+<span>  measurement_error <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  extra.design.covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  length.normalization <span class="op">=</span> <span class="st">"RPKM"</span>,</span>
+<span>  data.transformation <span class="op">=</span> <span class="st">"log2"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>data.path</dt>
 <dd><p>The path to a .rds file containing the <code>phyloCompData</code> object that will be used for the differential expression analysis.</p></dd>
+
+
 <dt>result.path</dt>
 <dd><p>The path to the file where the result object will be saved.</p></dd>
+
+
 <dt>codefile</dt>
 <dd><p>The path to the file where the code will be written.</p></dd>
+
+
 <dt>norm.method</dt>
 <dd><p>The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the <code>calcNormFactors</code> of the <code>edgeR</code> package. Possible values are <code>"TMM"</code>, <code>"RLE"</code>, <code>"upperquartile"</code> and <code>"none"</code></p></dd>
+
+
 <dt>model</dt>
 <dd><p>The model for trait evolution on the tree. Default to "BM".</p></dd>
+
+
 <dt>measurement_error</dt>
 <dd><p>A logical value indicating whether there is measurement error. Default to TRUE.</p></dd>
+
+
 <dt>extra.design.covariates</dt>
 <dd><p>A vector containing the names of extra control variables to be passed to the design matrix of <code>phyolm</code>. All the covariates need to be a column of the <code>sample.annotations</code> data frame from the <code><a href="phyloCompData.html">phyloCompData</a></code> object, with a matching column name. The covariates can be a numeric vector, or a factor. Note that "condition" factor column is always included, and should not be added here. See Details.</p></dd>
+
+
 <dt>length.normalization</dt>
 <dd><p>one of "none" (no correction), "TPM" or "RPKM" (default). See details.</p></dd>
+
+
 <dt>data.transformation</dt>
 <dd><p>one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Further arguments to be passed to function <code><a href="https://rdrr.io/pkg/phylolm/man/phylolm.html" class="external-link">phylolm</a></code>.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The function generates a <code>.Rmd</code> file containing the code for performing the differential expression analysis. This file can be executed using e.g. the <code>knitr</code> package.</p>
+    
+
+<p>The function generates a <code>.Rmd</code> file containing the code for performing the differential expression analysis. This file can be executed using e.g. the <code>knitr</code> package.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -146,31 +167,31 @@ in the <code><a href="https://rdrr.io/pkg/phylolm/man/phylolm.html" class="exter
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span>
-<span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lamho86/phylolm" class="external-link">phylolm</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">20200317</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/rlineage.html" class="external-link">rphylo</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span>
-<span class="r-in">                                    tree <span class="op">=</span> <span class="va">tree</span>,</span>
-<span class="r-in">                                    id.species <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span>
-<span class="r-in">                                    lengths.relmeans <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">1000</span><span class="op">)</span>,</span>
-<span class="r-in">                                    lengths.dispersions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span class="r-in">                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## Add covariates</span></span>
-<span class="r-in"><span class="co">## Model fitted is count.matrix ~ condition + test_factor + test_reg</span></span>
-<span class="r-in"><span class="fu">sample.annotations</span><span class="op">(</span><span class="va">mydata.obj</span><span class="op">)</span><span class="op">$</span><span class="va">test_factor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">sample.annotations</span><span class="op">(</span><span class="va">mydata.obj</span><span class="op">)</span><span class="op">$</span><span class="va">test_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mydata.obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## Diff Exp</span></span>
-<span class="r-in"><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"phylolm.createRmd"</span>, </span>
-<span class="r-in">           output.directory <span class="op">=</span> <span class="va">tmpdir</span>,</span>
-<span class="r-in">           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,</span>
-<span class="r-in">           extra.design.covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"test_factor"</span>, <span class="st">"test_reg"</span><span class="op">)</span>,</span>
-<span class="r-in">           length.normalization <span class="op">=</span> <span class="st">"RPKM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lamho86/phylolm" class="external-link">phylolm</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">20200317</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/rlineage.html" class="external-link">rphylo</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0.1</span>, <span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span>                                    tree <span class="op">=</span> <span class="va">tree</span>,</span></span>
+<span class="r-in"><span>                                    id.species <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,</span></span>
+<span class="r-in"><span>                                    lengths.relmeans <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Poisson.html" class="external-link">rpois</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">1000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    lengths.dispersions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/GammaDist.html" class="external-link">rgamma</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Add covariates</span></span></span>
+<span class="r-in"><span><span class="co">## Model fitted is count.matrix ~ condition + test_factor + test_reg</span></span></span>
+<span class="r-in"><span><span class="fu">sample.annotations</span><span class="op">(</span><span class="va">mydata.obj</span><span class="op">)</span><span class="op">$</span><span class="va">test_factor</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span>, each <span class="op">=</span> <span class="fl">5</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">sample.annotations</span><span class="op">(</span><span class="va">mydata.obj</span><span class="op">)</span><span class="op">$</span><span class="va">test_reg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS</a></span><span class="op">(</span><span class="va">mydata.obj</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Diff Exp</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"DESeq2"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"phylolm.createRmd"</span>, </span></span>
+<span class="r-in"><span>           output.directory <span class="op">=</span> <span class="va">tmpdir</span>,</span></span>
+<span class="r-in"><span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span>,</span></span>
+<span class="r-in"><span>           extra.design.covariates <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"test_factor"</span>, <span class="st">"test_reg"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>           length.normalization <span class="op">=</span> <span class="st">"RPKM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Loading required package: phylolm</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Vector 'id.species' must be a factor. Transforming.</span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`id.species` is not named. I'm naming them, assuming they are in the same order as the tree.</span>
@@ -190,7 +211,7 @@ in the <code><a href="https://rdrr.io/pkg/phylolm/man/phylolm.html" class="exter
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

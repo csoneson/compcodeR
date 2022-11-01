@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,32 +63,43 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">runComparisonGUI</span><span class="op">(</span>
-  <span class="va">input.directories</span>,
-  <span class="va">output.directory</span>,
-  <span class="va">recursive</span>,
-  out.width <span class="op">=</span> <span class="cn">NULL</span>,
-  upper.limits <span class="op">=</span> <span class="cn">NULL</span>,
-  lower.limits <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">runComparisonGUI</span><span class="op">(</span></span>
+<span>  <span class="va">input.directories</span>,</span>
+<span>  <span class="va">output.directory</span>,</span>
+<span>  <span class="va">recursive</span>,</span>
+<span>  out.width <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  upper.limits <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lower.limits <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>input.directories</dt>
 <dd><p>A list of directories containing the result files (<code>*.rds</code>). All results in the provided directories will be available for inclusion in the comparison, and the selection is performed through a graphical user interface. All result objects saved in the files should be of the <code>compData</code> class, although list objects created by earlier versions of <code>compcodeR</code> are supported.</p></dd>
+
+
 <dt>output.directory</dt>
 <dd><p>The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.</p></dd>
+
+
 <dt>recursive</dt>
 <dd><p>A logical parameter indicating whether or not the search should be extended recursively to subfolders of the <code>input.directories</code>.</p></dd>
+
+
 <dt>out.width</dt>
 <dd><p>The width of the figures in the final report. Will be passed on to <code>knitr</code> when the HTML is generated. Can be for example "800px" (see <code>knitr</code> documentation for more information)</p></dd>
+
+
 <dt>upper.limits, lower.limits</dt>
 <dd><p>Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign, nbrtpfp, nbrsign and typeIerror.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The function will create a comparison report, named <strong>compcodeR_report&lt;timestamp&gt;.html</strong>, in the <code>output.directory</code>. It will also create subfolders named <code>compcodeR_code</code> and <code>compcodeR_figure</code>, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.</p>
+    
+
+<p>The function will create a comparison report, named <strong>compcodeR_report&lt;timestamp&gt;.html</strong>, in the <code>output.directory</code>. It will also create subfolders named <code>compcodeR_code</code> and <code>compcodeR_figure</code>, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be saved. Note that if these directories already exist they will be overwritten.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -101,18 +112,18 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">12500</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">1250</span>, </span>
-<span class="r-in">                                    output.file <span class="op">=</span> <span class="st">"mydata.rds"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, </span>
-<span class="r-in">           norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"ttest"</span>, </span>
-<span class="r-in">           Rmdfunction <span class="op">=</span> <span class="st">"ttest.createRmd"</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, </span>
-<span class="r-in">           norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu">runComparisonGUI</span><span class="op">(</span>input.directories <span class="op">=</span> <span class="st">"."</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">12500</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">1250</span>, </span></span>
+<span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="st">"mydata.rds"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, </span></span>
+<span class="r-in"><span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="st">"mydata.rds"</span>, result.extent <span class="op">=</span> <span class="st">"ttest"</span>, </span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"ttest.createRmd"</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, </span></span>
+<span class="r-in"><span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">runComparisonGUI</span><span class="op">(</span>input.directories <span class="op">=</span> <span class="st">"."</span>, output.directory <span class="op">=</span> <span class="st">"."</span>, recursive <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -127,7 +138,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

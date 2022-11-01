@@ -20,7 +20,7 @@ tip conditions (see examples).'><!-- mathjax --><script src="https://cdnjs.cloud
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -32,7 +32,7 @@ tip conditions (see examples).'><!-- mathjax --><script src="https://cdnjs.cloud
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -69,46 +69,55 @@ tip conditions (see examples).</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id.condition</span>, <span class="va">model</span>, <span class="va">selection.strength</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id.condition</span>, <span class="va">model</span>, <span class="va">selection.strength</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>tree</dt>
 <dd><p>A phylogenetic tree. If <code>NULL</code>, samples are assumed to be iid.</p></dd>
+
+
 <dt>id.condition</dt>
 <dd><p>A named vector giving the state of each tip (sample).</p></dd>
+
+
 <dt>model</dt>
 <dd><p>The trait evolution model. One of "BM" or "OU".</p></dd>
+
+
 <dt>selection.strength</dt>
 <dd><p>If <code>model="OU"</code>, the selection strength parameter.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>The ratio of sample sizes.</p>
+    
+
+<p>The ratio of sample sizes.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1289</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## Ballanced tree</span></span>
-<span class="r-in"><span class="va">ntips</span> <span class="op">&lt;-</span> <span class="fl">2</span><span class="op">^</span><span class="fl">5</span></span>
-<span class="r-in"><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/compute.brlen.html" class="external-link">compute.brlen</a></span><span class="op">(</span><span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/stree.html" class="external-link">stree</a></span><span class="op">(</span><span class="va">ntips</span>, <span class="st">"balanced"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="co">## Alt cond : nEff greater than 1</span></span>
-<span class="r-in"><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">ntips</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/plot.TCC.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span>; <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">21</span>, col <span class="op">=</span> <span class="va">id_cond</span>, bg <span class="op">=</span> <span class="va">id_cond</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1289</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Ballanced tree</span></span></span>
+<span class="r-in"><span><span class="va">ntips</span> <span class="op">&lt;-</span> <span class="fl">2</span><span class="op">^</span><span class="fl">5</span></span></span>
+<span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/compute.brlen.html" class="external-link">compute.brlen</a></span><span class="op">(</span><span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/stree.html" class="external-link">stree</a></span><span class="op">(</span><span class="va">ntips</span>, <span class="st">"balanced"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co">## Alt cond : nEff greater than 1</span></span></span>
+<span class="r-in"><span><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, each <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, <span class="va">ntips</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span>; <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">21</span>, col <span class="op">=</span> <span class="va">id_cond</span>, bg <span class="op">=</span> <span class="va">id_cond</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="nEffRatio-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu">compcodeR</span><span class="fu">:::</span><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id_cond</span>, <span class="st">"BM"</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">compcodeR</span><span class="fu">:::</span><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id_cond</span>, <span class="st">"BM"</span>, <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.2</span>
-<span class="r-in"><span class="co">## Bloc cond : nEff smaller than 1</span></span>
-<span class="r-in"><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, each <span class="op">=</span> <span class="va">ntips</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/plot.TCC.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span>; <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">21</span>, col <span class="op">=</span> <span class="va">id_cond</span>, bg <span class="op">=</span> <span class="va">id_cond</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="co">## Bloc cond : nEff smaller than 1</span></span></span>
+<span class="r-in"><span><span class="va">id_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, each <span class="op">=</span> <span class="va">ntips</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id_cond</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span>; <span class="fu">ape</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ape/man/nodelabels.html" class="external-link">tiplabels</a></span><span class="op">(</span>pch <span class="op">=</span> <span class="fl">21</span>, col <span class="op">=</span> <span class="va">id_cond</span>, bg <span class="op">=</span> <span class="va">id_cond</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="nEffRatio-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span class="fu">compcodeR</span><span class="fu">:::</span><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id_cond</span>, <span class="st">"BM"</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span class="r-in"><span><span class="fu">compcodeR</span><span class="fu">:::</span><span class="fu">nEffRatio</span><span class="op">(</span><span class="va">tree</span>, <span class="va">id_cond</span>, <span class="st">"BM"</span>, <span class="fl">0</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.09090909</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -123,7 +132,7 @@ tip conditions (see examples).</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>

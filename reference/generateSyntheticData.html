@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.31.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -63,107 +63,168 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">generateSyntheticData</span><span class="op">(</span>
-  <span class="va">dataset</span>,
-  <span class="va">n.vars</span>,
-  <span class="va">samples.per.cond</span>,
-  <span class="va">n.diffexp</span>,
-  repl.id <span class="op">=</span> <span class="fl">1</span>,
-  seqdepth <span class="op">=</span> <span class="fl">1e+07</span>,
-  minfact <span class="op">=</span> <span class="fl">0.7</span>,
-  maxfact <span class="op">=</span> <span class="fl">1.4</span>,
-  relmeans <span class="op">=</span> <span class="st">"auto"</span>,
-  dispersions <span class="op">=</span> <span class="st">"auto"</span>,
-  fraction.upregulated <span class="op">=</span> <span class="fl">1</span>,
-  between.group.diffdisp <span class="op">=</span> <span class="cn">FALSE</span>,
-  filter.threshold.total <span class="op">=</span> <span class="fl">1</span>,
-  filter.threshold.mediancpm <span class="op">=</span> <span class="fl">0</span>,
-  fraction.non.overdispersed <span class="op">=</span> <span class="fl">0</span>,
-  random.outlier.high.prob <span class="op">=</span> <span class="fl">0</span>,
-  random.outlier.low.prob <span class="op">=</span> <span class="fl">0</span>,
-  single.outlier.high.prob <span class="op">=</span> <span class="fl">0</span>,
-  single.outlier.low.prob <span class="op">=</span> <span class="fl">0</span>,
-  effect.size <span class="op">=</span> <span class="fl">1.5</span>,
-  output.file <span class="op">=</span> <span class="cn">NULL</span>,
-  tree <span class="op">=</span> <span class="cn">NULL</span>,
-  prop.var.tree <span class="op">=</span> <span class="fl">1</span>,
-  model.process <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BM"</span>, <span class="st">"OU"</span><span class="op">)</span>,
-  selection.strength <span class="op">=</span> <span class="fl">0</span>,
-  id.condition <span class="op">=</span> <span class="cn">NULL</span>,
-  id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span> <span class="op">*</span> <span class="va">samples.per.cond</span><span class="op">)</span><span class="op">)</span>,
-  check.id.species <span class="op">=</span> <span class="cn">TRUE</span>,
-  lengths.relmeans <span class="op">=</span> <span class="cn">NULL</span>,
-  lengths.dispersions <span class="op">=</span> <span class="cn">NULL</span>,
-  lengths.phylo <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">generateSyntheticData</span><span class="op">(</span></span>
+<span>  <span class="va">dataset</span>,</span>
+<span>  <span class="va">n.vars</span>,</span>
+<span>  <span class="va">samples.per.cond</span>,</span>
+<span>  <span class="va">n.diffexp</span>,</span>
+<span>  repl.id <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  seqdepth <span class="op">=</span> <span class="fl">1e+07</span>,</span>
+<span>  minfact <span class="op">=</span> <span class="fl">0.7</span>,</span>
+<span>  maxfact <span class="op">=</span> <span class="fl">1.4</span>,</span>
+<span>  relmeans <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  dispersions <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  fraction.upregulated <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  between.group.diffdisp <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  filter.threshold.total <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  filter.threshold.mediancpm <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  fraction.non.overdispersed <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  random.outlier.high.prob <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  random.outlier.low.prob <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  single.outlier.high.prob <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  single.outlier.low.prob <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  effect.size <span class="op">=</span> <span class="fl">1.5</span>,</span>
+<span>  output.file <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tree <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  prop.var.tree <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  model.process <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BM"</span>, <span class="st">"OU"</span><span class="op">)</span>,</span>
+<span>  selection.strength <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  id.condition <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  id.species <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span> <span class="op">*</span> <span class="va">samples.per.cond</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  check.id.species <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  lengths.relmeans <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lengths.dispersions <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lengths.phylo <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>dataset</dt>
 <dd><p>A name or identifier for the data set/simulation settings.</p></dd>
+
+
 <dt>n.vars</dt>
 <dd><p>The initial number of genes in the simulated data set. Based on the filtering conditions (<code>filter.threshold.total</code> and <code>filter.threshold.mediancpm</code>), the number of genes in the final data set may be lower than this number.</p></dd>
+
+
 <dt>samples.per.cond</dt>
 <dd><p>The number of samples in each of the two conditions.</p></dd>
+
+
 <dt>n.diffexp</dt>
 <dd><p>The number of genes simulated to be differentially expressed between the two conditions.</p></dd>
+
+
 <dt>repl.id</dt>
 <dd><p>A replicate ID for the specific simulation instance. Useful for example when generating multiple count matrices with the same simulation settings.</p></dd>
+
+
 <dt>seqdepth</dt>
 <dd><p>The base sequencing depth (total number of mapped reads). This number is multiplied by a value drawn uniformly between <code>minfact</code> and <code>maxfact</code> for each sample to generate data with different actual sequencing depths.</p></dd>
+
+
 <dt>minfact, maxfact</dt>
 <dd><p>The minimum and maximum for the uniform distribution used to generate factors that are multiplied with <code>seqdepth</code> to generate individual sequencing depths for the simulated samples.</p></dd>
+
+
 <dt>relmeans</dt>
 <dd><p>A vector of mean values to use in the simulation of data from the Negative Binomial distribution, or <code>"auto"</code>. Note that these values may be scaled in order to comply with the given sequencing depth. With the default value (<code>"auto"</code>), the mean values are sampled from values estimated from the Pickrell and Cheung data sets. If <code>relmeans</code> is a vector, the provided values will be used as mean values in the simulation for the samples in the first condition. The mean values for the samples in the second condition are generated by combining the <code>relmeans</code> and <code>effect.size</code> arguments.</p></dd>
+
+
 <dt>dispersions</dt>
 <dd><p>A vector or matrix of dispersions to use in the simulation of data from the Negative Binomial distribution, or <code>"auto"</code>. With the default value (<code>"auto"</code>), the dispersion values are sampled from values estimated from the Pickrell and Cheung data sets. If both <code>relmeans</code> and <code>dispersions</code> are set to <code>"auto"</code>, the means and dispersion values are sampled in pairs from the values in these data sets. If <code>dispersions</code> is a single vector, the provided dispersions will be used for simulating data from both conditions. If it is a matrix with two columns, the values in the first column are used for condition 1, and the values in the second column are used for condition 2.</p></dd>
+
+
 <dt>fraction.upregulated</dt>
 <dd><p>The fraction of the differentially expressed genes that is upregulated in condition 2 compared to condition 1.</p></dd>
+
+
 <dt>between.group.diffdisp</dt>
 <dd><p>Whether or not the dispersion should be allowed to be different between the conditions. Only applicable if <code>dispersions</code> is <code>"auto"</code>.</p></dd>
+
+
 <dt>filter.threshold.total</dt>
 <dd><p>The filter threshold on the total count for a gene across all samples. All genes for which the total count across all samples is less than the threshold will be filtered out.</p></dd>
+
+
 <dt>filter.threshold.mediancpm</dt>
 <dd><p>The filter threshold on the median count per million (cpm) for a gene across all samples. All genes for which the median cpm across all samples is less than the threshold will be filtered out.</p></dd>
+
+
 <dt>fraction.non.overdispersed</dt>
 <dd><p>The fraction of the genes that should be simulated according to a Poisson distribution, without overdispersion. The non-overdispersed genes will be divided proportionally between the upregulated, downregulated and non-differentially expressed genes.</p></dd>
+
+
 <dt>random.outlier.high.prob</dt>
 <dd><p>The fraction of 'random' outliers with unusually high counts.</p></dd>
+
+
 <dt>random.outlier.low.prob</dt>
 <dd><p>The fraction of 'random' outliers with unusually low counts.</p></dd>
+
+
 <dt>single.outlier.high.prob</dt>
 <dd><p>The fraction of 'single' outliers with unusually high counts.</p></dd>
+
+
 <dt>single.outlier.low.prob</dt>
 <dd><p>The fraction of 'single' outliers with unusually low counts.</p></dd>
+
+
 <dt>effect.size</dt>
 <dd><p>The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the <code>effect.size</code>. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the <code>fraction.upregulated</code> and <code>n.diffexp</code> arguments will be ignored and the values will be derived from the <code>effect.size</code> vector.</p></dd>
+
+
 <dt>output.file</dt>
 <dd><p>If not <code>NULL</code>, the path to the file where the data object should be saved. The extension should be <code>.rds</code>, if not it will be changed.</p></dd>
+
+
 <dt>tree</dt>
 <dd><p>a dated phylogenetic tree of class <code><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">phylo</a></code> with `samples.per.cond * 2` species.</p></dd>
+
+
 <dt>prop.var.tree</dt>
 <dd><p>the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length <code>n.vars</code>. Default to 1.</p></dd>
+
+
 <dt>model.process</dt>
 <dd><p>the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".</p></dd>
+
+
 <dt>selection.strength</dt>
 <dd><p>if the process is "OU", the selection strength parameter.</p></dd>
+
+
 <dt>id.condition</dt>
 <dd><p>A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.</p></dd>
+
+
 <dt>id.species</dt>
 <dd><p>A factor giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to <code>rep(1, 2*samples.per.cond)</code>, i.e. all the samples come from the same species.</p></dd>
+
+
 <dt>check.id.species</dt>
 <dd><p>Should the species vector be checked against the tree lengths (if provided) ? If TRUE, the function checks that all the samples that share a factor value in <code>id.species</code> that their distance on the tree is zero, i.e. that they are on the same tip of the tree. Default to TRUE.</p></dd>
+
+
 <dt>lengths.relmeans</dt>
 <dd><p>An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to <code>NULL</code>: the lengths are not taken into account for the simulation. If set to <code>"auto"</code>, the mean length values are sampled from values estimated from the Stern &amp; Crandall (2018) data set.</p></dd>
+
+
 <dt>lengths.dispersions</dt>
 <dd><p>An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to <code>NULL</code>: the lengths are not taken into account for the simulation. If set to <code>"auto"</code>, the dispersion length values are sampled from values estimated from the Stern &amp; Crandall (2018) data set.</p></dd>
+
+
 <dt>lengths.phylo</dt>
 <dd><p>If TRUE, the lengths are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, <code>lengths.relmeans</code> and <code>lengths.dispersions</code> are used. Default to TRUE if a tree is provided.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code><a href="compData.html">compData</a></code> object. If <code>output.file</code> is not <code>NULL</code>, the object is saved in the given <code>output.file</code> (which should have an <code>.rds</code> extension).</p>
+    
+
+<p>A <code><a href="compData.html">compData</a></code> object. If <code>output.file</code> is not <code>NULL</code>, the object is saved in the given <code>output.file</code> (which should have an <code>.rds</code> extension).</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -195,21 +256,21 @@ from package <code>phylolm</code>.</p>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="co">## RNA-Seq data</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu">generateSyntheticData</span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co">## Inter-species RNA-Seq data</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span>text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">id.species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id.species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span>
-<span class="r-in"><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu">generateSyntheticData</span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span>
-<span class="r-in">                                    samples.per.cond <span class="op">=</span> <span class="fl">4</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span>
-<span class="r-in">                                    tree <span class="op">=</span> <span class="va">tree</span>,</span>
-<span class="r-in">                                    id.species <span class="op">=</span> <span class="va">id.species</span>,</span>
-<span class="r-in">                                    lengths.relmeans <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span class="r-in">                                    lengths.dispersions <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co">## RNA-Seq data</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu">generateSyntheticData</span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## Inter-species RNA-Seq data</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://ape-package.ird.fr/" class="external-link">ape</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/ape/man/read.tree.html" class="external-link">read.tree</a></span><span class="op">(</span>text <span class="op">=</span> <span class="st">"(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">id.species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>, <span class="st">"D"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/pkg/TCC/man/TCC-class.html" class="external-link">names</a></span><span class="op">(</span><span class="va">id.species</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">tree</span><span class="op">$</span><span class="va">tip.label</span></span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu">generateSyntheticData</span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">4</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span>                                    tree <span class="op">=</span> <span class="va">tree</span>,</span></span>
+<span class="r-in"><span>                                    id.species <span class="op">=</span> <span class="va">id.species</span>,</span></span>
+<span class="r-in"><span>                                    lengths.relmeans <span class="op">=</span> <span class="st">"auto"</span>,</span></span>
+<span class="r-in"><span>                                    lengths.dispersions <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -224,7 +285,7 @@ from package <code>phylolm</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
 </div>
 
       </footer></div>
