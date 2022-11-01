@@ -64,7 +64,8 @@ Suggests:
     ggtree,
     tidytree,
     statmod,
-    covr
+    covr,
+    sva
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
