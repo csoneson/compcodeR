@@ -95,7 +95,8 @@ saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
            Rmdfunction = "lengthNorm.limma.createRmd", 
-           output.directory = tmpdir, norm.method = "TMM")
+           output.directory = tmpdir, norm.method = "TMM",
+           extra.design.covariates = c("test_factor", "test_reg"))
 })
 
 }

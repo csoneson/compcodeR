@@ -208,7 +208,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
 #'            Rmdfunction = "lengthNorm.limma.createRmd", 
-#'            output.directory = tmpdir, norm.method = "TMM")
+#'            output.directory = tmpdir, norm.method = "TMM",
+#'            extra.design.covariates = c("test_factor", "test_reg"))
 #' })
 #' 
 lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
@@ -281,7 +282,7 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
+               paste("method.names(cdata) <- list('short.name' = 'lengthNorm.limma', 'full.name' = '", 
                      paste('length.', utils::packageVersion('limma'), '.limma.', norm.method,
                            ".lengthNorm.", length.normalization, '.',
                            "dataTrans.", data.transformation,
@@ -298,14 +299,14 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
   close(codefile)
 }
 
-#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + limma
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + SVA + limma
 #' 
-#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation, followed by a surrogate variable analysis (SVA), and then a differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
 #' 
-#' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+#' For more information about the methods and the interpretation of the parameters, see the \code{sva} and \code{limma} packages and the corresponding publications.
 #' 
 #' @inheritParams lengthNorm.limma.createRmd
-#' @param n.sv The number of surogate variables to estimate (see \code{\link[sva]{sva}}). Default to \code{"auto"}: will be estimated with \code{\link[sva]{num.sv}}.
+#' @param n.sv The number of surrogate variables to estimate (see \code{\link[sva]{sva}}). Default to \code{"auto"}: will be estimated with \code{\link[sva]{num.sv}}.
 #' 
 #' @details 
 #' 
@@ -347,7 +348,8 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "lengthNorm.sva.limma", 
 #'            Rmdfunction = "lengthNorm.sva.limma.createRmd", 
-#'            output.directory = tmpdir, norm.method = "TMM")
+#'            output.directory = tmpdir, norm.method = "TMM",
+#'            extra.design.covariates = c("test_factor", "test_reg"))
 #' })
 #' 
 lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
@@ -355,11 +357,7 @@ lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, nor
                                            length.normalization = "RPKM",
                                            data.transformation = "log2",
                                            trend = FALSE,
-                                           # block.factor = NULL,
                                            n.sv = "auto") {
-  # if (!is.null(block.factor)) {
-  #   if (!requireNamespace("statmod", quietly = TRUE)) stop("Package `statmod` is required for correlation modeling with `block.factor`.")
-  # }
   if (!requireNamespace("sva", quietly = TRUE)) stop("Package `sva` is required for the SVA analysis.")
   codefile <- file(codefile, open = 'w')
   writeLines("###  limma + length + SVA", codefile)
@@ -410,21 +408,8 @@ lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, nor
   writeLines(c("svobj <- sva::sva(data.trans, design, design_0, n.sv =  n.sv, method = 'irw')",
                "design <- cbind(design, svobj$sv)"),
              codefile)
-  
-  # if (!is.null(block.factor)) {
-  #   if (length(block.factor) > 1) stop("Only one factor can be taken for block definition.")
-  #   writeLines(c("# Fitting Block correlations",
-  #                paste0("block <- sample.annotations(cdata)[['", paste(block.factor), "']]"),
-  #                "corfit <- duplicateCorrelation(data.trans, design = design, block = block, ndups = 1)"),
-  #              codefile)
-  #   writeLines(c("", "# Fit"), codefile)
-  #   writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design, correlation = corfit$consensus, block = block)"),
-  #              codefile)
-  # } else {
-  #   writeLines(c("", "# Fit"), codefile)
   writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design)"),
              codefile)
-  # }
   if (!trend) {
     writeLines("length.fitbayes <- limma::eBayes(length.fitlimma)", codefile)
   } else {
@@ -440,7 +425,7 @@ lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, nor
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
+               paste("method.names(cdata) <- list('short.name' = 'lengthNorm.sva.limma', 'full.name' = '", 
                      paste('length.',
                            utils::packageVersion('sva'), '.sva.',
                            utils::packageVersion('limma'), '.limma.', norm.method,
@@ -449,7 +434,6 @@ lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, nor
                            ifelse(trend, '.with_trend', ".no_trend"),
                            ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
                            ".n.sv.", n.sv,
-                           # ifelse(!is.null(block.factor), paste0(".", paste(block.factor, collapse = ".")), ""),
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",

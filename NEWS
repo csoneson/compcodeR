@@ -1,5 +1,11 @@
+CHANGES IN VERSION 1.35.1
+-------------------------
+
+  o Add a function for SVA + limma differential expression analysis
+
 CHANGES IN VERSION 1.31.1
 -------------------------
+
   o Implement simulations according to the phylogenetic poisson log normal model
   o Implement length-varying simulations
   o New PhyloCompData object for phylogenetic informed simulation data

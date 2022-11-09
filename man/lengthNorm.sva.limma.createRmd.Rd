@@ -2,7 +2,7 @@
 % Please edit documentation in R/generateRmdCodeDiffExpPhylo.R
 \name{lengthNorm.sva.limma.createRmd}
 \alias{lengthNorm.sva.limma.createRmd}
-\title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + limma}
+\title{Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + SVA + limma}
 \usage{
 lengthNorm.sva.limma.createRmd(
   data.path,
@@ -33,16 +33,16 @@ lengthNorm.sva.limma.createRmd(
 
 \item{trend}{should an intensity-trend be allowed for the prior variance? Default to \code{FALSE}.}
 
-\item{n.sv}{The number of surogate variables to estimate (see \code{\link[sva]{sva}}). Default to \code{"auto"}: will be estimated with \code{\link[sva]{num.sv}}.}
+\item{n.sv}{The number of surrogate variables to estimate (see \code{\link[sva]{sva}}). Default to \code{"auto"}: will be estimated with \code{\link[sva]{num.sv}}.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
 }
 \description{
-A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation, followed by a surrogate variable analysis (SVA), and then a differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
 }
 \details{
-For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
+For more information about the methods and the interpretation of the parameters, see the \code{sva} and \code{limma} packages and the corresponding publications.
 
 See the \code{details} section of \code{\link{lengthNorm.limma.createRmd}} for details
 on the normalization and the extra design covariates.
@@ -66,7 +66,8 @@ saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
 runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "lengthNorm.sva.limma", 
            Rmdfunction = "lengthNorm.sva.limma.createRmd", 
-           output.directory = tmpdir, norm.method = "TMM")
+           output.directory = tmpdir, norm.method = "TMM",
+           extra.design.covariates = c("test_factor", "test_reg"))
 })
 
 }
