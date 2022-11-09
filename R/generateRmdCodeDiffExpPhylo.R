@@ -130,9 +130,9 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
   close(codefile)
 }
 
-#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with sqrtTPM+limma
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + limma
 #' 
-#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying the sqrt(TPM) transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation followed by differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
 #' 
 #' For more information about the methods and the interpretation of the parameters, see the \code{limma} package and the corresponding publications.
 #' 
@@ -208,7 +208,8 @@ DESeq2.length.createRmd <- function(data.path, result.path, codefile,
 #' ## Diff Exp
 #' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "length.limma", 
 #'            Rmdfunction = "lengthNorm.limma.createRmd", 
-#'            output.directory = tmpdir, norm.method = "TMM")
+#'            output.directory = tmpdir, norm.method = "TMM",
+#'            extra.design.covariates = c("test_factor", "test_reg"))
 #' })
 #' 
 lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
@@ -281,13 +282,158 @@ lengthNorm.limma.createRmd <- function(data.path, result.path, codefile, norm.me
                "result.table(cdata) <- result.table",
                "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
                "analysis.date(cdata) <- date()",
-               paste("method.names(cdata) <- list('short.name' = 'sqrtTPM', 'full.name' = '", 
+               paste("method.names(cdata) <- list('short.name' = 'lengthNorm.limma', 'full.name' = '", 
                      paste('length.', utils::packageVersion('limma'), '.limma.', norm.method,
                            ".lengthNorm.", length.normalization, '.',
                            "dataTrans.", data.transformation,
                            ifelse(trend, '.with_trend', ".no_trend"),
                            ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
                            ifelse(!is.null(block.factor), paste0(".", paste(block.factor, collapse = ".")), ""),
+                           sep = ''), "')", sep = ''),
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
+               paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
+  writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
+  writeLines("sessionInfo()", codefile)
+  writeLines("```", codefile)
+  close(codefile)
+}
+
+#' Generate a \code{.Rmd} file containing code to perform differential expression analysis with length normalized counts + SVA + limma
+#' 
+#' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) by applying a length normalizing transformation, followed by a surrogate variable analysis (SVA), and then a differential expression analysis with limma. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
+#' 
+#' For more information about the methods and the interpretation of the parameters, see the \code{sva} and \code{limma} packages and the corresponding publications.
+#' 
+#' @inheritParams lengthNorm.limma.createRmd
+#' @param n.sv The number of surrogate variables to estimate (see \code{\link[sva]{sva}}). Default to \code{"auto"}: will be estimated with \code{\link[sva]{num.sv}}.
+#' 
+#' @details 
+#' 
+#' See the \code{details} section of \code{\link{lengthNorm.limma.createRmd}} for details
+#' on the normalization and the extra design covariates.
+#' 
+#' @md
+#' 
+#' @export 
+#' @author Charlotte Soneson, Paul Bastide, Mélina Gallopin
+#' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
+#' @references 
+#' Smyth GK (2005): Limma: linear models for microarray data. In: 'Bioinformatics and Computational Biology Solutions using R and Bioconductor'. R. Gentleman, V. Carey, S. Dudoit, R. Irizarry, W. Huber (eds), Springer, New York, pages 397-420
+#' 
+#' Smyth, G. K., Michaud, J., and Scott, H. (2005). The use of within-array replicate spots for assessing differential expression in microarray experiments. Bioinformatics 21(9), 2067-2075.
+#' 
+#' Law, C.W., Chen, Y., Shi, W. et al. (2014) voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biol 15, R29.
+#'
+#' Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604. 
+#' 
+#' Leek JT, Johnson WE, Parker HS, Jaffe AE, and Storey JD. (2012) The sva package for removing batch effects and other unwanted variation in high-throughput experiments. Bioinformatics DOI:10.1093/bioinformatics/bts034
+#' 
+#' @examples
+#' try(
+#' if (require(limma) && require(sva)) {
+#' tmpdir <- normalizePath(tempdir(), winslash = "/")
+#' ## Simulate data
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#'                                     id.species = factor(1:10),
+#'                                     lengths.relmeans = rpois(1000, 1000),
+#'                                     lengths.dispersions = rgamma(1000, 1, 1),
+#'                                     output.file = file.path(tmpdir, "mydata.rds"))
+#' ## Add covariates
+#' ## Model fitted is count.matrix ~ condition + test_factor + test_reg
+#' sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
+#' sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
+#' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
+#' ## Diff Exp
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "lengthNorm.sva.limma", 
+#'            Rmdfunction = "lengthNorm.sva.limma.createRmd", 
+#'            output.directory = tmpdir, norm.method = "TMM",
+#'            extra.design.covariates = c("test_factor", "test_reg"))
+#' })
+#' 
+lengthNorm.sva.limma.createRmd <- function(data.path, result.path, codefile, norm.method, 
+                                           extra.design.covariates = NULL,
+                                           length.normalization = "RPKM",
+                                           data.transformation = "log2",
+                                           trend = FALSE,
+                                           n.sv = "auto") {
+  if (!requireNamespace("sva", quietly = TRUE)) stop("Package `sva` is required for the SVA analysis.")
+  codefile <- file(codefile, open = 'w')
+  writeLines("###  limma + length + SVA", codefile)
+  writeLines(paste("Data file: ", data.path, sep = ''), codefile)
+  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+               "require(limma)", 
+               "require(edgeR)",
+               "require(sva)",
+               paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
+  if (is.list(readRDS(data.path))) {
+    writeLines("cdata <- convertListTophyloCompData(cdata)", codefile)
+  }
+  writeLines(c("is.valid <- check_phyloCompData(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData object.')"),
+             codefile)
+  
+  writeLines(c("", "# Design"),codefile)
+  if (is.null(extra.design.covariates)) {
+    writeLines(c(
+      "design_formula <- as.formula(~ condition)",
+      "design_formula_0 <- as.formula(~ 1)",
+      "design_data <- sample.annotations(cdata)[, 'condition', drop = FALSE]"),
+      codefile)
+  } else {
+    writeLines(c(
+      paste0("design_formula <- as.formula(paste(' ~ ', paste(c('", paste(extra.design.covariates, collapse = "', '"), "'), collapse= '+'), '+ condition'))"),
+      paste0("design_formula_0 <- as.formula(paste(' ~ ', paste(c('", paste(extra.design.covariates, collapse = "', '"), "'), collapse= '+')))"),
+      paste0("design_data <- sample.annotations(cdata)[, c('", paste(extra.design.covariates, collapse = "', '"), "', 'condition'), drop = FALSE]")),
+      codefile)
+  }
+  writeLines(c(
+    "design_data$condition <- factor(design_data$condition)",
+    "design <- model.matrix(design_formula, design_data)",
+    "design_0 <- model.matrix(design_formula_0, design_data)"),
+    codefile)
+  
+  writeNormalization(norm.method, length.normalization, data.transformation, codefile)
+  
+  writeLines(c("", "# SVA"), codefile)
+  if (n.sv == "auto") {
+    writeLines("n.sv <- sva::num.sv(data.trans, design, method = 'leek')", codefile)
+  } else {
+    is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+    if (!is.wholenumber(n.sv)) stop("'n.sv' must be either 'auto' or a whole number.")
+    writeLines(paste0("n.sv <- ", paste0(n.sv)), codefile)
+  }
+  n.sv <- ifelse(is.null(n.sv), "NULL", paste0(n.sv))
+  writeLines(c("svobj <- sva::sva(data.trans, design, design_0, n.sv =  n.sv, method = 'irw')",
+               "design <- cbind(design, svobj$sv)"),
+             codefile)
+  writeLines(c("length.fitlimma <- limma::lmFit(data.trans, design = design)"),
+             codefile)
+  if (!trend) {
+    writeLines("length.fitbayes <- limma::eBayes(length.fitlimma)", codefile)
+  } else {
+    writeLines("length.fitbayes <- limma::eBayes(length.fitlimma, trend = TRUE)", codefile)
+  }
+  writeLines(c("length.pvalues <- length.fitbayes$p.value[, 'condition2']", 
+               "length.adjpvalues <- p.adjust(length.pvalues, method = 'BH')", 
+               "length.logFC <- length.fitbayes$coefficients[, 'condition2']", 
+               "length.score <- 1 - length.pvalues", 
+               "length.n.sv <- svobj$n.sv", 
+               "result.table <- data.frame('pvalue' = length.pvalues, 'adjpvalue' = length.adjpvalues, 'logFC' = length.logFC, 'score' = length.score, 'n.sv' = length.n.sv)",
+               "rownames(result.table) <- rownames(count.matrix(cdata))", 
+               "result.table(cdata) <- result.table",
+               "package.version(cdata) <- paste('limma,', packageVersion('limma'), ';', 'edgeR,', packageVersion('edgeR'))", 
+               "analysis.date(cdata) <- date()",
+               paste("method.names(cdata) <- list('short.name' = 'lengthNorm.sva.limma', 'full.name' = '", 
+                     paste('length.',
+                           utils::packageVersion('sva'), '.sva.',
+                           utils::packageVersion('limma'), '.limma.', norm.method,
+                           ".lengthNorm.", length.normalization, '.',
+                           "dataTrans.", data.transformation,
+                           ifelse(trend, '.with_trend', ".no_trend"),
+                           ifelse(!is.null(extra.design.covariates), paste0(".", paste(extra.design.covariates, collapse = ".")), ""),
+                           ".n.sv.", n.sv,
                            sep = ''), "')", sep = ''),
                "is.valid <- check_compData_results(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
