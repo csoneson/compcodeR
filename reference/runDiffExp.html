@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.35.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.37.0</span>
       </span>
     </div>
 
@@ -111,36 +111,24 @@
 <span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
 <span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="listcreateRmd.html">listcreateRmd</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "DESeq2.createRmd"           "DESeq2.length.createRmd"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "DSS.createRmd"              "EBSeq.createRmd"           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NBPSeq.createRmd"           "NOISeq.prenorm.createRmd"  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "TCC.createRmd"              "baySeq.createRmd"          </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "edgeR.GLM.createRmd"        "edgeR.exact.createRmd"     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "lengthNorm.limma.createRmd" "logcpm.limma.createRmd"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "phylolm.createRmd"          "sqrtcpm.limma.createRmd"   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "ttest.createRmd"            "voom.limma.createRmd"      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "voom.ttest.createRmd"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "DESeq2.createRmd"               "DESeq2.length.createRmd"       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "DSS.createRmd"                  "EBSeq.createRmd"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "NBPSeq.createRmd"               "NOISeq.prenorm.createRmd"      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "TCC.createRmd"                  "baySeq.createRmd"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "edgeR.GLM.createRmd"            "edgeR.exact.createRmd"         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "lengthNorm.limma.createRmd"     "lengthNorm.sva.limma.createRmd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "logcpm.limma.createRmd"         "phylolm.createRmd"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "sqrtcpm.limma.createRmd"        "ttest.createRmd"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "voom.limma.createRmd"           "voom.ttest.createRmd"          </span>
 <span class="r-in"><span><span class="fu">runDiffExp</span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"voom.limma"</span>, </span></span>
 <span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"voom.limma.createRmd"</span>, </span></span>
 <span class="r-in"><span>           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da6b19eabe.Rmd</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |...................................                                   |  50%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ordinary text without R code</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |......................................................................| 100%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> label: unnamed-chunk-1 (with options) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ echo   : logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ eval   : logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ include: logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ message: logi FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ error  : logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ warning: logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpry7i0p/tempcodea7da6b19eabe.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpNoeltZ/tempcode4b826b057ddb.Rmd</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1/2                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2/2 [unnamed-chunk-1]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpNoeltZ/tempcode4b826b057ddb.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -214,7 +202,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.9000.</p>
 </div>
 
       </footer></div>
