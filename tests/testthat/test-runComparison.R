@@ -1338,18 +1338,16 @@ test_that("runDiffExp works - phylo", {
     }
   }
 
+  ## For some reason, generateCodeHTMLs with phylolm.factor causes problems
+  ## (invalid file name?) on Windows
   for (m in setdiff(methods, "phylolm.factor")) {
     if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
       if (!(m %in% c("lengthNorm.limma.cor")) || requireNamespace("statmod", quietly = TRUE)) {
         if (!(m %in% c("lengthNorm.sva.limma", "lengthNorm.sva.limma.factor")) || requireNamespace("sva", quietly = TRUE)) {
-          print(m)
-          print(normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
-                              winslash = "/"))
           generateCodeHTMLs(
             normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
                           winslash = "/"), normalizePath(tdir)
           )
-          print("done")
           expect_true(file.exists(normalizePath(file.path(
             tdir, paste0("B_625_625_5spc_repl1_",
                          m, "_code.html")), winslash = "/")))
