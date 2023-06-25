@@ -1305,7 +1305,7 @@ test_that("runDiffExp works - phylo", {
     data.transformation = "log2"
   )
 
-  methods <- c("phylolm.factor", "DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma", "lengthNorm.limma.cor", "lengthNorm.limma.factor", "lengthNorm.sva.limma", "lengthNorm.sva.limma.factor", "phylolm_cpm", "phylolm")
+  methods <- c("DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma", "lengthNorm.limma.cor", "lengthNorm.limma.factor", "lengthNorm.sva.limma", "lengthNorm.sva.limma.factor", "phylolm.factor", "phylolm_cpm", "phylolm")
 
   ## Test show() method
   m <- "lengthNorm.limma"
@@ -1338,7 +1338,7 @@ test_that("runDiffExp works - phylo", {
     }
   }
 
-  for (m in methods) {
+  for (m in setdiff(methods, "phylolm.factor")) {
     if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
       if (!(m %in% c("lengthNorm.limma.cor")) || requireNamespace("statmod", quietly = TRUE)) {
         if (!(m %in% c("lengthNorm.sva.limma", "lengthNorm.sva.limma.factor")) || requireNamespace("sva", quietly = TRUE)) {
