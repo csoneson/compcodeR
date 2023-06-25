@@ -1305,7 +1305,7 @@ test_that("runDiffExp works - phylo", {
     data.transformation = "log2"
   )
 
-  methods <- c("DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma", "lengthNorm.limma.cor", "lengthNorm.limma.factor", "lengthNorm.sva.limma", "lengthNorm.sva.limma.factor", "phylolm.factor", "phylolm_cpm", "phylolm")
+  methods <- c("phylolm.factor", "DESeq2.length", "DESeq2.length.factor", "lengthNorm.limma", "lengthNorm.limma.cor", "lengthNorm.limma.factor", "lengthNorm.sva.limma", "lengthNorm.sva.limma.factor", "phylolm_cpm", "phylolm")
 
   ## Test show() method
   m <- "lengthNorm.limma"
@@ -1349,6 +1349,7 @@ test_that("runDiffExp works - phylo", {
             normalizePath(file.path(tdir, paste0("B_625_625_5spc_repl1_", m, ".rds")),
                           winslash = "/"), normalizePath(tdir)
           )
+          print("done")
           expect_true(file.exists(normalizePath(file.path(
             tdir, paste0("B_625_625_5spc_repl1_",
                          m, "_code.html")), winslash = "/")))
