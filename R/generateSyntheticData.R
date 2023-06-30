@@ -10,6 +10,14 @@
 #' 
 #' To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
 #' 
+#' When the \code{tree} argument is provided (not \code{NULL}),
+#' then the "phylogenetic Poisson log-Normal" model is used for the simulations,
+#' possibly with varying gene lengths across species 
+#' (both \code{lengths.relmeans} and \code{lengths.dispersions} must be specified
+#' or set to \code{"auto"}.)
+#' Phylogenetic simulations use the \code{\link[phylolm]{rTrait}} function
+#' from package \code{phylolm}.
+#' 
 #' @param dataset A name or identifier for the data set/simulation settings. 
 #' @param n.vars The initial number of genes in the simulated data set. Based on the filtering conditions (\code{filter.threshold.total} and \code{filter.threshold.mediancpm}), the number of genes in the final data set may be lower than this number. 
 #' @param samples.per.cond The number of samples in each of the two conditions.
@@ -30,13 +38,36 @@
 #' @param single.outlier.low.prob The fraction of 'single' outliers with unusually low counts.
 #' @param effect.size The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.
 #' @param output.file If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.
+#' @param tree a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.
+#' @param prop.var.tree the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length \code{n.vars}. Default to 1.
+#' @param model.process the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".
+#' @param selection.strength if the process is "OU", the selection strength parameter.
+#' @param id.condition A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.
+#' @param id.species A factor giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.
+#' @param check.id.species Should the species vector be checked against the tree lengths (if provided) ? If TRUE, the function checks that all the samples that share a factor value in \code{id.species} that their distance on the tree is zero, i.e. that they are on the same tip of the tree. Default to TRUE.
+#' @param lengths.relmeans An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the mean length values are sampled from values estimated from the Stern & Crandall (2018) data set.
+#' @param lengths.dispersions An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispersion length values are sampled from values estimated from the Stern & Crandall (2018) data set.
+#' @param lengths.phylo If TRUE, the lengths are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE if a tree is provided.
 #'
 #' @return A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
 #' @export
 #' @author Charlotte Soneson
 #' @examples
+#' ## RNA-Seq data
 #' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
 #'                                     samples.per.cond = 5, n.diffexp = 100)
+#'
+#' ## Inter-species RNA-Seq data
+#' library(ape)
+#' tree <- read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+#' id.species <- factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+#' names(id.species) <- tree$tip.label
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+#'                                     samples.per.cond = 4, n.diffexp = 100, 
+#'                                     tree = tree,
+#'                                     id.species = id.species,
+#'                                     lengths.relmeans = "auto",
+#'                                     lengths.dispersions = "auto")
 #' @references
 #' Soneson C and Delorenzi M (2013): A comparison of methods for differential expression analysis of RNA-seq data. BMC Bioinformatics 14:91
 #' 
@@ -47,6 +78,10 @@
 #' Pickrell JK, Marioni JC, Pai AA, Degner JF, Engelhardt BE, Nkadori E, Veyrieras JB, Stephens M, Gilad Y and Pritchard JK (2010): Understanding mechanisms underlying human gene expression variation with RNA sequencing. Nature 464, 768-772
 #' 
 #' Robles JA, Qureshi SE, Stephen SJ, Wilson SR, Burden CJ and Taylor JM (2012): Efficient experimental design and analysis strategies for the detection of differential expression using RNA-sequencing. BMC Genomics 13:484
+#' 
+#' Stern DB and Crandall KA (2018): The Evolution of Gene Expression Underlying Vision Loss in Cave Animals. Molecular Biology and Evolution. 35:2005–2014.
+#' @import sm
+#' 
 generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, repl.id = 1, 
                                   seqdepth = 1e7, minfact = 0.7, maxfact = 1.4, 
                                   relmeans = "auto", dispersions = "auto", 
@@ -55,7 +90,13 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
                                   fraction.non.overdispersed = 0, random.outlier.high.prob = 0, 
                                   random.outlier.low.prob = 0, single.outlier.high.prob = 0, 
                                   single.outlier.low.prob = 0, effect.size = 1.5, 
-                                  output.file = NULL) {
+                                  output.file = NULL,
+                                  tree = NULL, prop.var.tree = 1.0,
+                                  model.process = c("BM", "OU"), selection.strength = 0,
+                                  id.condition = NULL,
+                                  id.species = as.factor(rep(1, 2 * samples.per.cond)),
+                                  check.id.species = TRUE,
+                                  lengths.relmeans = NULL, lengths.dispersions = NULL, lengths.phylo = TRUE) {
   
   ## Check output file name
   if (!is.null(output.file)) {
@@ -66,9 +107,101 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
   
   ## Generate a unique ID for the data set
   uID <- paste(sample(c(0:9, letters, LETTERS), 10, replace = TRUE), collapse = "")
+  
+  ## Checks for phylogenetic tree
+  use_tree <- !is.null(tree) # If tree is specified, use it.
+  if (lengths.phylo && !use_tree) {
+    lengths.phylo <- FALSE
+  }
+  
+  
+  ## Check id.species
+  if (!is.factor(id.species)) warning("Vector 'id.species' must be a factor. Transforming.")
+  id.species <- as.factor(id.species)
+  levels(id.species) <- 1:length(levels(id.species))
+  
+  if (use_tree) {
+    ## Check package
+    if (!requireNamespace("ape", quietly = TRUE)) {
+      stop("Package 'ape' is needed for phylogenetic simulations.", call. = FALSE)
+    }
+    ## Check Tree
+    if (!inherits(tree, "phylo")) {
+      stop("The `tree` must be of class `phylo` from package `ape`.")
+    }
+    ## Check that the tree has the right number of species
+    if (length(tree$tip.label) != samples.per.cond * 2) {
+      stop("The tree should have as many species as `samples.per.cond` times two.")
+    }
+    ## Check that the tree is ultrametric
+    if (!ape::is.ultrametric(tree)) {
+      stop("The tree should be ultrametric.")
+    }
+    
+    ## Check Conditions
+    if (!is.null(id.condition)) {
+      id.condition <- checkParamVector(id.condition, "id.condition", tree)
+    } else {
+      id.condition <- rep(c(1, 2), each = samples.per.cond)
+      names(id.condition) <- tree$tip.label
+    }
+    
+    ## Check id species
+    id.species <- checkSpecies(id.species, "id.species", tree, tol = 1e-10, check.id.species)
+    
+    ## Check that all genes are over-dispersed
+    if (fraction.non.overdispersed != 0) {
+      stop("The Phylogenetic Poisson lognormal distribution is always over-dispersed.")
+    }
+    
+    ## Check Proportion
+    if (!is.vector(prop.var.tree)) {
+      stop("`prop.var.tree` should be a vector or a scalar.")
+    }
+    if (length(prop.var.tree) != n.vars) {
+      if (length(prop.var.tree) != 1) stop("`prop.var.tree` should be a vector of length the number of genes, or a scalar (in which case it will be recycled).")
+    }
+    if (any(prop.var.tree > 1.0 | prop.var.tree < 0.0)) {
+      stop("All entries of `prop.var.tree` should be between 0 and 1.")
+    }
+    
+  } else {
+    ## Check id.condition (non phylogenetic)
+    if (!is.null(id.condition)) {
+      if (length(id.condition) != 2 * samples.per.cond) {
+        stop("Vector of conditions `id.condition` should have length `2*samples.per.cond`.")
+      }
+    } else {
+      id.condition <- rep(c(1, 2), each = samples.per.cond)
+    }
+  }
 
+  ## Checks lengths
+  if (is.null(lengths.relmeans) != is.null(lengths.dispersions)) {
+    stop("For lengths to be used, both the 'lengths.relmeans' and 'lengths.dispersions' vectors must be provided.")
+  }
+  use_lengths <- !is.null(lengths.relmeans) # If lengths are specified, use them.
+  if (use_lengths) {
+    if (is.character(lengths.relmeans) || is.character(lengths.dispersions)) {  # if they are 'auto'
+      ### Load mu and phi estimates from real data (Stern dataset)
+      length.mu.phi.estimates <- system.file("extdata", "Stern2018.Length.Mu.Phi.Estimates.rds",
+                                             package = "compcodeR")
+      length.mu.phi.estimates <- readRDS(length.mu.phi.estimates)
+      length.mu.estimates <- length.mu.phi.estimates$stern2018.length.mu
+      length.phi.estimates <- length.mu.phi.estimates$stern2018.length.phi
+      
+      ### Sample a mu and a phi for each gene in condition S1
+      to.include <- sample(seq_len(length(length.mu.estimates)), n.vars, 
+                           replace = ifelse(n.vars > length(length.mu.estimates), TRUE, FALSE))
+      if (is.character(lengths.dispersions)) lengths.dispersions <- length.phi.estimates[to.include]
+      if (is.character(lengths.relmeans)) lengths.relmeans <- length.mu.estimates[to.include]
+    } 
+    if (length(lengths.relmeans) != n.vars) stop("The length of the 'lengths.relmeans' vector must be the same as the number of simulated genes.")
+    if (length(lengths.dispersions) != n.vars) stop("The length of the 'lengths.dispersions' vector must be the same as the number of simulated genes.")
+  }
+  
 	## Define conditions
-  condition <- rep(c(1, 2), each = samples.per.cond)
+  condition <- id.condition
   S1 <- which(condition == 1)
   S2 <- which(condition == 2)
 
@@ -193,28 +326,35 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	truedispersions.S1 <- truedispersions.S1 * overdispersed
 	truedispersions.S2 <- truedispersions.S2 * overdispersed
 	
-	### Initialize data matrix
-	Z <- matrix(0, n.vars, length(S1) + length(S2))
+	## Generate lengths and length factors
+	nfact_length.S1 <- nfact_length.S2 <- matrix(1, n.vars, length(S1) + length(S2))
+	length_matrix <- matrix(NA, 0, 0)
+	if (use_lengths) {
+	  if (lengths.phylo) {
+	    length_matrix <- generateLengthsPhylo(tree, id.species, lengths.relmeans, lengths.dispersions)
+	  } else {
+	    length_matrix <- generateLengths(id.species, lengths.relmeans, lengths.dispersions)
+	  }
+	  nfact_length.S1 <- computeFactorLengths(length_matrix, prob.S1, sum.S1)
+	  nfact_length.S2 <- computeFactorLengths(length_matrix, prob.S2, sum.S2)
+	}
 	
-	### Generate data
-	for (i in seq_len(n.vars)) {
-		for (j in seq_len(ncol(Z))) {
-			if (j %in% S1) {
-				if (overdispersed[i] == 1) {
-				  Z[i, j] <- stats::rnbinom(n = 1, mu = prob.S1[i]/sum.S1 * seq.depths[j], 
-				                            size = 1/truedispersions.S1[i])
-				} else {
-					Z[i, j] <- stats::rpois(n = 1, lambda = prob.S1[i]/sum.S1 * seq.depths[j])
-				}
-			} else {
-				if (overdispersed[i] == 1) {
-				  Z[i, j] <- stats::rnbinom(n = 1, mu = prob.S2[i]/sum.S2 * seq.depths[j], 
-				                            size = 1/truedispersions.S2[i])
-				} else {
-					Z[i, j] <- stats::rpois(n = 1, lambda = prob.S2[i]/sum.S2 * seq.depths[j])
-				}
-			}
-		}
+	if (use_tree) {
+	  params_simus <- getNegativeBinomialParameters(n.vars = n.vars,
+	                                                S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
+	                                                S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
+	                                                seq.depths = seq.depths)
+	  model.process <- match.arg(model.process)
+	  Z <- simulateDataPhylo(params_simus$count_means,
+	                         params_simus$count_dispersions,
+	                         tree = tree, prop.var.tree = prop.var.tree,
+	                         model.process = model.process, selection.strength = selection.strength) 
+	} else {
+	  Z <- simulateData(n.vars = n.vars,
+	                    S1 = S1, prob.S1 = prob.S1, sum.S1 = sum.S1, truedispersions.S1 = truedispersions.S1, nfact_length.S1 = nfact_length.S1,
+	                    S2 = S2, prob.S2 = prob.S2, sum.S2 = sum.S2, truedispersions.S2 = truedispersions.S2, nfact_length.S2 = nfact_length.S2,
+	                    seq.depths = seq.depths,
+	                    overdispersed = overdispersed)
 	}
 
 	### Add 'random' outliers
@@ -291,6 +431,18 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	A.value <- 0.5*(apply(log2.pseudocounts[, S2], 1, mean) + 
 	                  apply(log2.pseudocounts[, S1], 1, mean))
 	
+	### Normalize using lengths
+	if (use_lengths) {
+	  ## TPM
+	  nf.TPM <- calcNormFactors(Z / length_matrix)
+	  norm.factors.TPM <- nf.TPM * colSums(Z / length_matrix)
+	  common.libsize.TPM <- exp(mean(log(colSums(Z / length_matrix))))
+	  pseudocounts.TPM <- sweep((Z + 0.5) / length_matrix, 2, norm.factors.TPM, '/') * common.libsize.TPM
+	  log2.pseudocounts.TPM <- log2(pseudocounts.TPM)
+	  M.value.TPM <- apply(log2.pseudocounts.TPM[, S2], 1, mean) - apply(log2.pseudocounts.TPM[, S1], 1, mean)
+	  A.value.TPM <- 0.5*(apply(log2.pseudocounts.TPM[, S2], 1, mean) + apply(log2.pseudocounts.TPM[, S1], 1, mean))
+	}
+	
 	### Create an annotation data frame
 	variable.annotations <- data.frame(truedispersions.S1 = truedispersions.S1, 
 	                                   truedispersions.S2 = truedispersions.S2, 
@@ -315,6 +467,7 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	### Create a sample annotation data frame
 	sample.annotations <- data.frame(condition = condition, 
 	                                 depth.factor = nfacts)
+	if (use_tree) sample.annotations$id.species = id.species
 	  
 	### Include information about the parameters
 	info.parameters <- list('n.diffexp' = n.diffexp, 
@@ -331,12 +484,29 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	                        'samples.per.cond' = samples.per.cond, 
 	                        'repl.id' = repl.id, 'dataset' = dataset, 
 	                        'uID' = uID, 'seqdepth' = seqdepth, 
-	                        'minfact' = minfact, 'maxfact' = maxfact)
+	                        'minfact' = minfact, 'maxfact' = maxfact,
+	                        'nEff' = nEffNaive(tree, id.condition, model.process, selection.strength),
+	                        'nEffRatio' = nEffRatio(tree, id.condition, model.process, selection.strength))
+	if (use_tree) {
+	  variable.annotations$prop.var.tree <- prop.var.tree
+	  sample.annotations$id.condition <-  id.condition
+	}
+	if (use_lengths) {
+	  variable.annotations$lengths.relmeans <- lengths.relmeans
+	  variable.annotations$lengths.dispersions <- lengths.dispersions
+	  variable.annotations$M.value.TPM <- M.value.TPM
+	  variable.annotations$A.value.TPM <- A.value.TPM
+	}
 	
 	### Filter the data with respect to total count
 	s <- apply(Z, 1, sum)
 	keep.T <- which(s >= filter.threshold.total)
 	Z.T <- Z[keep.T, ]
+	if (length(length_matrix) != 0) {
+	  length_matrix.T <- length_matrix[keep.T, ]
+	} else {
+	  length_matrix.T <- length_matrix
+	}
 	variable.annotations.T <- variable.annotations[keep.T, ]
   filtering <- paste('total count >=', filter.threshold.total)
 	
@@ -345,20 +515,35 @@ generateSyntheticData <- function(dataset, n.vars, samples.per.cond, n.diffexp, 
 	m <- apply(cpm, 1, stats::median)
 	keep.C <- which(m >= filter.threshold.mediancpm)
 	Z.TC <- Z.T[keep.C, ]
+	if (length(length_matrix) != 0) {
+	  length_matrix.TC <- length_matrix.T[keep.C, ]
+	} else {
+	  length_matrix.TC <- length_matrix.T
+	}
 	variable.annotations.TC <- variable.annotations.T[keep.C, ]
   filtering <- paste(filtering, "; ", paste('median cpm >=', filter.threshold.mediancpm))
 	
   ### Generate sample and variable names
-  rownames(Z.TC) <- paste("g", seq_len(nrow(Z.TC)), sep = "")
-  colnames(Z.TC) <- paste("sample", seq_len(ncol(Z.TC)), sep = "")
+  rownames(Z.TC) <- paste("g", 1:nrow(Z.TC), sep = "")
+  if (!use_tree) colnames(Z.TC) <- paste("sample", seq_len(ncol(Z.TC)), sep = "")
   rownames(sample.annotations) <- colnames(Z.TC)
   rownames(variable.annotations.TC) <- rownames(Z.TC)
+  if (length(length_matrix.TC) != 0) {
+    colnames(length_matrix.TC) <- colnames(Z.TC)
+    rownames(length_matrix.TC) <- rownames(Z.TC)
+  }
   
   data.object <- compData(count.matrix = Z.TC, 
                           variable.annotations = variable.annotations.TC, 
                           sample.annotations = sample.annotations, 
                           filtering = filtering, 
                           info.parameters = info.parameters)
+  
+  if (use_tree || use_lengths) {
+    data.object <- phyloCompDataFromCompData(data.object,
+                                             tree = tree,
+                                             length.matrix = length_matrix.TC)
+  }
   
   ## Save results
   if (!is.null(output.file)) {
@@ -397,6 +582,209 @@ computeAval <- function(count.matrix, conditions) {
   return(A.value)
 }
 
+#' @title Simulate the Data
+#'
+#' @description 
+#' Use the Poisson or Negative Binomial model to simulate the data.
+#' 
+#' @inheritParams generateSyntheticData
+#' @param S1 Indices in condition 1.
+#' @param prob.S1 Vector of means for condition 1.
+#' @param sum.S1 Sum of means for condition 1.
+#' @param truedispersions.S1 Vector of dispersions for condition 1.
+#' @param nfact_length.S1 Matrix of length factors for condition 1.
+#' @param S2 Indices in condition 2.
+#' @param prob.S2 Vector of means for condition 2.
+#' @param sum.S2 Sum of means for condition 2.
+#' @param truedispersions.S2 Vector of dispersions for condition 2.
+#' @param nfact_length.S2 Matrix of length factors for condition 2.
+#' @param overdispersed Indices that are overdispersed.
+#' 
+#' @return Z a n.var times 2*samples.per.cond matrix with the simulated data.
+#' 
+#' @keywords internal
+#' 
+simulateData <- function(n.vars,
+                         S1, prob.S1, sum.S1, truedispersions.S1, nfact_length.S1,
+                         S2, prob.S2, sum.S2, truedispersions.S2, nfact_length.S2,
+                         seq.depths,
+                         overdispersed) {
+  ### Initialize data matrix
+  Z <- matrix(0, n.vars, length(S1) + length(S2))
+  
+  ### Generate data
+  for (i in seq_len(nrow(Z))) {
+    for (j in seq_len(ncol(Z))) {
+      if (overdispersed[i] == 1) {
+        Z[i, j] <- rnbinom(n = 1, mu = getNegativeBinomialMean(i, j,
+                                                               S1, prob.S1, sum.S1, nfact_length.S1,
+                                                               S2, prob.S2, sum.S2, nfact_length.S2,
+                                                               seq.depths), 
+                           size = 1 / getNegativeBinomialDispersion(i, j,
+                                                                    S1, truedispersions.S1,
+                                                                    S2, truedispersions.S2))
+      } else {
+        Z[i, j] <- rpois(n = 1, lambda = getNegativeBinomialMean(i, j,
+                                                                 S1, prob.S1, sum.S1, nfact_length.S1,
+                                                                 S2, prob.S2, sum.S2, nfact_length.S2,
+                                                                 seq.depths))
+      }
+    }
+  }
+  
+  return(Z)
+}
+
+#' @title Get all parameters of the NB at once
+#'
+#' @description 
+#' Get both the mean and the dispersions of the NB as matrices for all indices.
+#' 
+#' @inheritParams simulateData
+#' 
+#' @return A list of parameters for each entry of the count matrix:
+#' \describe{
+#' \item{count_means}{a matrix of mean for each gene and sample.}
+#' \item{count_dispersions}{a matrix of dispersions for each gene and sample.}
+#' }
+#' 
+#' @keywords internal
+#'
+getNegativeBinomialParameters <- function(n.vars,
+                                          S1, prob.S1, sum.S1, truedispersions.S1, nfact_length.S1,
+                                          S2, prob.S2, sum.S2, truedispersions.S2, nfact_length.S2,
+                                          seq.depths) {
+  ### Initialize
+  count_means <- matrix(0, n.vars, length(S1) + length(S2))
+  count_dispersions <- matrix(0, n.vars, length(S1) + length(S2))
+
+    ### Generate Negative Binomial Parameters
+  for (i in seq_len(n.vars)) {
+    for (j in seq_len(ncol(count_means))) {
+      count_means[i, j] <- getNegativeBinomialMean(i, j,
+                                                   S1, prob.S1, sum.S1, nfact_length.S1,
+                                                   S2, prob.S2, sum.S2, nfact_length.S2,
+                                                   seq.depths)
+      count_dispersions[i, j] <- getNegativeBinomialDispersion(i, j,
+                                                               S1, truedispersions.S1,
+                                                               S2, truedispersions.S2)
+    }
+  }
+  return(list(count_means = count_means,
+              count_dispersions = count_dispersions))
+}
+
+get_factor <- function(M, i, j) {
+  if (length(M) == 0) return(1.0)
+  return(M[i, j])
+}
+
+#' @title Get NB mean
+#'
+#' @description 
+#' Get the NB mean for one gene in one sample
+#' 
+#' @inheritParams simulateData
+#' @param i gene index.
+#' @param j sample index.
+#' 
+#' @return The mean for gene i in sample j.
+#' 
+#' @keywords internal
+#'
+getNegativeBinomialMean <- function(i, j,
+                                    S1, prob.S1, sum.S1, nfact_length.S1,
+                                    S2, prob.S2, sum.S2, nfact_length.S2,
+                                    seq.depths) {
+  if (j %in% S1) {
+    return(prob.S1[i]/sum.S1 * seq.depths[j] * get_factor(nfact_length.S1, i, j))
+  } else {
+    return(prob.S2[i]/sum.S2 * seq.depths[j] * get_factor(nfact_length.S2, i, j))
+  }
+}
+#' @title Get NB dispersion
+#'
+#' @description 
+#' Get the NB dispersion for one gene in one sample
+#' 
+#' @inheritParams simulateData
+#' @param i gene index.
+#' @param j sample index.
+#' 
+#' @return The dispersion for gene i in sample j.
+#' 
+#' @keywords internal
+#'
+getNegativeBinomialDispersion <- function(i, j,
+                                          S1, truedispersions.S1,
+                                          S2, truedispersions.S2) {
+  if (j %in% S1) {
+    return(truedispersions.S1[i])
+  } else {
+    return(truedispersions.S2[i])
+  }
+}
+
+#' @title Simulate a length matrix
+#'
+#' @description 
+#' Simulate a length matrix of size n.vars times n.sample, with the length of
+#' each gene in each sample. 
+#' 
+#' @param id.species An n.sample vector, indicating the species of each sample.
+#' @param lengths.relmeans A vector of mean values to use in the simulation of
+#' lengths from the Negative Binomial distribution.
+#' @param lengths.dispersions A vector or matrix of dispersions to use in the
+#' simulation of data from the Negative Binomial distribution.
+#' 
+#' @return A matrix of lengths, with as many columns as the number of species (length of id.species)
+#' and as many rows as the number of parameters in lengths.relmeans.
+#' 
+#' @keywords internal
+#'
+generateLengths <- function(id.species, lengths.relmeans, lengths.dispersions) {
+  length_matrix <- matrix(NA, length(lengths.relmeans), length(id.species))
+  for(i in 1:length(lengths.relmeans)){
+    sims <- rnbinom(length(unique(id.species)),
+                    mu = lengths.relmeans[i],
+                    size = 1 / lengths.dispersions[i])
+    if (any(sims == 0)) {
+      ntry <- 1
+      while (any(sims == 0) && ntry <= 100) {
+        sims <- rnbinom(length(unique(id.species)),
+                        mu = lengths.relmeans[i],
+                        size = 1 / lengths.dispersions[i])
+        ntry <- ntry + 1
+      }
+      if (any(sims == 0)) {
+        warning(paste0("After 100 tries, could not generate non-zero lengths for gene ", i, ". Replacing zeros with the provided mean."))
+        sims[sims == 0] <- lengths.relmeans[i]
+      }
+    }
+    length_matrix[i, ] <- sims[id.species]
+  }
+  return(length_matrix)
+}
+
+#' @title Compute Length Normalization Factors
+#'
+#' @description 
+#' Compute the factor to be applied for length normalization.
+#' Each column of the matrix (samples) is normalized by the weighted average of
+#' the column, with weights corresponding to the true probabilities of each gene.
+#' 
+#' @param length_matrix An n.vars times n.sample matrix of lengths of each gene in each sample.
+#' @param prob.S1 Vector of means for condition 1.
+#' @param sum.S1 Sum of means for condition 1.
+#' 
+#' @return A matrix of the same size as 'length_matrix', with normalization factors
+#' to be applied for each sample and each gene.
+#' 
+#' @keywords internal
+#'
+computeFactorLengths <- function(length_matrix, prob.S1, sum.S1) {
+  return(length_matrix %*% diag(1 / colSums(diag(prob.S1 / sum.S1) %*% length_matrix)))
+}
 
 #' Summarize a synthetic data set by some diagnostic plots 
 #' 
@@ -426,6 +814,7 @@ summarizeSyntheticDataSet <- function(data.set, output.filename) {
   ## Generate an .Rmd file
   ##output.filename <- normalizePath(output.filename)
   Rmd.file <- sub(".html", ".Rmd", output.filename)
+  md.file <- sub(".html", ".md", output.filename)
   codefile <- file(Rmd.file, open = 'w')
   output.directory <- dirname(output.filename)
   
@@ -479,6 +868,13 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
   writeLines(c("```{r maplot-trueDEstatus, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
                "ggplot(variable.annotations(data.set), aes(x = A.value, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
                "```"), codefile)
+  
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
+    writeLines("### MA plot, log2 TPM normalized, colored by true differential expression status", codefile)
+    writeLines(c("```{r maplot-trueDEstatus-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "ggplot(variable.annotations(data.set), aes(x = A.value.TPM, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))",
+                 "```"), codefile)
+  }
 
   ## Colored by number of outlier counts
   writeLines("### MA plot, colored by total number of outliers", codefile)
@@ -493,14 +889,103 @@ if (length(x) > 25) x <- noquote(c(x[seq_len(25)], '...'))
                "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
                "```"), codefile)
   
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
+    writeLines("### True log2-fold change vs estimated TPM log2-fold change (M-value)", codefile)
+    writeLines(c("```{r logfoldchanges-logTPM, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "if (!is.null(variable.annotations(data.set)$truelog2foldchanges)) {",
+                 "ggplot(variable.annotations(data.set), aes(x = truelog2foldchanges, y = M.value.TPM, color = differential.expression)) + geom_point() + scale_colour_manual(values = c('black', 'red'))}",
+                 "```"), codefile)
+  }
+  
+  ## Phylogenetic heatmap
+  if (length(phylo.tree(data.set)) != 0 && info.parameters(data.set)$n.diffexp > 0) { # There is a tree, and there are some DE genes
+    if (!requireNamespace("ggtree", quietly = TRUE) || !requireNamespace("tidytree", quietly = TRUE)) {
+      warning("Packages 'ggtree' and 'tidytree' are needed for phylogenetic heatmap plot. Skipping.", call. = FALSE)
+    } else {
+      writeLines("### log2 normalized counts heatmap plotted on the phylogeny", codefile)
+      writeLines(c("```{r maplot-phyloHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                   "library(ggtree)",
+                   "library(tidytree)",
+                   "",
+                   "tree <- phylo.tree(data.set)",
+                   "conds <- data.frame(label = rownames(sample.annotations(data.set)), condition = as.factor(sample.annotations(data.set)$id.condition))",
+                   "gt <- ggtree(tree)",
+                   "gt <- gt %<+% conds + geom_tippoint(aes(color = condition))",
+                   "",
+                   "Z <- count.matrix(data.set)",
+                   "nf <- edgeR::calcNormFactors(Z)",
+                   "norm.factors <- nf * colSums(Z)",
+                   "common.libsize <- exp(mean(log(colSums(Z))))",
+                   "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
+                   "log2.pseudocounts <- log2(pseudocounts)",
+                   "",
+                   "Z1 <- log2.pseudocounts[which(variable.annotations(data.set)$differential.expression == 1), ]",
+                   "Z2 <- log2.pseudocounts[which(variable.annotations(data.set)$differential.expression == 0)[seq_len(nrow(Z1))], ]",
+                   "",
+                   "gh <- gheatmap(gt, t(Z1), offset = 0.1, width = 5, colnames = FALSE)",
+                   "gh <- gheatmap(gh, t(Z2), offset = 5.2, width = 5, colnames = FALSE)",
+                   "gh <- gh + scale_fill_viridis_c(option = 'plasma', direction = -1, name = 'log2 norm count')",
+                   "gh",
+                   "```"), codefile)
+      writeLines(c("",
+                   "Tips are colored by the true differential expression status.",
+                   "Only a subset of `r nrow(Z1) + nrow(Z2)` genes are represented.",
+                   "The first block of `r nrow(Z1)` genes are differentially expressed between condition 1 and 2.",
+                   "The second block of `r nrow(Z2)` genes are not differentially expressed."),
+                 codefile)
+    }
+  }
+  ## Correlation heatmap
+  if (length(phylo.tree(data.set)) != 0) { # There is a tree
+    writeLines("### log2 normalized counts samples correlation heatmap", codefile)
+    writeLines(c("```{r maplot-corHeatmap, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+                 "Z <- count.matrix(data.set)",
+                 "nf <- edgeR::calcNormFactors(Z)",
+                 "norm.factors <- nf * colSums(Z)",
+                 "common.libsize <- exp(mean(log(colSums(Z))))",
+                 "pseudocounts <- sweep(Z + 0.5, 2, norm.factors, '/') * common.libsize",
+                 "log2.pseudocounts <- log2(pseudocounts)",
+                 "",
+                 "sampleDists <- dist( t( log2.pseudocounts ) )",
+                 "sampleDistMatrix <- as.matrix(sampleDists)",
+                 "heatmap(sampleDistMatrix, col = hcl.colors(256, palette = 'Plasma'))",
+                 "```"), codefile)
+    writeLines(c("",
+                 "Note: the heatmap tree is the correlation tree (the phylogeny is not taken into account in this plot)."),
+               codefile)
+  }
+  ##
+  if (length(length.matrix(data.set)) != 0) { # There are lengths
+    writeLines("### Lengths: mean versus variance (log2)", codefile)
+    writeLines(c(
+      "```{r lengths, echo = FALSE, dev = 'png', eval = TRUE, include = TRUE, message = FALSE, error = TRUE, warning = TRUE}",
+      "length.matrix_species <- length.matrix(data.set)[, !duplicated(sample.annotations(data.set)$id.species)]",
+      "stats_lengths <- data.frame(mean = c(variable.annotations(data.set)$lengths.relmeans,",
+      "                                     rowMeans(length.matrix_species)),",
+      "                            var = c(variable.annotations(data.set)$lengths.relmeans + variable.annotations(data.set)$lengths.relmeans^2 * variable.annotations(data.set)$lengths.dispersion,",
+      "                                    apply(length.matrix_species, 1, var)),",
+      "                            simulated = c(rep('true values', nrow(length.matrix_species)),",
+      "                                          rep('simulated values', nrow(length.matrix_species))))",
+      "ggplot(stats_lengths, aes(x = log2(mean), y = log2(var), color = simulated)) + geom_point() + scale_color_manual(values = c('black', 'blue')) + geom_abline(slope = 1) + coord_fixed(xlim = c(0, NA), ylim = c(0, NA))",
+      "```"
+    ), codefile)
+  }
+  
   close(codefile)
   
-  knit2html(input = Rmd.file,
-            output = output.filename, 
-            title = "Synthetic data set summary", 
-            envir = new.env())
+  out <- knitr::knit(input = Rmd.file,
+                     output = md.file,
+                     envir =  new.env())
+  markdown::markdownToHTML(file = out,
+                           output = output.filename,
+                           encoding = "UTF-8",
+                           title = "Synthetic data set summary")
   
+  save.rmdfile <- FALSE  ## set to TRUE to save the .Rmd file (debug)
   ## Remove the .Rmd file
-  file.remove(Rmd.file)
+  if (!save.rmdfile) file.remove(Rmd.file)
+  
+  ## Remove the .md file
+  file.remove(md.file)
   
 }

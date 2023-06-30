@@ -5,6 +5,11 @@
 #' @author Charlotte Soneson
 #' @examples
 #' listcreateRmd()
+#' 
+#' @importFrom stats cor hclust as.dist runif rexp median loess predict na.omit rnbinom rpois rnorm sd lm pf pt qf qt
+#' @importFrom grDevices heat.colors
+#' @importFrom graphics par lines legend title axis
+#' 
 listcreateRmd <- function() {
   s <- unlist(lapply(search(), ls, all.names = TRUE))
   print(unname(s[grep("\\.createRmd$", s)]))
@@ -261,6 +266,8 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
 #' @param independent.filtering Whether or not to perform independent filtering of the data. With independent filtering=TRUE, the adjusted p-values for genes not passing the filter threshold are set to NA. 
 #' @param cooks.cutoff The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.
 #' @param impute.outliers Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.
+#' @param nas.as.ones Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.
+#' 
 #' @export 
 #' @author Charlotte Soneson
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
@@ -282,7 +289,8 @@ edgeR.GLM.createRmd <- function(data.path, result.path, codefile,
 DESeq2.createRmd <- function(data.path, result.path, codefile, 
                              fit.type, test, beta.prior = TRUE, 
                              independent.filtering = TRUE, cooks.cutoff = TRUE, 
-                             impute.outliers = TRUE) {
+                             impute.outliers = TRUE,
+                             nas.as.ones = FALSE) {
   codefile <- file(codefile, open = 'w')
   writeLines("### DESeq2", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
@@ -298,11 +306,19 @@ DESeq2.createRmd <- function(data.path, result.path, codefile,
                paste("DESeq2.ds <- DESeq2::DESeq(DESeq2.ds, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = "")), codefile)
   if (impute.outliers == TRUE) {
     writeLines(c("DESeq2.ds.clean <- DESeq2::replaceOutliersWithTrimmedMean(DESeq2.ds)",
-               paste("DESeq2.ds.clean <- DESeq2::DESeq(DESeq2.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
+                 paste("DESeq2.ds.clean <- DESeq2::DESeq(DESeq2.ds.clean, fitType = '", fit.type, "', test = '", test, "', betaPrior = ", beta.prior, ")", sep = ""), 
                  "DESeq2.ds <- DESeq2.ds.clean"), codefile)
   }
-  writeLines(c(paste("DESeq2.results <- DESeq2::results(DESeq2.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
-               "DESeq2.pvalues <- DESeq2.results$pvalue", 
+  writeLines(paste("DESeq2.results <- DESeq2::results(DESeq2.ds, independentFiltering = ", independent.filtering, ", cooksCutoff = ", cooks.cutoff, ")", sep = ""),
+             codefile) 
+  if (nas.as.ones) {
+    # see https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#i-want-to-benchmark-deseq2-comparing-to-other-de-tools.
+    message("As `nas.as.ones=TRUE`, all NAs in adjusted p values are replaced by 1 to allow for benchmarking with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+    writeLines("DESeq2.results$padj <- ifelse(is.na(DESeq2.results$padj), 1, DESeq2.results$padj)", codefile)  
+  } else {
+    message("As `nas.as.ones=FALSE`, there might be some NAs in the adjusted p values computed by DESeq2. This might bias the comparison of the results with other methods. For more details, see section 'I want to benchmark DESeq2 comparing to other DE tools' from the `DESeq2` vignette (available by running `vignette('DESeq2', package = 'DESeq2')`)")
+  }
+  writeLines(c("DESeq2.pvalues <- DESeq2.results$pvalue", 
                "DESeq2.adjpvalues <- DESeq2.results$padj", 
                "DESeq2.logFC <- DESeq2.results$log2FoldChange", 
                "DESeq2.score <- 1 - DESeq2.pvalues", 
@@ -376,15 +392,14 @@ voom.limma.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
                      paste('voom.', utils::packageVersion('limma'), '.limma.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
   writeLines("```", codefile)
   close(codefile)
 }
-
 
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with baySeq
 #' 
@@ -440,7 +455,7 @@ baySeq.createRmd <- function(data.path, result.path, codefile,
                "baySeq.cd <- new('countData', data = count.matrix(cdata), replicates = sample.annotations(cdata)$condition, groups = list(NDE = rep(1, length(sample.annotations(cdata)$condition)), DE = sample.annotations(cdata)$condition))", 
                paste("libsizes(baySeq.cd) <- baySeq::getLibsizes(baySeq.cd, estimationType = '", norm.method, "')", sep = '')), codefile)
   writeLines(c(paste("baySeq.cd <- baySeq::getPriors.NB(baySeq.cd, samplesize =", sample.size, ", equalDispersions = ", equaldisp, ", estimation = '", estimation, "', cl = NULL)", sep = ''), 
-                 paste("baySeq.cd <- baySeq::getLikelihoods(baySeq.cd, prs = c(0.5, 0.5), pET = '", pET, "', cl = NULL)", sep = '')), codefile)
+               paste("baySeq.cd <- baySeq::getLikelihoods(baySeq.cd, prs = c(0.5, 0.5), pET = '", pET, "', cl = NULL)", sep = '')), codefile)
   writeLines(c("baySeq.posteriors.DE <- exp(baySeq.cd@posteriors)[, 'DE']", 
                "baySeq.FDR <- baySeq::topCounts(baySeq.cd, group = 'DE', FDR = 1)$FDR.DE[match(rownames(count.matrix(cdata)), rownames(baySeq::topCounts(baySeq.cd, group = 'DE', FDR = 1)))]", 
                "baySeq.score <- 1 - baySeq.FDR", 
@@ -518,8 +533,8 @@ voom.ttest.createRmd <- function(data.path, result.path, codefile, norm.method) 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'voom', 'full.name' = '", 
                      paste('voom.', utils::packageVersion('limma'), '.ttest.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -584,8 +599,8 @@ logcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.method
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'logcpm.limma', 'full.name' = '", 
                      paste('logcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -650,8 +665,8 @@ sqrtcpm.limma.createRmd <- function(data.path, result.path, codefile, norm.metho
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'sqrtcpm.limma', 'full.name' = '", 
                      paste('sqrtcpm.limma.', utils::packageVersion('limma'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -714,8 +729,8 @@ ttest.createRmd <- function(data.path, result.path, codefile, norm.method) {
                "package.version(cdata) <- paste('edgeR,', packageVersion('edgeR'), ';', 'genefilter,', packageVersion('genefilter'))", 
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'ttest', 'full.name' = 'ttest.", utils::packageVersion('genefilter'), '.', norm.method, "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -775,7 +790,7 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "count.matrix <- round(sweep(count.matrix(cdata), 2, nf, '/'))", 
                "inp.data <- NOISeq::readData(count.matrix, factors = sample.annotations(cdata))",
                paste("NOISeq.test <- NOISeq::noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c('", unique(as.character(sample.annotations(cdata)$condition))[1], "', '", unique(as.character(sample.annotations(cdata)$condition))[2], "'), filter = 0)@results", sep = ""), 
-##               paste("NOISeq.test = noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c(unique(as.character(sample.annotations(cdata)$condition))[1], unique(as.character(sample.annotations(cdata)$condition))[2]), filter = 0)@results", sep = ""), 
+               ##               paste("NOISeq.test = noiseqbio(inp.data, k = 0.5, norm = 'n', nclust = 15, factor = 'condition', conditions = c(unique(as.character(sample.annotations(cdata)$condition))[1], unique(as.character(sample.annotations(cdata)$condition))[2]), filter = 0)@results", sep = ""), 
                "NOISeq.prob <- NOISeq.test[[1]]$prob",
                "NOISeq.statistic <- NOISeq.test[[1]]$theta", 
                "NOISeq.score <- NOISeq.prob", 
@@ -786,8 +801,8 @@ NOISeq.prenorm.createRmd <- function(data.path, result.path, codefile, norm.meth
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NOISeq', 'full.name' = '", 
                      paste('NOISeq.', utils::packageVersion('NOISeq'), '.', norm.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -855,8 +870,8 @@ NBPSeq.createRmd <- function(data.path, result.path, codefile, norm.method, disp
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'NBPSeq', 'full.name' = '", 
                      paste('NBPSeq.', utils::packageVersion('NBPSeq'), '.', norm.method, '.', disp.method, sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
@@ -923,8 +938,8 @@ DSS.createRmd <- function(data.path, result.path, codefile, norm.method, disp.tr
                "analysis.date(cdata) <- date()",
                paste("method.names(cdata) <- list('short.name' = 'DSS', 'full.name' = '", 
                      paste('DSS.', utils::packageVersion('DSS'), '.', norm.method, '.', ifelse(disp.trend, 'trend', 'notrend'), sep = ''), "')", sep = ''),
-             "is.valid <- check_compData_results(cdata)",
-             "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
+               "is.valid <- check_compData_results(cdata)",
+               "if (!(is.valid == TRUE)) stop('Not a valid compData result object.')",
                paste("saveRDS(cdata, '", result.path, "')", sep = "")), codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)

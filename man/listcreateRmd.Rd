@@ -11,6 +11,7 @@ Print a list of all \code{*.createRmd} functions that are available in the searc
 }
 \examples{
 listcreateRmd()
+
 }
 \author{
 Charlotte Soneson

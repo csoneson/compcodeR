@@ -84,9 +84,9 @@ checkClass <- function(object, objname, trueclass) {
 #'            Rmdfunction = "voom.ttest.createRmd",
 #'            output.directory = ".", norm.method = "TMM")
 #' }
-runDiffExp <- function(data.file, result.extent, Rmdfunction, 
+runDiffExp <- function(data.file, result.extent, Rmdfunction,
                        output.directory = ".", norm.path = TRUE, ...) {
-  code.file <- "tempcode.Rmd"
+  code.file <- tempfile(pattern = "tempcode", tmpdir = output.directory, fileext = ".Rmd")
   checkClass(data.file, "data.file", "character")
   checkClass(result.extent, "result.extent", "character")
   checkClass(Rmdfunction, "Rmdfunction", "character")

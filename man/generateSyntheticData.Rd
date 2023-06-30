@@ -25,7 +25,17 @@ generateSyntheticData(
   single.outlier.high.prob = 0,
   single.outlier.low.prob = 0,
   effect.size = 1.5,
-  output.file = NULL
+  output.file = NULL,
+  tree = NULL,
+  prop.var.tree = 1,
+  model.process = c("BM", "OU"),
+  selection.strength = 0,
+  id.condition = NULL,
+  id.species = as.factor(rep(1, 2 * samples.per.cond)),
+  check.id.species = TRUE,
+  lengths.relmeans = NULL,
+  lengths.dispersions = NULL,
+  lengths.phylo = TRUE
 )
 }
 \arguments{
@@ -68,6 +78,26 @@ generateSyntheticData(
 \item{effect.size}{The strength of the differential expression, i.e., the effect size, between the two conditions. If this is a single number, the effect sizes will be obtained by simulating numbers from an exponential distribution (with rate 1) and adding the results to the \code{effect.size}. For genes that are upregulated in the second condition, the mean in the first condition is multiplied by the effect size. For genes that are downregulated in the second condition, the mean in the first condition is divided by the effect size. It is also possible to provide a vector of effect sizes (one for each gene), which will be used as provided. In this case, the \code{fraction.upregulated} and \code{n.diffexp} arguments will be ignored and the values will be derived from the \code{effect.size} vector.}
 
 \item{output.file}{If not \code{NULL}, the path to the file where the data object should be saved. The extension should be \code{.rds}, if not it will be changed.}
+
+\item{tree}{a dated phylogenetic tree of class \code{\link[ape]{phylo}} with `samples.per.cond * 2` species.}
+
+\item{prop.var.tree}{the proportion of the common variance explained by the tree for each gene. It can be a scalar, in which case the same parameter is used for all genes. Otherwise it needs to be a vector with length \code{n.vars}. Default to 1.}
+
+\item{model.process}{the process to be used for phylogenetic simulations. One of "BM" or "OU", default to "BM".}
+
+\item{selection.strength}{if the process is "OU", the selection strength parameter.}
+
+\item{id.condition}{A named vector, indicating which species is in each condition. Default to first `samples.per.cond` species in condition `1` and others in condition `2`.}
+
+\item{id.species}{A factor giving the species for each sample. If a tree is used, should be a named vector with names matching the taxa of the tree. Default to \code{rep(1, 2*samples.per.cond)}, i.e. all the samples come from the same species.}
+
+\item{check.id.species}{Should the species vector be checked against the tree lengths (if provided) ? If TRUE, the function checks that all the samples that share a factor value in \code{id.species} that their distance on the tree is zero, i.e. that they are on the same tip of the tree. Default to TRUE.}
+
+\item{lengths.relmeans}{An optional vector of mean values to use in the simulation of lengths from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the mean length values are sampled from values estimated from the Stern & Crandall (2018) data set.}
+
+\item{lengths.dispersions}{An optional vector of dispersions to use in the simulation of data from the Negative Binomial distribution. Should be of length n.vars. Default to \code{NULL}: the lengths are not taken into account for the simulation. If set to \code{"auto"}, the dispersion length values are sampled from values estimated from the Stern & Crandall (2018) data set.}
+
+\item{lengths.phylo}{If TRUE, the lengths are simulated according to a phylogenetic Poisson Log-Normal model on the tree, with a BM process. If FALSE, they are simulated according to an iid negative binomial distribution. In both cases, \code{lengths.relmeans} and \code{lengths.dispersions} are used. Default to TRUE if a tree is provided.}
 }
 \value{
 A \code{\link{compData}} object. If \code{output.file} is not \code{NULL}, the object is saved in the given \code{output.file} (which should have an \code{.rds} extension).
@@ -83,10 +113,31 @@ For more detailed information regarding the different types of outliers, see Son
 Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013). 
 
 To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
+
+When the \code{tree} argument is provided (not \code{NULL}),
+then the "phylogenetic Poisson log-Normal" model is used for the simulations,
+possibly with varying gene lengths across species 
+(both \code{lengths.relmeans} and \code{lengths.dispersions} must be specified
+or set to \code{"auto"}.)
+Phylogenetic simulations use the \code{\link[phylolm]{rTrait}} function
+from package \code{phylolm}.
 }
 \examples{
+## RNA-Seq data
 mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
                                     samples.per.cond = 5, n.diffexp = 100)
+
+## Inter-species RNA-Seq data
+library(ape)
+tree <- read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
+id.species <- factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
+names(id.species) <- tree$tip.label
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+                                    samples.per.cond = 4, n.diffexp = 100, 
+                                    tree = tree,
+                                    id.species = id.species,
+                                    lengths.relmeans = "auto",
+                                    lengths.dispersions = "auto")
 }
 \references{
 Soneson C and Delorenzi M (2013): A comparison of methods for differential expression analysis of RNA-seq data. BMC Bioinformatics 14:91
@@ -98,6 +149,8 @@ Frazee AC, Langmead B and Leek JT (2011): ReCount: a multi-experiment resource o
 Pickrell JK, Marioni JC, Pai AA, Degner JF, Engelhardt BE, Nkadori E, Veyrieras JB, Stephens M, Gilad Y and Pritchard JK (2010): Understanding mechanisms underlying human gene expression variation with RNA sequencing. Nature 464, 768-772
 
 Robles JA, Qureshi SE, Stephen SJ, Wilson SR, Burden CJ and Taylor JM (2012): Efficient experimental design and analysis strategies for the detection of differential expression using RNA-sequencing. BMC Genomics 13:484
+
+Stern DB and Crandall KA (2018): The Evolution of Gene Expression Underlying Vision Loss in Cave Animals. Molecular Biology and Evolution. 35:2005–2014.
 }
 \author{
 Charlotte Soneson

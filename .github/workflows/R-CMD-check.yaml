@@ -2,7 +2,7 @@ on:
   push:
   pull_request:
     branches:
-      - master
+      - devel
   schedule:
     - cron: '0 9 * * 5'
 
@@ -13,16 +13,16 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     container: ${{ matrix.config.image }}
 
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }} - ${{ matrix.config.bioc }} - ${{ matrix.config.image }})
+    name: ${{ matrix.config.os }} (${{ matrix.config.bioc }} - ${{ matrix.config.image }})
 
     strategy:
       fail-fast: false
       matrix:
         config:
-        - { os: windows-latest, r: 'devel', bioc: 'devel'}
-        - { os: macOS-latest, r: 'devel', bioc: 'devel', curlConfigPath: '/usr/bin/'}
-        - { os: ubuntu-latest, r: 'devel', bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
-        - { os: ubuntu-latest, r: 'devel', image: 'bioconductor/bioconductor_docker:devel'}
+        - { os: windows-latest, bioc: 'devel'}
+        - { os: macOS-latest, bioc: 'devel', curlConfigPath: '/usr/bin/'}
+        - { os: ubuntu-latest, bioc: 'devel', cran: "https://demo.rstudiopm.com/all/__linux__/xenial/latest"}
+        - { os: ubuntu-latest, image: 'bioconductor/bioconductor_docker:devel'}
 
     env:
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
@@ -36,15 +36,19 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@master
+      - name: Set up R and install BiocManager
+        uses: grimbough/bioc-actions/setup-bioc@v1
         if: matrix.config.image == null
         with:
-          r-version: ${{ matrix.config.r }}
+          bioc-version: ${{ matrix.config.bioc }}
 
       - name: Set up pandoc
-        uses: r-lib/actions/setup-pandoc@master
+        uses: r-lib/actions/setup-pandoc@v2
         if: matrix.config.image == null
+
+      - name: Set bitmapType
+        if: runner.os == 'macOS'
+        run: echo 'options(bitmapType = "cairo")' >> $HOME/.Rprofile
 
       - name: Set up display (Linux)
         if: runner.os == 'Linux'
@@ -63,13 +67,6 @@ jobs:
           install.packages('remotes')
         shell: Rscript {0}
 
-      - name: Set BiocManager version
-        if: matrix.config.image == null
-        run: |
-          install.packages('BiocManager')
-          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE)
-        shell: Rscript {0}
-
       - name: Query dependencies
         run: |
           saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
@@ -80,8 +77,8 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
-          restore-keys: ${{ runner.os }}-r-${{ matrix.config.r }}-bioc-${{ matrix.config.bioc }}-
+          key: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
+          restore-keys: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-
 
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
@@ -103,7 +100,8 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           set -x
-          sudo ln -s /usr/local/Cellar/gcc@8/8.4.0_2/lib/gcc/8 /usr/local/gfortran/lib
+          sudo mkdir -p /usr/local/gfortran
+          sudo ln -s /usr/local/Cellar/gcc@12/12.3.0/lib/gcc/12 /usr/local/gfortran/lib
           gfortran --version
 
       - name: Install dependencies
@@ -122,27 +120,42 @@ jobs:
           sessioninfo::session_info(pkgs, include_base = TRUE)
         shell: Rscript {0}
 
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error", check_dir = "check")
-        shell: Rscript {0}
+      - name: Build, Install, Check (2)
+        id: build-install-check
+        uses: grimbough/bioc-actions/build-install-check@v1
 
-      - name: BiocCheck
+      - name: Upload install log if the build/install/check step fails
+        if: always() && (steps.build-install-check.outcome == 'failure')
+        uses: actions/upload-artifact@v3
+        with:
+          name: install-log
+          path: |
+            ${{ steps.build-install-check.outputs.install-log }}
+
+      - name: Show testthat output (windows)
+        if: always() && runner.os == 'Windows'
         run: |
-          BiocManager::install("BiocCheck")
-          BiocCheck::BiocCheck(".")
-        shell: Rscript {0}
+            type ${{ steps.build-install-check.outputs.check-dir }}\tests\testthat.Rout
+        shell: cmd
 
-      - name: Show testthat output
-        if: always()
-        run: find check -name 'testthat.Rout*' -exec cat '{}' \; || true
+      - name: Show testthat output (non-windows)
+        if: always() && runner.os != 'Windows'
+        run: |
+            cat ${{ steps.build-install-check.outputs.check-dir }}/tests/testthat.Rout
         shell: bash
 
       - name: Upload check results
         if: failure()
         uses: actions/upload-artifact@master
         with:
-          name: ${{ runner.os }}-r${{ matrix.config.r }}-bioc${{ matrix.config.bioc }}-results
-          path: check
+          name: ${{ runner.os }}-bioc${{ matrix.config.bioc }}-results
+          path: ${{ steps.build-install-check.outputs.check-dir }}
+
+      - name: Run BiocCheck
+        uses: grimbough/bioc-actions/run-BiocCheck@v1
+        with:
+          arguments: '--no-check-bioc-views --no-check-bioc-help'
+          error-on: 'error'
 
       - name: Test coverage
         if: matrix.config.os == 'macOS-latest'
@@ -152,7 +165,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Deploy
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && matrix.config.os == 'macOS-latest'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/devel' && matrix.config.os == 'macOS-latest'
         run: |
           R CMD INSTALL .
           Rscript -e "remotes::install_dev('pkgdown'); pkgdown::deploy_to_branch(new_process = FALSE)"

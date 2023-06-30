@@ -1,8 +1,22 @@
+CHANGES IN VERSION 1.35.1
+-------------------------
+
+  o Add a function for SVA + limma differential expression analysis
+
+CHANGES IN VERSION 1.31.1
+-------------------------
+
+  o Implement simulations according to the phylogenetic poisson log normal model
+  o Implement length-varying simulations
+  o New PhyloCompData object for phylogenetic informed simulation data
+  o Add possible length normalization to DESeq2 and limma analyses
+  o Add phylolm analyses
+
 CHANGES IN VERSION 1.23.1
 -------------------------
 
   o Moved vignette to Rmd
-  
+
 CHANGES IN VERSION 1.17.1
 -------------------------
 
@@ -21,7 +35,7 @@ CHANGES IN VERSION 1.5.2
 CHANGES IN VERSION 1.5.1
 ------------------------
 
-  o Added the number of significant genes, then number of true positives, true negatives, false positives and false negatives as evaluation criteria. 
+  o Added the number of significant genes, then number of true positives, true negatives, false positives and false negatives as evaluation criteria.
 	o Bug fixes
 
 CHANGES IN VERSION 1.3.4
@@ -97,7 +111,7 @@ CHANGES IN VERSION 0.2.0
 
   o introduction of a new S4 class (compData) and associated functions
 	o more examples, checks and error messages
-	o more options for providing user-specified values in the data simulation 
+	o more options for providing user-specified values in the data simulation
 	o changed the range of the color palette in the Spearman correlation plots to [-1,1]
 
 CHANGES IN VERSION 0.1.0

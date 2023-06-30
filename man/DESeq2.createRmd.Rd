@@ -13,7 +13,8 @@ DESeq2.createRmd(
   beta.prior = TRUE,
   independent.filtering = TRUE,
   cooks.cutoff = TRUE,
-  impute.outliers = TRUE
+  impute.outliers = TRUE,
+  nas.as.ones = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ DESeq2.createRmd(
 \item{cooks.cutoff}{The cutoff value for the Cook's distance to consider a value to be an outlier. Set to Inf or FALSE to disable outlier detection. For genes with detected outliers, the p-value and adjusted p-value will be set to NA.}
 
 \item{impute.outliers}{Whether or not the outliers should be replaced by a trimmed mean and the analysis rerun.}
+
+\item{nas.as.ones}{Whether or not adjusted p values that are returned as \code{NA} by \code{DESeq2} should be set to \code{1}. This option is useful for comparisons with other methods. For more details, see section "I want to benchmark DESeq2 comparing to other DE tools" from the \code{DESeq2} vignette (available by running \code{vignette("DESeq2", package = "DESeq2")}). Default to \code{FALSE}.}
 }
 \value{
 The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
