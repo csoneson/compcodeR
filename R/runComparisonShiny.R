@@ -54,7 +54,7 @@
 #' runDiffExp(data.file = "mydata.rds", result.extent = "ttest",
 #'            Rmdfunction = "ttest.createRmd", output.directory = ".",
 #'            norm.method = "TMM")
-#' runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
+#' runComparisonShiny(input.directories = ".", output.directory = ".", recursive = FALSE)
 #' }
 #'
 runComparisonShiny <- function(input.directories, output.directory, recursive,

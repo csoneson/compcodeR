@@ -1,4 +1,4 @@
-CHANGES IN VERSION 1.37.2
+CHANGES IN VERSION 1.37.3
 -------------------------
 
   o Removed support for baySeq since it has been deprecated from CRAN
