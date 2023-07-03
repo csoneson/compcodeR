@@ -20,7 +20,7 @@ runComparison(
 \item{parameters}{A list containing parameters for the comparison study. The following entries are supported, and used by different comparison methods:
 \itemize{
 \item \code{incl.nbr.samples} An array with sample sizes (number of samples per condition) to consider in the comparison. If set to \code{NULL}, all sample sizes will be included.
-\item \code{incl.dataset} A dataset name (corresponding to the \code{dataset} slot of the results or data objects), indicating the dataset that will be used for the comparison. Only one dataset can be chosen. 
+\item \code{incl.dataset} A dataset name (corresponding to the \code{dataset} slot of the results or data objects), indicating the dataset that will be used for the comparison. Only one dataset can be chosen.
 \item \code{incl.replicates} An array with replicate numbers to consider in the comparison. If set to \code{NULL}, all replicates will be included.
 \item \code{incl.de.methods} An array with differential expression methods to be compared. If set to \code{NULL}, all differential expression methods will be included.
 \item \code{fdr.threshold} The adjusted p-value threshold for FDR calculations. Default 0.05.
@@ -38,21 +38,21 @@ runComparison(
 \itemize{
 \item \code{"auc"} - Compute the area under the ROC curve
 \item \code{"mcc"} - Compute Matthew's correlation coefficient
-\item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold}) 
-\item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold}) 
+\item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold})
+\item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold})
 \item \code{"fdrvsexpr"} - Compute the false discovery rate as a function of the expression level.
-\item \code{"typeIerror"} - Compute the type I error rate at a given nominal p-value threshold (\code{typeI.threshold}) 
+\item \code{"typeIerror"} - Compute the type I error rate at a given nominal p-value threshold (\code{typeI.threshold})
 \item \code{"fracsign"} - Compute the fraction of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold}).
 \item \code{"nbrsign"} - Compute the number of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold}).
 \item \code{"nbrtpfp"} - Compute the number of true positives, false positives, true negatives and false negatives at a given adjusted p-value threshold (\code{nbrtpfp.threshold}).
 \item \code{"maplot"} - Construct MA plots, depicting the average expression level and the log fold change for the genes and indicating the genes called differential expressed at a given adjusted p-value threshold (\code{ma.threshold}).
 \item \code{"fdcurvesall"} - Construct false discovery curves for each of the included replicates.
 \item \code{"fdcurvesone"} - Construct false discovery curves for a single replicate only
-\item \code{"rocall"} - Construct ROC curves for each of the included replicates 
+\item \code{"rocall"} - Construct ROC curves for each of the included replicates
 \item \code{"rocone"} - Construct ROC curves for a single replicate only
 \item \code{"overlap"} - Compute the overlap between collections of genes called differentially expressed by the different methods at a given adjusted p-value threshold (\code{overlap.threshold})
 \item \code{"sorensen"} - Compute the Sorensen index, quantifying the overlap between collections of genes called differentially expressed by the different methods, at a given adjusted p-value threshold (\code{overlap.threshold})
-\item \code{"correlation"} - Compute the Spearman correlation between gene scores assigned by different methods 
+\item \code{"correlation"} - Compute the Spearman correlation between gene scores assigned by different methods
 \item \code{"scorevsoutlier"} - Visualize the distribution of the gene scores as a function of the number of outlier counts introduced for the genes
 \item \code{"scorevsexpr"} - Visualize the gene scores as a function of the average expression level of the genes
 \item \code{"scorevssignal"} - Visualize the gene score as a function of the 'signal strength' (see the \code{signal.measure} parameter above) for genes that are expressed in only one condition
@@ -81,25 +81,25 @@ The input to \code{\link{runComparison}} is a data frame with at least a column 
 }
 \examples{
 tmpdir <- normalizePath(tempdir(), winslash = "/")
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
                                     output.file = file.path(tmpdir, "mydata.rds"))
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma", 
-           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir, 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
            norm.method = "TMM")
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact", 
-           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir, 
-           norm.method = "TMM", 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
+           norm.method = "TMM",
            trend.method = "movingave", disp.type = "tagwise")
-file.table <- data.frame(input.files = file.path(tmpdir, 
-                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
                          stringsAsFactors = FALSE)
-parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "mydata", 
-                   incl.de.methods = NULL, 
+parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "mydata",
+                   incl.de.methods = NULL,
                    fdr.threshold = 0.05, tpr.threshold = 0.05, typeI.threshold = 0.05,
                    ma.threshold = 0.05, fdc.maxvar = 1500, overlap.threshold = 0.05,
-                   fracsign.threshold = 0.05, mcc.threshold = 0.05, 
-                   nbrtpfp.threshold = 0.05, 
+                   fracsign.threshold = 0.05, mcc.threshold = 0.05,
+                   nbrtpfp.threshold = 0.05,
                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
 if (interactive()) {
   runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)

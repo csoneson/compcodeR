@@ -35,14 +35,14 @@ This function requires that the \code{rpanel} package is installed. If this pack
 }
 \examples{
 if (interactive()) {
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
-                                    samples.per.cond = 5, n.diffexp = 1250, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500,
+                                    samples.per.cond = 5, n.diffexp = 1250,
                                     output.file = "mydata.rds")
-runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma", 
-           Rmdfunction = "voom.limma.createRmd", output.directory = ".", 
+runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = ".",
            norm.method = "TMM")
-runDiffExp(data.file = "mydata.rds", result.extent = "ttest", 
-           Rmdfunction = "ttest.createRmd", output.directory = ".", 
+runDiffExp(data.file = "mydata.rds", result.extent = "ttest",
+           Rmdfunction = "ttest.createRmd", output.directory = ".",
            norm.method = "TMM")
 runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
 }

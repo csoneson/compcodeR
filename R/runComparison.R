@@ -1,55 +1,55 @@
 # Generate a .Rmd file containing code to perform a comparison of differential
 # expression methods
-# 
+#
 # A function to generate code that can be run to perform a comparison of the
 # performance of several differential expression methods. The code is written to
 # a .Rmd file. This function is generally not called by the user, the main
 # interface for comparing differential expression methods is the
 # \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param output.file The path to the file where the code will be written.
 # @author Charlotte Soneson
 createResultsRmdFile <- function(setup.parameters.file, output.file) {
   ## Check that the output file ends with .Rmd
-  if (!(substr(output.file, nchar(output.file) - 3, 
+  if (!(substr(output.file, nchar(output.file) - 3,
                nchar(output.file)) == ".Rmd")) {
-    output.file <- sub(strsplit(output.file, 
-                                "\\.")[[1]][length(strsplit(output.file, 
-                                                            "\\.")[[1]])], 
-                       "Rmd", 
+    output.file <- sub(strsplit(output.file,
+                                "\\.")[[1]][length(strsplit(output.file,
+                                                            "\\.")[[1]])],
+                       "Rmd",
                        output.file)
   }
-  
+
   ## Open the output file
   resultfile <- file(output.file, open = "w")
-  
+
   ## Load the setup parameters
   setup.parameters <- readRDS(setup.parameters.file)
-  setup.parameters$incl.nbr.samples <- 
+  setup.parameters$incl.nbr.samples <-
     as.numeric(setup.parameters$incl.nbr.samples)
-  setup.parameters$incl.replicates <- 
+  setup.parameters$incl.replicates <-
     as.numeric(setup.parameters$incl.replicates)
-  
+
   if (all(!is.na(setup.parameters$incl.nbr.samples))) {
-    setup.parameters$incl.nbr.samples <- 
+    setup.parameters$incl.nbr.samples <-
       sort(setup.parameters$incl.nbr.samples)
   }
   if (all(!is.na(setup.parameters$incl.replicates))) {
-    setup.parameters$incl.replicates <- 
+    setup.parameters$incl.replicates <-
       sort(setup.parameters$incl.replicates)
   }
-  
+
   ## Write the text that goes in the top of of the report (detailing which
   ## parameter values were used etc.)
   writeLines(c("```{r setup, echo = FALSE}",
                "options(width = 80)",
                "```"), resultfile)
   writeLines("# Comparison report, differential expression of RNAseq data", resultfile)
-  writeLines(c(paste("Created by the compcodeR package, version", 
+  writeLines(c(paste("Created by the compcodeR package, version",
                      packageVersion("compcodeR")),
                paste("Date:", date())
-               ##               paste("Parameter file:", setup.parameters.file), 
+               ##               paste("Parameter file:", setup.parameters.file),
                ##               "```{r loadparam, echo = FALSE}",
                ##               paste("setup.parameters = readRDS('", setup.parameters.file, "')", sep = ""),
                ##               "```",
@@ -59,7 +59,7 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   writeLines(c("```{r dataset, echo = FALSE}",
                "cat(setup.parameters$incl.dataset)",
                "```"), resultfile, sep = '\n')
-  
+
   if (any(!is.na(setup.parameters$incl.nbr.samples))) {
     writeLines("Number of samples per condition:", resultfile)
     writeLines(c("```{r nsamples, echo = FALSE}",
@@ -67,36 +67,35 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                  "```"), resultfile, sep = '\n')
   }
   if (any(!is.na(setup.parameters$incl.replicates))) {
-    writeLines("Included replicates (for repeated simulated data sets):", 
+    writeLines("Included replicates (for repeated simulated data sets):",
                resultfile)
-    writeLines(c("```{r replicates, echo = FALSE}", 
-                 "cat(sort(setup.parameters$incl.replicates), sep = ', ')", 
+    writeLines(c("```{r replicates, echo = FALSE}",
+                 "cat(sort(setup.parameters$incl.replicates), sep = ', ')",
                  "```"), resultfile, sep = '\n')
   }
-  writeLines("Differential expression methods included in the comparison:", 
+  writeLines("Differential expression methods included in the comparison:",
              resultfile)
   writeLines(c("```{r demethods, echo = FALSE}",
                "cat(setup.parameters$incl.de.methods, sep = '\n')",
                "```"), resultfile)
-  
+
   writeLines("Parameter values:", resultfile)
   writeLines(c("```{r parametervalues, echo = FALSE}",
                "print(data.frame(value = unlist(setup.parameters[c('fdr.threshold', 'tpr.threshold', 'typeI.threshold', 'mcc.threshold', 'ma.threshold', 'fdc.maxvar', 'overlap.threshold', 'fracsign.threshold', 'nbrtpfp.threshold', 'signal.measure')])))",
                "```"), resultfile)
-  
-  writeLines("---", resultfile, sep = "\n\n")
-  
+
+  writeLines(" ", resultfile, sep = "\n\n")
+
   ## Set some parameters for the plotting
   nbr.cols <- 3#min(3, length(setup.parameters$incl.replicates) + 1)
   nbr.rows <- ceiling((length(setup.parameters$incl.replicates) + 1)/nbr.cols)
   nbr.cols2 <- 3#min(3, length(setup.parameters$incl.de.methods))
   nbr.rows2 <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols2)
-  kk1 <- length(setup.parameters$incl.de.methods) * 
+  kk1 <- length(setup.parameters$incl.de.methods) *
     length(setup.parameters$incl.nbr.samples)
-  
-  writeLines("<a name='contents'></a>", resultfile)
+
   writeLines("## Contents", resultfile)
-  if ('rocall' %in% setup.parameters$comparisons) 
+  if ('rocall' %in% setup.parameters$comparisons)
     writeLines("- [ROC curves, all replicates](#rocall)\n", resultfile)
   if ('rocone' %in% setup.parameters$comparisons)
     writeLines("- [ROC curves, single replicate](#rocone)\n", resultfile)
@@ -105,10 +104,10 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
   if ('mcc' %in% setup.parameters$comparisons)
     writeLines("- [Matthew's correlation coefficient](#mcc)\n", resultfile)
   if ('fdcurvesall' %in% setup.parameters$comparisons)
-    writeLines("- [False discovery curves, all replicates](#fdcurvesall)\n", 
+    writeLines("- [False discovery curves, all replicates](#fdcurvesall)\n",
                resultfile)
   if ('fdcurvesone' %in% setup.parameters$comparisons)
-    writeLines("- [False discovery curves, single replicate](#fdcurvesone)\n", 
+    writeLines("- [False discovery curves, single replicate](#fdcurvesone)\n",
                resultfile)
   if ('maplot' %in% setup.parameters$comparisons)
     writeLines("- [MA plots, single replicate](#maplot)\n", resultfile)
@@ -138,11 +137,10 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
     writeLines("- [Sorensen index between sets of differentially expressed genes, single replicate](#sorensen)\n", resultfile)
   if ('correlation' %in% setup.parameters$comparisons)
     writeLines("- [Spearman correlation between scores, single replicate](#correlation)\n", resultfile)
-  writeLines("---", resultfile)
-  
+  writeLines(" ", resultfile)
+
   ## Include the actual results
   if ('rocall' %in% setup.parameters$comparisons) {
-    writeLines("<a name='rocall'></a>", resultfile)
     writeLines("## ROC (receiver operating characteristic) curves [(Contents)](#contents)", resultfile)
     writeLines("A receiver operating characteristic (ROC) curve is a way to summarize the ability of a test or ranking procedure to rank truly positive (i.e., truly differentially expressed) genes ahead of truly negative (i.e., truly non-differentially expressed). To create the ROC curve for a given differential expression method, the genes are ranked in decreasing order by the score, which is assigned to them during the differential expression analysis and quantifies the degree of statistical significance or association with the predictor (the condition). For a given threshold, all genes with scores above the threshold are classified as 'positive' and all genes with scores below the threshold are classified as 'negative'. Comparing these assignments to the true differential expression status, a true positive rate and a false positive rate can be computed and marked in a plot. As the threshold is changed, these pairs of values trace out the ROC curve. A good test procedure gives a ROC curve which passes close to the upper left corner of the plot, while a poor test corresponds to a ROC curve close to the diagonal. \n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -155,12 +153,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.rows, ", fig.align = 'center'}", sep = ""),
                    paste("makeROCcurves(setup.parameters, sel.nbrsamples = ",
                    setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('rocone' %in% setup.parameters$comparisons) {
-    writeLines("<a name='rocone'></a>", resultfile)
     writeLines("## ROC curves, single replicate [(Contents)](#contents)", resultfile)
     writeLines("A receiver operating characteristic (ROC) curve is a way to summarize the ability of a test or ranking procedure to rank truly positive (i.e., truly differentially expressed) genes ahead of truly negative (i.e., truly non-differentially expressed). To create the ROC curve for a given differential expression method, the genes are ranked in decreasing order by the score, which is assigned to them during the differential expression analysis and quantifies the degree of statistical significance or association with the predictor (the condition). For a given threshold, all genes with scores above the threshold are classified as 'positive' and all genes with scores below the threshold are classified as 'negative'. Comparing these assignments to the true differential expression status, a true positive rate and a false positive rate can be computed and marked in a plot. As the threshold is changed, these pairs of values trace out the ROC curve. A good test procedure gives a ROC curve which passes close to the upper left corner of the plot, while a poor test corresponds to a ROC curve close to the diagonal. \n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -172,41 +169,38 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                    paste("makeROCcurves(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
                          mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")", sep = ""),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'nbrtpfp', 'nbrsign', 'mcc') %in% setup.parameters$comparisons)) {
     writeLines(c(paste("```{r tabl, eval = TRUE, include = TRUE}"),
                  "res.table = createResultTable(setup.parameters)"), resultfile)
     if (any(!is.na(setup.parameters$incl.nbr.samples))) {
       writeLines("res.table = padResultTable(res.table)", resultfile)
     }
-    writeLines(c("```", "---"), resultfile)
+    writeLines(c("```", " "), resultfile)
   }
-  
+
   if ('auc' %in% setup.parameters$comparisons) {
-    writeLines("<a name='auc'></a>", resultfile)
     writeLines("## AUC [(Contents)](#contents)", resultfile)
     writeLines("A receiver operating characteristic (ROC) curve is a way to summarize the ability of a test or ranking procedure to rank truly positive (i.e., truly differentially expressed) genes ahead of truly negative (i.e., truly non-differentially expressed). To create the ROC curve for a given differential expression method, the genes are ranked in decreasing order by the score, which is assigned to them during the differential expression analysis and quantifies the degree of statistical significance or association with the predictor (the condition). For a given threshold, all genes with scores above the threshold are classified as 'positive' and all genes with scores below the threshold are classified as 'negative'. Comparing these assignments to the true differential expression status, a true positive rate and a false positive rate can be computed and marked in a plot. As the threshold is changed, these pairs of values trace out the ROC curve. A good test procedure gives a ROC curve which passes close to the upper left corner of the plot, while a poor test corresponds to a ROC curve close to the diagonal. The area under the ROC curve (AUC) summarizes the performance of the ranking procedure. A good method gives an AUC close to 1, while a poor method gives an AUC closer to 0.5. Each boxplot below summarizes the AUCs across all data set replicates included in the comparison. \n", resultfile)
     writeLines(c(paste("```{r auc, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height = ",
                        length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'auc')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('mcc' %in% setup.parameters$comparisons) {
-    writeLines("<a name='mcc'></a>", resultfile)
     writeLines("## Matthew's correlation coefficient [(Contents)](#contents)", resultfile)
     writeLines(paste0("Matthew's correlation coefficient is a measure summarizing the performance of a binary classifier, by combining the number of observed true positives, true negatives, false positives and false negatives into a single value. The correlation coefficient takes values between -1 and 1, where 1 corresponds to perfect classification and -1 corresponds to complete disagreement between the classification and the true labels. A value of 0 corresponds to random assignment. The figures below indicate the MCC obtained at an adjusted p-value threshold of ", setup.parameters$mcc.threshold, ". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n"), resultfile)
     writeLines(c(paste("```{r mcc, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height = ",
                        length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'mcc')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('fdcurvesall' %in% setup.parameters$comparisons) {
-    writeLines("<a name='fdcurvesall'></a>", resultfile)
     writeLines("## False discovery curves, all replicates [(Contents)](#contents)", resultfile)
     writeLines("A false discovery curve depicts the number of false positives encountered while stepping through a list of genes ranked by a score representing their statistical significance or the degree of association with a predictor. The truly differentially expressed genes are considered the 'true positives', and the truly non-differentially expressed genes the 'true negatives'. Hence, at a given position in the ranked list (shown on the x-axis) the value on the y-axis represents the number of truly non-differentially expressed genes that are ranked above that position. A good ranking method puts few true negatives among the top-ranked genes, and hence the false discovery curve rises slowly. A poor ranking method is recognized by a steeply increasing false discovery curve.\n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -218,12 +212,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols, ", fig.height = ", 6*nbr.rows, ", fig.align = 'left'}", sep = ""),
                    paste("makeFalseDiscoveryCurves(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('fdcurvesone' %in% setup.parameters$comparisons) {
-    writeLines("<a name='fdcurvesone'></a>", resultfile)
     writeLines("## False discovery curves, single replicate [(Contents)](#contents)", resultfile)
     writeLines("A false discovery curve depicts the number of false positives encountered while stepping through a list of genes ranked by a score representing their statistical significance or the degree of association with a predictor. The truly differentially expressed genes are considered the 'true positives', and the truly non-differentially expressed genes the 'true negatives'. Hence, at a given position in the ranked list (shown on the x-axis) the value on the y-axis represents the number of truly non-differentially expressed genes that are ranked above that position. A good ranking method puts few true negatives among the top-ranked genes, and hence the false discovery curve rises slowly. A poor ranking method is recognized by a steeply increasing false discovery curve.\n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -235,12 +228,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                    paste("makeFalseDiscoveryCurves(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
                          mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('maplot' %in% setup.parameters$comparisons) {
-    writeLines("<a name='maplot'></a>", resultfile)
     writeLines("## MA plots, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("An MA plot depicts the average expression level of the genes ('A', shown on the x-axis) and their log-fold change between two conditions ('M', shown on the y-axis). The genes called differentially expressed at an adjusted p-value threshold of", setup.parameters$ma.threshold, "are marked in color.\n"), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -253,12 +245,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                    paste("plotMASignificant(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
                          mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('scorevsexpr' %in% setup.parameters$comparisons) {
-    writeLines("<a name='scorevsexpr'></a>", resultfile)
     writeLines("## Gene score vs average expression level, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("In the figures below the gene score, which is computed in the differential expression analysis (and stored in the 'score' field of the result object), is plotted against the average expression level of the genes ('A', shown on the x-axis). A high value of the score signifies a 'more significant' gene. The colored line represents a loess fit to the data.\n"), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -271,12 +262,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                    paste("plotScoreVsExpr(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
                          mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('scorevssignal' %in% setup.parameters$comparisons) {
-    writeLines("<a name='scorevssignal'></a>", resultfile)
     writeLines("## Gene score vs 'signal' for genes expressed in only one condition, all replicates [(Contents)](#contents)", resultfile)
     writeLines(paste("In the figures below the gene score, which is computed in the differential expression analysis (and stored in the 'score' field of the result object), is plotted against the 'signal', for genes that are expressed in only one of the two conditions. The signal (shown on the x-axis) is defined by computing the ", c("logarithm (base 2) of the normalized pseudo-counts for all samples in the condition where the gene is expressed, and averaging these values", "signal-to-noise ratio in the condition where the gene is expressed, i.e., first computing the logarithm (base 2) of the normalized pseudo-counts for all samples in this condition, and then computing the ratio between the mean and the standard deviation of these values")[match(setup.parameters$signal.measure, c("mean", "snr"))], ". A high value of the score (shown on the y-axis) signifies a gene that is more strongly associated with the predictor (the sample condition). We expect the methods to give higher scores to genes with stronger signal. The results from all dataset replicates included in the comparison are shown in the same plot, and the points are colored according to the data set replicate they originate from.\n"), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -288,12 +278,11 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotSignalForZeroCounts(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('scorevsoutlier' %in% setup.parameters$comparisons) {
-    writeLines("<a name='scorevsoutlier'></a>", resultfile)
     writeLines("## Score distribution vs number of outliers, single replicate [(Contents)](#contents)", resultfile)
     writeLines("The violin plots below show the distribution of the score assigned to the genes by the differential expression methods, as a function of the number of 'outlier counts' (that is, extremely high or low counts introduced artificially in the data and not generated by the underlying statistical distribution) for the genes. All types of outliers are summed. This allows an investigation of the sensitivity of a differential expression method to outlier counts (deviations from the underlying statistical model). A method that is sensitive to outliers shows a different score distribution for genes with outlier counts than for genes without outlier counts. When interpreting the figures below, be observant on the number of genes generating each distribution (indicated below the figure), since an empirical distribution based on only a few values many not be completely representative of the true distribution.\n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -306,82 +295,76 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                    paste("plotScoreVsOutliers(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl = ",
                          mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
-  
+
+
   if ('fracsign' %in% setup.parameters$comparisons) {
-    writeLines("<a name='fracsign'></a>", resultfile)
     writeLines("## Fraction significant [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the fraction of genes in the data set that are called significant at an adjusted p-value threshold of ", setup.parameters$fracsign.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r fracsign, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'fracsign')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('nbrsign' %in% setup.parameters$comparisons) {
-    writeLines("<a name='nbrsign'></a>", resultfile)
     writeLines("## Number of significant genes [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the number of genes in the data set that are called significant at an adjusted p-value threshold of ", setup.parameters$fracsign.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r nbrsign, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'nbrsign')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('nbrtpfp' %in% setup.parameters$comparisons) {
-    writeLines("<a name='nbrtpfp'></a>", resultfile)
     writeLines("## Number of true positives [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the number of true positive genes found at an adjusted p-value threshold of ", setup.parameters$nbrtpfp.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r nbrtp, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'tp')",
-                 "```", "---"), resultfile)
-    
+                 "```", " "), resultfile)
+
     writeLines("## Number of false positives [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the number of false positive genes found at an adjusted p-value threshold of ", setup.parameters$nbrtpfp.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r nbrfp, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'fp')",
-                 "```", "---"), resultfile)
-    
+                 "```", " "), resultfile)
+
     writeLines("## Number of true negatives [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the number of true negative genes found at an adjusted p-value threshold of ", setup.parameters$nbrtpfp.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r nbrtn, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'tn')",
-                 "```", "---"), resultfile)
-    
+                 "```", " "), resultfile)
+
     writeLines("## Number of false negatives [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below indicate the number of false negative genes found at an adjusted p-value threshold of ", setup.parameters$nbrtpfp.threshold,". Only differential expression methods returning corrected p-values or FDR estimates are included in the figure. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n",
                      sep = ''), resultfile)
     writeLines(c(paste("```{r nbrfn, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'fn')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('typeIerror' %in% setup.parameters$comparisons) {
-    writeLines("<a name='typeIerror'></a>", resultfile)
     writeLines("## Type I error [(Contents)](#contents)", resultfile)
     writeLines(paste("The nominal p-value returned by a statistical test indicate the probability of obtaining a value of the test statistic which is at least as extreme as the one observed, given that the null hypothesis is true, e.g., that the gene is not differentially expressed between the compared conditions. Classifying a gene as statistically significantly differentially expressed although it is not truly differentially expressed is referred to as a type I error. For a good statistical test, we expect that the observed type I error rate at a given nominal p-value threshold (that is, the fraction of truly non-differentially expressed genes with a nominal p-value below this threshold) does not exceed the threshold. The figures below show the observed type I error rate at a nominal p-value threshold of ", setup.parameters$typeI.threshold, ". Only differential expression methods returning nominal p-values are included in the comparison. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n", sep = ''), resultfile)
     writeLines(c(paste("```{r typeIerror, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'typeIerror')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('fdr' %in% setup.parameters$comparisons) {
-    writeLines("<a name='fdr'></a>", resultfile)
     writeLines("## FDR [(Contents)](#contents)", resultfile)
     writeLines(paste("The false discovery rate (FDR) indicates the fraction of truly non-differentially expressed genes that we expect to find among the genes that we consider to be differentially expressed. For high-dimensional problems, where many statistical tests are performed simultaneously (such as gene expression studies) it is more relevant to attempt to control the FDR than to control the gene-wise type I error rate, since it is almost certain that at least one gene will show a low nominal p-value even if the null hypothesis is true. To control the FDR, typically, the nominal p-values are adjusted for the large number of tests that are performed. The figures below indicate the observed rate of false discoveries (i.e., the fraction of truly non-differentially expressed genes among the genes that are considered significant) at an adjusted p-value threshold of ", setup.parameters$fdr.threshold,". Only methods returning corrected p-values or FDR estimates are included. Each boxplot summarizes the values obtained across all data set replicates that are included in the comparison. For a good method, the observed FDR should not be too high above the imposed adjusted p-value threshold (indicated by a dashed vertical line). If the observed FDR is much larger than the imposed adjusted p-value threshold, the fraction of false discoveries is not controlled at the claimed level. \n", sep = ''), resultfile)
     writeLines(c(paste("```{r fdr, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'fdr')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('fdrvsexpr' %in% setup.parameters$comparisons) {
-    writeLines("<a name='fdrvsexpr'></a>", resultfile)
     writeLines("## FDR vs average expression level [(Contents)](#contents)", resultfile)
     writeLines(paste("The figures below show the observed false discovery rate as a function of the the average expression level of the genes ('A', shown on the x-axis). The average expression levels in a given data set are binned into 10 quantiles (each containing 1/10 of the values) and the false discovery rate at an imposed adjusted p-value cutoff of ", setup.parameters$fdr.threshold, "is estimated for each bin. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n"), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -393,21 +376,19 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
                          6*nbr.cols2, ", fig.height = ", 6*nbr.rows2, ", fig.align = 'left'}", sep = ""),
                    paste("plotFDRVsExpr(setup.parameters, sel.nbrsamples = ",
                          setup.parameters$incl.nbr.samples[i], ", sel.repl =  c(", paste(intersect(setup.parameters$incl.replicates, setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)]), collapse = ", "), "))", sep = ""),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   if ('tpr' %in% setup.parameters$comparisons) {
-    writeLines("<a name='tpr'></a>", resultfile)
     writeLines("## TPR [(Contents)](#contents)", resultfile)
     writeLines(paste("The true positive rate (TPR) indicates the fraction of truly non-differentially expressed genes that are indeed considered significant by a method at a given significance threshold. A good method gives a high true positive rate, while at the same time keeping the false discovery rate under control. The figures below show the observed rate of true positives at an adjusted p-value threshold of ", setup.parameters$tpr.threshold,". Only methods returning corrected p-values or FDR estimates are included. Each boxplot summarizes the values obtained across all data set replicates included in the comparison.\n", sep = ''), resultfile)
     writeLines(c(paste("```{r tpr, dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 14, fig.height =", length(setup.parameters$incl.nbr.samples) + 0.65*kk1, ", fig.align = 'left'}"),
                  "plotResultTable(setup.parameters, res.table, 'tpr')",
-                 "```", "---"), resultfile)
+                 "```", " "), resultfile)
   }
-  
+
   if ('overlap' %in% setup.parameters$comparisons) {
-    writeLines("<a name='overlap'></a>", resultfile)
     writeLines("## Overlap, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("The table below shows, for each pair of differential expression methods, the number of genes that are considered statistically significant by both of them at an adjusted p-value threshold of ",setup.parameters$overlap.threshold,". Only methods returning corrected p-values or FDR estimates are included in the comparison. Note that the size of the overlap between two sets naturally depends on the number of genes in each of the sets (indicated along the diagonal of the table).\n", sep = ''), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -423,13 +404,12 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
         writeLines(c(paste("```{r overlap-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = 10, fig.height = 10, fig.align = 'left'}", sep = ""),
 ##                     "options(width = 200)",
                      paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ", plot.type = 'Overlap')"),
-                     "```", "---"), resultfile)
+                     "```", " "), resultfile)
       }
     }
   }
-  
+
   if ('sorensen' %in% setup.parameters$comparisons) {
-    writeLines("<a name='sorensen'></a>", resultfile)
     writeLines("## Sorensen index, single replicate [(Contents)](#contents)", resultfile)
     writeLines(paste("The table below shows, for each pair of differential expression methods, the Sorensen index, which is a way of quantifying the overlap between the collections of differentially expressed genes found by the two methods at an adjusted p-value threshold of ", setup.parameters$overlap.threshold,".Only methods returning corrected p-values or FDR estimates are included. The Sorensen index is defined as the ratio between the number of genes shared by the two sets and the average number of genes in the two sets. Hence, it always attains values between 0 and 1. A larger Sorensen index implies better overlap between the two sets, and hence that the two compared methods give similar differential expression results. The values of the Sorensen index for all pairs of compared methods are also visualized in a 'heatmap', where the color corresponds to Sorensen index.\n", sep = ''), resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -444,13 +424,12 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
         }
         writeLines(c(paste("```{r sorensen-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ", length(setup.parameters$incl.de.methods) + 3, ", fig.height = ", length(setup.parameters$incl.de.methods) + 3, ", fig.align = 'left'}", sep = ""),
                      paste("computeOverlap(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, y = setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ", plot.type = 'Sorensen')"),
-                     "```", "---"), resultfile)
+                     "```", " "), resultfile)
       }
     }
   }
-  
+
   if ('correlation' %in% setup.parameters$comparisons) {
-    writeLines("<a name='correlation'></a>", resultfile)
     writeLines("## Spearman correlation between scores [(Contents)](#contents)", resultfile)
     writeLines("The table below shows, for each pair of compared differential expression methods, the Spearman correlation between the scores that they assign to the genes. The value of the correlation is always between -1 and 1, and a high positive value of the Spearman correlation indicates that the compared methods rank the genes in a similar fashion. The results are also shown in a 'heatmap', where the color indicates the Spearman correlation. Finally, the methods are clustered using hierarchical clustering, with a dissimilarity measure defined as 1 - Spearman correlation. This visualizes the relationships among the compared differential expression methods, and groups together methods that rank the genes similarly.\n", resultfile)
     for (i in seq_len(length(setup.parameters$incl.nbr.samples))) {
@@ -464,10 +443,10 @@ createResultsRmdFile <- function(setup.parameters.file, output.file) {
       }
       writeLines(c(paste("```{r correlation-", i, ", dev = c('png', 'pdf'), eval = TRUE, include = TRUE, fig.width = ", length(setup.parameters$incl.de.methods) + 3, ", fig.height = ", length(setup.parameters$incl.de.methods) + 3, ", fig.align = 'left'}", sep = ""),
                    paste("computeCorrelation(setup.parameters, sel.nbrsamples = ", setup.parameters$incl.nbr.samples[i], ", sel.repl = ", mfv(setup.parameters$file.info$repl[vapply(setup.parameters$file.info$nbr.samples, identical, setup.parameters$incl.nbr.samples[i], FUN.VALUE = FALSE)])[1], ")"),
-                   "```", "---"), resultfile)
+                   "```", " "), resultfile)
     }
   }
-  
+
   close(resultfile)
 }
 
@@ -477,15 +456,15 @@ checkClass <- function(object, objname, trueclass) {
   }
 }
 
-#' A GUI to the main function for running the performance comparison between differential expression methods. 
-#' 
-#' This function provides a GUI to the main function for performing comparisons among differential expression methods and generating a report in HTML format (\code{\link{runComparison}}). It is assumed that all differential expression results have been generated in advance (using e.g. the function \code{\link{runDiffExp}}) and that the result \code{compData} object for each data set and each differential expression method is saved separately in files with the extension \code{.rds}. The function opens a graphical user interface where the user can set parameter values and choose the files to be used as the basis of the comparison. It is, however, possible to circumvent the GUI and call the comparison function \code{\link{runComparison}} directly. 
-#' 
+#' A GUI to the main function for running the performance comparison between differential expression methods.
+#'
+#' This function provides a GUI to the main function for performing comparisons among differential expression methods and generating a report in HTML format (\code{\link{runComparison}}). It is assumed that all differential expression results have been generated in advance (using e.g. the function \code{\link{runDiffExp}}) and that the result \code{compData} object for each data set and each differential expression method is saved separately in files with the extension \code{.rds}. The function opens a graphical user interface where the user can set parameter values and choose the files to be used as the basis of the comparison. It is, however, possible to circumvent the GUI and call the comparison function \code{\link{runComparison}} directly.
+#'
 #' This function requires that the \code{rpanel} package is installed. If this package can not be installed, please use the \code{\link{runComparison}} function directly.
-#' 
+#'
 #' @param input.directories A list of directories containing the result files (\code{*.rds}). All results in the provided directories will be available for inclusion in the comparison, and the selection is performed through a graphical user interface. All result objects saved in the files should be of the \code{compData} class, although list objects created by earlier versions of \code{compcodeR} are supported.
 #' @param output.directory The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.
-#' @param recursive A logical parameter indicating whether or not the search should be extended recursively to subfolders of the \code{input.directories}. 
+#' @param recursive A logical parameter indicating whether or not the search should be extended recursively to subfolders of the \code{input.directories}.
 #' @param out.width The width of the figures in the final report. Will be passed on to \code{knitr} when the HTML is generated. Can be for example "800px" (see \code{knitr} documentation for more information)
 #' @param upper.limits,lower.limits Lists that can be used to manually set upper and lower limits for boxplots of fdr, tpr, auc, mcc, fracsign, nbrtpfp, nbrsign and typeIerror.
 #' @return
@@ -494,32 +473,32 @@ checkClass <- function(object, objname, trueclass) {
 #' @author Charlotte Soneson
 #' @examples
 #' if (interactive()) {
-#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500, 
-#'                                     samples.per.cond = 5, n.diffexp = 1250, 
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 12500,
+#'                                     samples.per.cond = 5, n.diffexp = 1250,
 #'                                     output.file = "mydata.rds")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma", 
-#'            Rmdfunction = "voom.limma.createRmd", output.directory = ".", 
+#' runDiffExp(data.file = "mydata.rds", result.extent = "voom.limma",
+#'            Rmdfunction = "voom.limma.createRmd", output.directory = ".",
 #'            norm.method = "TMM")
-#' runDiffExp(data.file = "mydata.rds", result.extent = "ttest", 
-#'            Rmdfunction = "ttest.createRmd", output.directory = ".", 
+#' runDiffExp(data.file = "mydata.rds", result.extent = "ttest",
+#'            Rmdfunction = "ttest.createRmd", output.directory = ".",
 #'            norm.method = "TMM")
 #' runComparisonGUI(input.directories = ".", output.directory = ".", recursive = FALSE)
 #' }
 #nocov start
-runComparisonGUI <- function(input.directories, output.directory, recursive, 
+runComparisonGUI <- function(input.directories, output.directory, recursive,
                              out.width = NULL, upper.limits = NULL, lower.limits = NULL) {
   if (!requireNamespace("rpanel")) stop("To use the GUI you must install the rpanel package. If it is not possible to install the package on your system, please use the runComparison() function instead.")
   checkClass(input.directories, "input.directories", "character")
   checkClass(output.directory, "output.directory", "character")
   checkClass(recursive, "recursive", "logical")
-  
+
   ## Get the absolute path of the input directories
   if (is.null(input.directories)) {
     stop("You have to provide at least one input directory!")
   } else {
     input.directories <- normalizePath(input.directories, winslash = "/")
   }
-  
+
   if (is.null(output.directory)) {
     stop("You have to provide an output directory!")
   } else if (length(output.directory) != 1) {
@@ -527,7 +506,7 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
   } else {
     output.directory <- normalizePath(output.directory, winslash = "/")
   }
-  
+
   ## List all rds files in the input directories
   input.files.temp <- NULL
   for (input.directory in input.directories) {
@@ -554,20 +533,20 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
       }
       ## Keep only the result files (no data files or other things).
       if (is.logical(check_compData_results(temp.input))) {
-        datasets <- c(datasets, info.parameters(temp.input)$dataset) 
+        datasets <- c(datasets, info.parameters(temp.input)$dataset)
         input.files <- c(input.files, input.file)
       }
     }
     avail.datasets <- c('', unique(datasets))
   })
-  
+
   if (length(avail.datasets) == 1) {
     stop("No result .rds files in the input directory")
   }
-  
+
   ## Create the GUI for selecting the data set
-  dataset.panel <- rpanel::rp.control(title = "Select data set", 
-                                      panelname = "dataset.panel", 
+  dataset.panel <- rpanel::rp.control(title = "Select data set",
+                                      panelname = "dataset.panel",
                                       incl.dataset = avail.datasets[1],
                                       fdr.threshold = 0.05,
                                       tpr.threshold = 0.05,
@@ -577,16 +556,16 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
                                       overlap.threshold = 0.05,
                                       fracsign.threshold = 0.05,
                                       nbrtpfp.threshold = 0.05,
-                                      ma.threshold = 0.05, 
+                                      ma.threshold = 0.05,
                                       signal.measure = "mean",
                                       input.files = input.files,
-                                      datasets = datasets, 
-                                      avail.datasets = avail.datasets, 
-                                      output.directory = output.directory, 
-                                      out.width = out.width, 
-                                      upper.limits = upper.limits, 
+                                      datasets = datasets,
+                                      avail.datasets = avail.datasets,
+                                      output.directory = output.directory,
+                                      out.width = out.width,
+                                      upper.limits = upper.limits,
                                       lower.limits = lower.limits)
-  
+
   ## Create the radiobutton for selecting a data set
   combo.dataset <- rpanel::rp.combo(dataset.panel,
                                     variable = "incl.dataset",
@@ -595,9 +574,9 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
                                     initval = avail.datasets[1],
                                     prompt = "Data set",
                                     pos = list("row" = 1, "column" = 1))
-  
+
   go.button <- rpanel::rp.button(dataset.panel, action = function(panel) {
-    ## Go through all input files corresponding to the chosen data set, and record the 
+    ## Go through all input files corresponding to the chosen data set, and record the
     ## available nbrsamples/repl/de methods
     panel$input.files <- panel$input.files[panel$datasets == panel$incl.dataset]
     panel$datasets <- panel$datasets[panel$datasets == panel$incl.dataset]
@@ -608,11 +587,11 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
       for (input.file in panel$input.files) {
         temp.input <- readRDS(input.file)
         if (is.list(temp.input)) temp.input <- convertListTocompData(temp.input)
-        nbr.samples <- c(nbr.samples, ifelse(is.null(info.parameters(temp.input)$samples.per.cond), 
+        nbr.samples <- c(nbr.samples, ifelse(is.null(info.parameters(temp.input)$samples.per.cond),
                                              NA_real_, info.parameters(temp.input)$samples.per.cond))
-        repl <- c(repl, ifelse(is.null(info.parameters(temp.input)$repl.id), 
+        repl <- c(repl, ifelse(is.null(info.parameters(temp.input)$repl.id),
                                NA_real_, info.parameters(temp.input)$repl.id))
-        de.methods <- c(de.methods, ifelse(is.null(method.names(temp.input)$full.name), 
+        de.methods <- c(de.methods, ifelse(is.null(method.names(temp.input)$full.name),
                                            NA_character_, method.names(temp.input)$full.name))
       }
       avail.nbr.samples <- sort(as.numeric(unique(nbr.samples)))  # numeric(0) if all are NA
@@ -632,9 +611,9 @@ runComparisonGUI <- function(input.directories, output.directory, recursive,
 #nocov end
 
 # Create the user interface for selecting parameters for the method comparison
-# 
-# Launch the user interface for selecting the parameters that govern the comparison of differential expression methods. This function will be called when pressing the "Continue" button in the interface for selecting the data set. This function will not be called directly by the user. 
-# 
+#
+# Launch the user interface for selecting the parameters that govern the comparison of differential expression methods. This function will be called when pressing the "Continue" button in the interface for selecting the data set. This function will not be called directly by the user.
+#
 # @param panel An rpanel
 # @author Charlotte Soneson
 #nocov start
@@ -642,22 +621,22 @@ createSelectionPanel = function(panel) {
   ###########################################
   ## Create the GUI for setting parameters ##
   ###########################################
-  
+
   ## Define the set of possible comparison methods
   comparisons <- c("AUC", "ROC, one replicate", "ROC, all replicates",
-                   "Type I error", "FDR", 
+                   "Type I error", "FDR",
                    "FDR vs average expression level",
-                   "TPR", "MCC", "Number significant", 
+                   "TPR", "MCC", "Number significant",
                    "Number of TP, FP, TN, FN",
                    "False discovery curves, one replicate",
                    "False discovery curves, all replicates",
                    "Fraction significant", "Overlap, one replicate",
                    "MA plot", "Gene score vs average expression level",
                    "Gene score vs signal for condition-specific genes",
-                   "Score distribution vs number of outliers", 
+                   "Score distribution vs number of outliers",
                    "Spearman correlation between scores",
                    "Sorensen index, one replicate")
-  
+
   ## Create the main panel window
   if (length(panel$avail.nbr.samples) != 0) {
     incl.nbr.samples <- rep(TRUE, length(panel$avail.nbr.samples))
@@ -690,28 +669,28 @@ createSelectionPanel = function(panel) {
                                    nbr.samples = panel$nbr.samples,
                                    repl = panel$repl,
                                    de.methods = panel$de.methods,
-                                   datasets = panel$datasets, 
-                                   output.directory = panel$output.directory, 
-                                   out.width = panel$out.width, 
-                                   upper.limits = panel$upper.limits, 
+                                   datasets = panel$datasets,
+                                   output.directory = panel$output.directory,
+                                   out.width = panel$out.width,
+                                   upper.limits = panel$upper.limits,
                                    lower.limits = panel$lower.limits)
-  
+
   ## Create the checkboxes for selecting the number of samples
   if (length(panel$avail.nbr.samples) != 0) {
-    checkbox.incl.nbr.samples <- 
+    checkbox.incl.nbr.samples <-
       rpanel::rp.checkbox(main.panel,
                           variable = "incl.nbr.samples",
                           action = I,
                           labels = panel$avail.nbr.samples,
                           initval = labels %in% main.panel$incl.nbr.samples,
                           title = "Number of samples",
-                          pos = list("row" = 3, "column" = 2, 
+                          pos = list("row" = 3, "column" = 2,
                                      "rowspan" = length(panel$avail.nbr.samples)))
   }
-  
+
   ## Create the checkboxes for selecting the replicates to include
   if (length(panel$avail.repl) != 0) {
-    checkbox.repl <- 
+    checkbox.repl <-
       rpanel::rp.checkbox(main.panel,
                           variable = "incl.replicates",
                           action = I,
@@ -720,9 +699,9 @@ createSelectionPanel = function(panel) {
                           title = "Replicates",
                           pos = list("row" = 2, "column" = 2))
   }
-  
+
   ## Create a checkbox for selecting the DE methods to include
-  checkbox.de.methods <- 
+  checkbox.de.methods <-
     rpanel::rp.checkbox(main.panel,
                         variable = "incl.de.methods",
                         action = I,
@@ -730,9 +709,9 @@ createSelectionPanel = function(panel) {
                         initval = labels %in% main.panel$incl.de.methods,
                         title = "DE methods",
                         pos = list("row" = 2, "column" = 1))
-  
+
   ## Create a checkbox for selecting the comparison methods to include
-  checkbox.comparisons <- 
+  checkbox.comparisons <-
     rpanel::rp.checkbox(main.panel,
                         variable = "comparisons",
                         action = I,
@@ -740,10 +719,10 @@ createSelectionPanel = function(panel) {
                         initval = labels %in% main.panel$comparisons,
                         title = "Comparisons",
                         pos = list("row" = 2, "column" = 3))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## used for the FDR analysis
-  text.fdr.threshold <- 
+  text.fdr.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "fdr.threshold",
                          action = I,
@@ -751,10 +730,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$fdr.threshold,
                          title = "",
                          pos = list("row" = 3, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## used for the TPR analysis
-  text.tpr.threshold <- 
+  text.tpr.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "tpr.threshold",
                          action = I,
@@ -762,10 +741,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$tpr.threshold,
                          title = "",
                          pos = list("row" = 4, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## used for the MCC analysis
-  text.mcc.threshold <- 
+  text.mcc.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "mcc.threshold",
                          action = I,
@@ -773,10 +752,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$mcc.threshold,
                          title = "",
                          pos = list("row" = 4, "column" = 1))
-  
+
   ## Create a text field for entering the nominal p-value threshold
   ## used for the type I error analysis
-  text.typeI.threshold <- 
+  text.typeI.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "typeI.threshold",
                          action = I,
@@ -784,10 +763,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$typeI.threshold,
                          title = "",
                          pos = list("row" = 5, "column" = 1))
-  
+
   ## Create a text field for entering the maximal number of variables
   ## to use in the false discovery curves
-  text.fdc.maxvar <- 
+  text.fdc.maxvar <-
     rpanel::rp.textentry(main.panel,
                          variable = "fdc.maxvar",
                          action = I,
@@ -795,10 +774,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$fdc.maxvar,
                          title = "",
                          pos = list("row" = 6, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## for overlap analysis
-  text.overlap.threshold <- 
+  text.overlap.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "overlap.threshold",
                          action = I,
@@ -806,10 +785,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$overlap.threshold,
                          title = "",
                          pos = list("row" = 7, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## for analysis of the fraction of significant variables
-  text.fracsign.threshold <- 
+  text.fracsign.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "fracsign.threshold",
                          action = I,
@@ -817,10 +796,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$fracsign.threshold,
                          title = "",
                          pos = list("row" = 8, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## for analysis of the number of TP, FP, TN, FN
-  text.nbrtpfp.threshold <- 
+  text.nbrtpfp.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "nbrtpfp.threshold",
                          action = I,
@@ -828,10 +807,10 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$nbrtpfp.threshold,
                          title = "",
                          pos = list("row" = 9, "column" = 1))
-  
+
   ## Create a text field for entering the adjusted p-value threshold
   ## for coloring MA plots
-  text.ma.threshold <- 
+  text.ma.threshold <-
     rpanel::rp.textentry(main.panel,
                          variable = "ma.threshold",
                          action = I,
@@ -839,8 +818,8 @@ createSelectionPanel = function(panel) {
                          initval = main.panel$ma.threshold,
                          title = "",
                          pos = list("row" = 10, "column" = 1))
-  
-  ## Create a radiobutton to select the signal measure 
+
+  ## Create a radiobutton to select the signal measure
   combo.signal.measure <- rpanel::rp.combo(main.panel,
                                            variable = "signal.measure",
                                            action = I,
@@ -848,20 +827,20 @@ createSelectionPanel = function(panel) {
                                            initval = main.panel$signal.measure,
                                            prompt = "Signal measure for condition-specific genes",
                                            pos = list("row" = 11, "column" = 1))
-  
+
   ## Create the "OK" button that runs the comparison
-  ok.button <- 
+  ok.button <-
     rpanel::rp.button(main.panel, action = performComparison,
                       title = "Run comparison",
                       quitbutton = TRUE,
                       pos = list("row" = 3, "column" = 3, "rowspan" = 1))
-  
+
   ## Create the "Close" button
-  close.button <- 
-    rpanel::rp.button(main.panel, action = function(panel){return(panel)}, 
-                      title = "Cancel", quitbutton = TRUE, 
+  close.button <-
+    rpanel::rp.button(main.panel, action = function(panel){return(panel)},
+                      title = "Cancel", quitbutton = TRUE,
                       pos = list("row" = 4, "column" = 3, "rowspan" = 1))
-  
+
   #rp.block(main.panel)
 }
 #nocov end
@@ -878,19 +857,19 @@ checkRange <- function(value, parname, minvalue, maxvalue) {
 }
 
 # Run the comparison of differential expression methods
-# 
-# This function will be launched when pressing the "Run comparison" button in the parameter selection user interface. It will not be called directly by the user. 
-# 
+#
+# This function will be launched when pressing the "Run comparison" button in the parameter selection user interface. It will not be called directly by the user.
+#
 # @param panel An rpanel
 # @author Charlotte Soneson
 #nocov start
 performComparison <- function(panel) {
   message("Be patient, your analysis is running...")
-  
+
   ## Extract all parameters from the panel object
   suppressWarnings({
     if (length(panel$incl.nbr.samples) == 1) {
-      names(panel$incl.nbr.samples) <- 
+      names(panel$incl.nbr.samples) <-
         unique(panel$nbr.samples[!is.na(panel$nbr.samples)])
     }
     if (length(panel$incl.replicates) == 1) {
@@ -907,13 +886,13 @@ performComparison <- function(panel) {
                        tpr.threshold = as.numeric(panel$tpr.threshold),
                        mcc.threshold = as.numeric(panel$mcc.threshold),
                        typeI.threshold = as.numeric(panel$typeI.threshold),
-                       ma.threshold = as.numeric(panel$ma.threshold), 
+                       ma.threshold = as.numeric(panel$ma.threshold),
                        fdc.maxvar = as.numeric(panel$fdc.maxvar),
                        signal.measure = as.character(panel$signal.measure),
                        overlap.threshold = as.numeric(panel$overlap.threshold),
                        fracsign.threshold = as.numeric(panel$fracsign.threshold),
                        nbrtpfp.threshold = as.numeric(panel$nbrtpfp.threshold),
-                       upper.limits = panel$upper.limits, 
+                       upper.limits = panel$upper.limits,
                        lower.limits = panel$lower.limits,
                        comparisons = names(which(panel$comparisons == TRUE)))
     nbr.samples <- as.numeric(panel$nbr.samples)
@@ -924,7 +903,7 @@ performComparison <- function(panel) {
     output.directory <- panel$output.directory
     out.width <- panel$out.width
   })
-  
+
   ## Check ranges etc for thresholds
   parameters$fdr.threshold <- checkRange(parameters$fdr.threshold, "fdr.treshold", 0, 1)
   parameters$tpr.threshold <- checkRange(parameters$tpr.threshold, "tpr.threshold", 0, 1)
@@ -934,36 +913,36 @@ performComparison <- function(panel) {
   parameters$overlap.threshold <- checkRange(parameters$overlap.threshold, "overlap.threshold", 0, 1)
   parameters$fracsign.threshold <- checkRange(parameters$fracsign.threshold, "fracsign.threshold", 0, 1)
   parameters$nbrtpfp.threshold <- checkRange(parameters$nbrtpfp.threshold, "nbrtpfp.threshold", 0, 1)
-  
+
   ## Transform the names of the comparisons to make
   parameters$comparisons <- shorten.method.names(parameters$comparisons)
-  
-  ## Run the comparison 
-  file.table <- data.frame(input.files = input.files, 
+
+  ## Run the comparison
+  file.table <- data.frame(input.files = input.files,
                            datasets = datasets,
-                           nbr.samples = nbr.samples, 
-                           repl = repl, 
-                           de.methods = de.methods, 
+                           nbr.samples = nbr.samples,
+                           repl = repl,
+                           de.methods = de.methods,
                            stringsAsFactors = FALSE)
-  runComparison(file.table, parameters, 
-                output.directory, check.table = FALSE, 
+  runComparison(file.table, parameters,
+                output.directory, check.table = FALSE,
                 out.width = out.width)
-  
+
   return(panel)
 }
 #nocov end
 
-#' Run the performance comparison between differential expression methods. 
-#' 
-#' The main function for performing comparisons among differential expression methods and generating a report in HTML format. It is assumed that all differential expression results have been generated in advance (using e.g. the function \code{\link{runDiffExp}}) and that the result \code{compData} object for each data set and each differential expression method is saved separately in files with the extension \code{.rds}. Note that the function can also be called via the \code{\link{runComparisonGUI}} function, which lets the user set parameters and select input files using a graphical user interface. 
-#' 
+#' Run the performance comparison between differential expression methods.
+#'
+#' The main function for performing comparisons among differential expression methods and generating a report in HTML format. It is assumed that all differential expression results have been generated in advance (using e.g. the function \code{\link{runDiffExp}}) and that the result \code{compData} object for each data set and each differential expression method is saved separately in files with the extension \code{.rds}. Note that the function can also be called via the \code{\link{runComparisonGUI}} function, which lets the user set parameters and select input files using a graphical user interface.
+#'
 #' The input to \code{\link{runComparison}} is a data frame with at least a column named \code{input.files}, containing paths to \code{.rds} files containing result objects (of the class \code{compData}), such as those generated by \code{\link{runDiffExp}}. Other columns that can be included in the data frame are \code{datasets}, \code{nbr.samples}, \code{repl} and \code{de.methods}. They have to match the information contained in the corresponding result objects. If these columns are not present, they will be added to the data frame automatically.
-#' 
+#'
 #' @param file.table A data frame with at least a column \code{input.files}, potentially also columns named \code{datasets}, \code{nbr.samples}, \code{repl} and \code{de.methods}.
 #' @param parameters A list containing parameters for the comparison study. The following entries are supported, and used by different comparison methods:
 #' \itemize{
 #' \item \code{incl.nbr.samples} An array with sample sizes (number of samples per condition) to consider in the comparison. If set to \code{NULL}, all sample sizes will be included.
-#' \item \code{incl.dataset} A dataset name (corresponding to the \code{dataset} slot of the results or data objects), indicating the dataset that will be used for the comparison. Only one dataset can be chosen. 
+#' \item \code{incl.dataset} A dataset name (corresponding to the \code{dataset} slot of the results or data objects), indicating the dataset that will be used for the comparison. Only one dataset can be chosen.
 #' \item \code{incl.replicates} An array with replicate numbers to consider in the comparison. If set to \code{NULL}, all replicates will be included.
 #' \item \code{incl.de.methods} An array with differential expression methods to be compared. If set to \code{NULL}, all differential expression methods will be included.
 #' \item \code{fdr.threshold} The adjusted p-value threshold for FDR calculations. Default 0.05.
@@ -981,21 +960,21 @@ performComparison <- function(panel) {
 #' \itemize{
 #' \item \code{"auc"} - Compute the area under the ROC curve
 #' \item \code{"mcc"} - Compute Matthew's correlation coefficient
-#' \item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold}) 
-#' \item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold}) 
+#' \item \code{"tpr"} - Compute the true positive rate at a given adjusted p-value threshold (\code{tpr.threshold})
+#' \item \code{"fdr"} - Compute the false discovery rate at a given adjusted p-value threshold (\code{fdr.threshold})
 #' \item \code{"fdrvsexpr"} - Compute the false discovery rate as a function of the expression level.
-#' \item \code{"typeIerror"} - Compute the type I error rate at a given nominal p-value threshold (\code{typeI.threshold}) 
+#' \item \code{"typeIerror"} - Compute the type I error rate at a given nominal p-value threshold (\code{typeI.threshold})
 #' \item \code{"fracsign"} - Compute the fraction of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold}).
 #' \item \code{"nbrsign"} - Compute the number of genes called significant at a given adjusted p-value threshold (\code{fracsign.threshold}).
 #' \item \code{"nbrtpfp"} - Compute the number of true positives, false positives, true negatives and false negatives at a given adjusted p-value threshold (\code{nbrtpfp.threshold}).
 #' \item \code{"maplot"} - Construct MA plots, depicting the average expression level and the log fold change for the genes and indicating the genes called differential expressed at a given adjusted p-value threshold (\code{ma.threshold}).
 #' \item \code{"fdcurvesall"} - Construct false discovery curves for each of the included replicates.
 #' \item \code{"fdcurvesone"} - Construct false discovery curves for a single replicate only
-#' \item \code{"rocall"} - Construct ROC curves for each of the included replicates 
+#' \item \code{"rocall"} - Construct ROC curves for each of the included replicates
 #' \item \code{"rocone"} - Construct ROC curves for a single replicate only
 #' \item \code{"overlap"} - Compute the overlap between collections of genes called differentially expressed by the different methods at a given adjusted p-value threshold (\code{overlap.threshold})
 #' \item \code{"sorensen"} - Compute the Sorensen index, quantifying the overlap between collections of genes called differentially expressed by the different methods, at a given adjusted p-value threshold (\code{overlap.threshold})
-#' \item \code{"correlation"} - Compute the Spearman correlation between gene scores assigned by different methods 
+#' \item \code{"correlation"} - Compute the Spearman correlation between gene scores assigned by different methods
 #' \item \code{"scorevsoutlier"} - Visualize the distribution of the gene scores as a function of the number of outlier counts introduced for the genes
 #' \item \code{"scorevsexpr"} - Visualize the gene scores as a function of the average expression level of the genes
 #' \item \code{"scorevssignal"} - Visualize the gene score as a function of the 'signal strength' (see the \code{signal.measure} parameter above) for genes that are expressed in only one condition
@@ -1013,25 +992,25 @@ performComparison <- function(panel) {
 #' @author Charlotte Soneson
 #' @examples
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
-#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+#'                                     samples.per.cond = 5, n.diffexp = 100,
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma", 
-#'            Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir, 
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+#'            Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
 #'            norm.method = "TMM")
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact", 
-#'            Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir, 
-#'            norm.method = "TMM", 
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+#'            Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
+#'            norm.method = "TMM",
 #'            trend.method = "movingave", disp.type = "tagwise")
-#' file.table <- data.frame(input.files = file.path(tmpdir, 
-#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+#' file.table <- data.frame(input.files = file.path(tmpdir,
+#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
 #'                          stringsAsFactors = FALSE)
-#' parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "mydata", 
-#'                    incl.de.methods = NULL, 
+#' parameters <- list(incl.nbr.samples = 5, incl.replicates = 1, incl.dataset = "mydata",
+#'                    incl.de.methods = NULL,
 #'                    fdr.threshold = 0.05, tpr.threshold = 0.05, typeI.threshold = 0.05,
 #'                    ma.threshold = 0.05, fdc.maxvar = 1500, overlap.threshold = 0.05,
-#'                    fracsign.threshold = 0.05, mcc.threshold = 0.05, 
-#'                    nbrtpfp.threshold = 0.05, 
+#'                    fracsign.threshold = 0.05, mcc.threshold = 0.05,
+#'                    nbrtpfp.threshold = 0.05,
 #'                    comparisons = c("auc", "fdr", "tpr", "ma", "correlation"))
 #' if (interactive()) {
 #'   runComparison(file.table = file.table, parameters = parameters, output.directory = tmpdir)
@@ -1041,27 +1020,27 @@ performComparison <- function(panel) {
 #' @importFrom stats as.dist cor hclust loess median na.omit predict rexp rnbinom
 #'   rpois runif sd
 #' @importFrom utils packageVersion
-runComparison <- function(file.table, 
-                          parameters, 
-                          output.directory, 
-                          check.table = TRUE, 
+runComparison <- function(file.table,
+                          parameters,
+                          output.directory,
+                          check.table = TRUE,
                           out.width = NULL,
                           save.result.table = FALSE,
                           knit.results = TRUE) {
-  
+
   ## Check arguments
   if (!save.result.table && !knit.results) {
     stop("At least on of 'save.result.table' or 'knit.results' must be set to TRUE, otherwise the function does not produce anything.")
   }
-  
+
   checkClass(file.table, "file.table", "data.frame")
   checkClass(output.directory, "output.directory", "character")
-  
+
   if (is.null(parameters)) {
     parameters <- list()
-  } 
+  }
   checkClass(parameters, "parameters", "list")
-  
+
   ## Set default values if not given
   if (is.null(parameters$fdr.threshold)) parameters$fdr.threshold <- 0.05
   if (is.null(parameters$tpr.threshold)) parameters$tpr.threshold <- 0.05
@@ -1073,27 +1052,27 @@ runComparison <- function(file.table,
   if (is.null(parameters$overlap.threshold)) parameters$overlap.threshold <- 0.05
   if (is.null(parameters$fracsign.threshold)) parameters$fracsign.threshold <- 0.05
   if (is.null(parameters$nbrtpfp.threshold)) parameters$nbrtpfp.threshold <- 0.05
-  if (is.null(parameters$comparisons)) parameters$comparisons <- 
-    c("auc", "fdr", "tpr", "mcc", 
-      "maplot", "correlation", "nbrtpfp", 
-      "typeIerror", "fracsign", "nbrsign", 
-      "fdcurvesall", "fdcurvesone", 
-      "rocall", "rocone", "overlap", 
-      "scorevsexpr", "sorensen", 
+  if (is.null(parameters$comparisons)) parameters$comparisons <-
+    c("auc", "fdr", "tpr", "mcc",
+      "maplot", "correlation", "nbrtpfp",
+      "typeIerror", "fracsign", "nbrsign",
+      "fdcurvesall", "fdcurvesone",
+      "rocall", "rocone", "overlap",
+      "scorevsexpr", "sorensen",
       "correlation", "scorevsoutlier",
       "fdrvsexpr", "scorevssignal")
-  
+
   ## Some options, useful for debugging
   save.rmdfile <- FALSE  ## set to TRUE to save the .Rmd file
-  
+
   file.table <- data.frame(file.table, stringsAsFactors = FALSE)
-  
+
   file.table$input.files <- normalizePath(as.character(file.table$input.files),
                                           winslash = "/")
-  
+
   ## Check the input table/parameters
-  ## First, make the table consistent (go through all input files, check the number of samples, 
-  ## the replicate ID and the de.method. If it doesn't agree with table, change the table and 
+  ## First, make the table consistent (go through all input files, check the number of samples,
+  ## the replicate ID and the de.method. If it doesn't agree with table, change the table and
   ## print a message.)
   ## This is not needed if we call runComparison from runComparisonGUI
   if (check.table) {
@@ -1105,32 +1084,32 @@ runComparison <- function(file.table,
   if (is.null(parameters$incl.dataset)) {
     parameters$incl.dataset <- unique(file.table$datasets)
   }
-    
+
   ## Get the whole path to the output.directory
   output.directory <- normalizePath(output.directory, winslash = "/")
-  
+
   ## If the output.directory does not exist, create it and some subfolders
   dir.create(output.directory, showWarnings = FALSE)
   dir.create(file.path(output.directory, "compcodeR_code"), showWarnings = FALSE)
   dir.create(file.path(output.directory, "compcodeR_figure"), showWarnings = FALSE)
-  
+
   ## Set options for knitr
   opts_knit$set(progress = FALSE, verbose = FALSE)
   opts_chunk$set(warning = FALSE, error = FALSE, message = FALSE, comment = '',
                  fig.path = file.path(output.directory, "compcodeR_figure/"),
                  echo = FALSE, out.width = out.width)
-  
+
   ## Go through the input files and keep only the ones that are compatible
-  ## with the selected parameters. 
+  ## with the selected parameters.
   ## First select the ones from the right dataset (this is a required parameter)
   idx.keep <- which(file.table$datasets %in% parameters$incl.dataset)
   file.table <- file.table[idx.keep, ]
   if (nrow(file.table) == 0) {
     stop("No methods left to compare after matching with datasets to include!")
   }
-  
+
   ## If any of the files have information about nbr.samples, keep only the files
-  ## with nbr.samples in accordance with the selected nbr.samples. Otherwise, 
+  ## with nbr.samples in accordance with the selected nbr.samples. Otherwise,
   ## keep all files
   if (is.null(parameters$incl.nbr.samples) || all(is.na(parameters$incl.nbr.samples))) {
     ## If no selection of nbr.samples, keep all
@@ -1146,9 +1125,9 @@ runComparison <- function(file.table,
   if (nrow(file.table) == 0) {
     stop("No methods left to compare after matching with nbr.samples to include!")
   }
-  
+
   ## If any of the files have information about replicate, keep only the files
-  ## with replicate in accordance with the selected replicate. Otherwise, 
+  ## with replicate in accordance with the selected replicate. Otherwise,
   ## keep all files
   if (is.null(parameters$incl.replicates) || all(is.na(parameters$incl.replicates))) {
     ## If no selection of replicates, keep all
@@ -1164,7 +1143,7 @@ runComparison <- function(file.table,
   if (nrow(file.table) == 0) {
     stop("No methods left to compare after matching with replicates to include!")
   }
-  
+
   if (is.null(parameters$incl.de.methods) || all(is.na(parameters$incl.de.methods))) {
     ## If no selection of de.methods, keep all
     idx.keep <- seq_len(nrow(file.table))
@@ -1175,94 +1154,98 @@ runComparison <- function(file.table,
   if (nrow(file.table) == 0) {
     stop("No methods left to compare after matching with DE methods to include!")
   }
-  
+
   parameters$file.info <- file.table
   parameters$file.info[is.na(parameters$file.info)] <- NA_real_
-  
+
   parameters$incl.nbr.samples <- unique(file.table$nbr.samples)
   parameters$incl.nbr.samples[is.na(parameters$incl.nbr.samples)] <- NA_real_
   parameters$incl.replicates <- unique(file.table$repl)
   parameters$incl.replicates[is.na(parameters$incl.replicates)] <- NA_real_
   parameters$incl.de.methods <- unique(file.table$de.methods)
-  
+
   ## Check that the input files actually correspond to the same simulation settings
-  ## (data sets with the same name can only differ in the number of samples and 
+  ## (data sets with the same name can only differ in the number of samples and
   ## the replicate number)
   checkCompatibility(parameters$file.info)
-  
+
   parameters$specified.colors <- definePlotColors(parameters$incl.de.methods)
-  
+
   setup.parameters <- parameters
   ##saveRDS(setup.parameters, "/Users/charlotte/Desktop/setup.parameters.ex.rds")
 
   ## Generate the Rmd file containing the results
   timestamp <- format(Sys.time(), "%Y-%m-%d-%H-%M-%S")
-  
+
   ## Save the setup.parameters
-  setup.parameters.file <- file.path(output.directory, 
-                                     paste("compcodeR_parameters_", 
-                                           timestamp, 
+  setup.parameters.file <- file.path(output.directory,
+                                     paste("compcodeR_parameters_",
+                                           timestamp,
                                            ".rds", sep = ""))
   saveRDS(setup.parameters, setup.parameters.file)
-  
+
   if (save.result.table) {
     doSaveResultsTable(setup.parameters.file,
-                       output.file = file.path(output.directory, 
-                                               paste("compcodeR_result_table_", 
-                                                     timestamp, 
+                       output.file = file.path(output.directory,
+                                               paste("compcodeR_result_table_",
+                                                     timestamp,
                                                      ".rds", sep = "")))
   }
-  
+
   if (knit.results) {
     createResultsRmdFile(setup.parameters.file,
-                         output.file = file.path(output.directory, 
-                                                 paste("compcodeR_report_", 
-                                                       timestamp, 
+                         output.file = file.path(output.directory,
+                                                 paste("compcodeR_report_",
+                                                       timestamp,
                                                        ".Rmd", sep = "")))
-    
+
     ## Generate the HTML file
     out <- knitr::knit(input = file.path(output.directory, paste("compcodeR_report_",
-                                                                 timestamp, 
+                                                                 timestamp,
                                                                  ".Rmd", sep = "")),
                        output = file.path(output.directory, paste("compcodeR_report_",
-                                                                  timestamp, 
+                                                                  timestamp,
                                                                   ".md", sep = "")),
                        envir =  new.env())
-    markdown::markdownToHTML(file = out,
-                             output = file.path(output.directory, paste("compcodeR_report_",
-                                                                        timestamp, 
-                                                                        ".html", sep = "")),
-                             encoding = "UTF-8",
-                             title = "compcodeR results")
-    
+    rmarkdown::pandoc_convert(input = out,
+                              output = file.path(output.directory, paste("compcodeR_report_",
+                                                                         timestamp,
+                                                                         ".html", sep = "")))
+    # markdown::markdownToHTML(file = out,
+    #                          output = file.path(output.directory, paste("compcodeR_report_",
+    #                                                                     timestamp,
+    #                                                                     ".html", sep = "")),
+    #                          encoding = "UTF-8",
+    #                          title = "compcodeR results")
+
     ## Remove the .Rmd file
     if (!save.rmdfile) {
       file.remove(file.path(output.directory, paste("compcodeR_report_",
-                                                    timestamp, 
+                                                    timestamp,
                                                     ".Rmd", sep = "")))
       file.remove(file.path(output.directory, paste("compcodeR_report_",
-                                                    timestamp, 
+                                                    timestamp,
                                                     ".md", sep = "")))
     }
-    
+
     ## Generate the HTML files containing the code for all compared instances
-    generateCodeHTMLs(setup.parameters$file.info$input.files, 
+    generateCodeHTMLs(setup.parameters$file.info$input.files,
                       file.path(output.directory, "compcodeR_code"))
   }
   message("Done!")
 }
 
 # Save the result table for further plotting
-# 
+#
 # This function is generally not called by the user.
-# 
+#
 # @author Charlotte Soneson, Paul Bastide
 doSaveResultsTable <- function(setup.parameters.file, output.file) {
   ## Check that the output file ends with .rds
   if (!(substr(output.file, nchar(output.file) - 3, nchar(output.file)) == ".rds")) {
     output.file <- sub(strsplit(output.file, "\\.")[[1]][length(strsplit(output.file, "\\.")[[1]])], "rds", output.file)
   }
-  
+
   ## Load the setup parameters
   setup.parameters <- readRDS(setup.parameters.file)
   setup.parameters$incl.nbr.samples <- as.numeric(setup.parameters$incl.nbr.samples)
@@ -1273,7 +1256,7 @@ doSaveResultsTable <- function(setup.parameters.file, output.file) {
   if (all(!is.na(setup.parameters$incl.replicates))) {
     setup.parameters$incl.replicates <- sort(setup.parameters$incl.replicates)
   }
-  
+
   ## Create the result table
   if (any(c('auc', 'fdr', 'tpr', 'typeIerror', 'fracsign', 'nbrtpfp', 'nbrsign', 'mcc') %in% setup.parameters$comparisons)) {
     res.table <- createResultTable(setup.parameters)
@@ -1281,26 +1264,26 @@ doSaveResultsTable <- function(setup.parameters.file, output.file) {
       res.table <- padResultTable(res.table)
     }
   }
-  
+
   ## Create the result table
   saveRDS(res.table, file = output.file)
 }
 
-# Check the compatibility of data sets used for method comparison 
-# 
+# Check the compatibility of data sets used for method comparison
+#
 # Check that there are no contradictions or inconsistencies among the data sets used for comparing different methods for differential expression analysis. Please note that data sets that are given the same name (the 'dataset' entry) can only differ in the number of samples per condition and the replicate ID (and the unique data set ID). All other simulation parameters must be identical. This function is generally not called by the user.
-# 
-# @param file.info.table Table containing the files that are intended for use in the comparison. 
+#
+# @param file.info.table Table containing the files that are intended for use in the comparison.
 # @author Charlotte Soneson
 checkCompatibility <- function(file.info.table){
   ## First check that all files have the same data set name
   if (length(unique(file.info.table$datasets[!is.na(file.info.table$datasets)])) != 1) {
     stop("All data sets must have the same name (the 'dataset' entry).")
   }
-  
+
   ## Then check that all input files with the same nbr samples and repl.id are
   ## identical (that they have the same unique ID)
-  all.combinations <- interaction(file.info.table$nbr.samples, 
+  all.combinations <- interaction(file.info.table$nbr.samples,
                                   file.info.table$repl)
   for (tmp in levels(all.combinations)) {
     tmp.nbr.samples <- strsplit(tmp, "\\.")[[1]][1]
@@ -1315,12 +1298,12 @@ checkCompatibility <- function(file.info.table){
       }
     }
     if (length(unique(tmp.uID)) > 1) {
-      stop("Different unique identifiers for data sets with the same name, number of 
+      stop("Different unique identifiers for data sets with the same name, number of
            samples and replicate ID.")
     }
   }
-  
-  ## Then check that all input files with the same dataset name (i.e., all input files) 
+
+  ## Then check that all input files with the same dataset name (i.e., all input files)
   ## only differ in the nbr samples and repl.id
   nex.files <- NULL
   ii <- 1
@@ -1332,7 +1315,7 @@ checkCompatibility <- function(file.info.table){
   if (is.list(w)) w <- convertListTocompData(w)
   tmp.ref <- info.parameters(w)
   tmp.ref[c("uID", "samples.per.cond", "repl.id")] <- NULL
-  
+
   if (ii != length(file.info.table$input.files)) {
     for (i in (ii + 1):length(file.info.table$input.files)) {
       if (file.exists(as.character(file.info.table$input.files[i]))) {
@@ -1343,7 +1326,7 @@ checkCompatibility <- function(file.info.table){
         if (!(all(tmp.ref %in% tmp.comp) & all(tmp.comp %in% tmp.ref))) {
           print(tmp.ref[!(tmp.ref %in% tmp.comp)])
           print(tmp.comp[!(tmp.comp %in% tmp.ref)])
-          stop("The same data set name is used to refer to data sets with different 
+          stop("The same data set name is used to refer to data sets with different
            simulation parameters")
         }
       } else {
@@ -1355,21 +1338,21 @@ checkCompatibility <- function(file.info.table){
 
 ## Comparison functions
 # Assign plot colors to a collection of differential expression methods
-# 
+#
 # Assign a plot color to each differential expression method present in the input vector. This color will be used for all graphical representations in the method comparison. The colors are taken from a pre-defined collection. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparison}} function.
-# 
+#
 # @param methods Vector of methods that will be assigned plot colors.
 # @return List with the assigned plot colors for all methods present in \code{methods}.
 # @author Charlotte Soneson
 definePlotColors <- function(methods) {
   available.plot.colors = c('red', 'cyan', 'blue', 'green', 'orange', 'violet', 'brown',
-                            'deeppink', 'forestgreen', 'aquamarine4', 'cadetblue3', 'grey', 
+                            'deeppink', 'forestgreen', 'aquamarine4', 'cadetblue3', 'grey',
                             'bisque', 'darkkhaki', 'darkgoldenrod3', 'pink', 'plum',
-                            'tomato', 'wheat', 'azure4', 'blue4', 'blueviolet', 'brown4', 
+                            'tomato', 'wheat', 'azure4', 'blue4', 'blueviolet', 'brown4',
                             'burlywood3', 'burlywood4', 'chartreuse', 'chocolate',
-                            'cornflowerblue', 'cornsilk3', 'darkolivegreen2', 'darkorange2', 
+                            'cornflowerblue', 'cornsilk3', 'darkolivegreen2', 'darkorange2',
                             'darksalmon', 'darkseagreen', 'dodgerblue', 'firebrick1',
-                            'lavender', 'lemonchiffon2', 'hotpink', 'lightskyblue2', 
+                            'lavender', 'lemonchiffon2', 'hotpink', 'lightskyblue2',
                             'mediumaquamarine', 'olivedrab2', 'palegreen')
   plot.colors <- list()
   for (i in seq_len(length(methods))) {
@@ -1379,9 +1362,9 @@ definePlotColors <- function(methods) {
 }
 
 # Plot ROC curves
-# 
+#
 # Plot receiver operating characteristic (ROC) curves, depicting the relationship between the false positive rate (x-axis) and the true positive rate (y-axis) as the significance threshold for differential expression is changed. The genes are ordered by the \code{score} column of the \code{result.table} data frame available in the result objects returned by \code{\link{runDiffExp}}. A well-performing differential expression method has a sharply increasing ROC curve, with a large area under the curve (AUC). This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparison}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which ROC curves will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which ROC curves will be constructed
@@ -1391,10 +1374,10 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
   ## One figure for each sel.nbrsamples, one panel for each sel.repl
   nbr.cols <- 3
   nbr.rows <- ceiling((length(sel.repl) + 1)/nbr.cols)
-  
+
   for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
                   cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2))
     all.plot.methods <- NULL
     all.plot.colors <- NULL
@@ -1404,11 +1387,11 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
       tmp.k <- 1
       for (k in seq_len(length(setup.parameters$incl.de.methods))) {
         ## Extract results from selected DE method, nbr samples and replicate
-        idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+        idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                             setup.parameters$incl.de.methods[k])
-        idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+        idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
                             sel.nbrsamples[i])
-        idx3 <- findFileIdx(setup.parameters$file.info, "repl", 
+        idx3 <- findFileIdx(setup.parameters$file.info, "repl",
                             sel.repl[j])
         idx <- intersect(intersect(idx1, idx2), idx3)
         if (length(idx) != 0) {
@@ -1426,17 +1409,17 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
                                            x.measure = 'fpr')
             fpr <- unlist(the.performance@x.values)
             tpr <- unlist(the.performance@y.values)
-            
+
             plot.colors <- c(plot.colors,
                             setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]])
             plot.methods <- c(plot.methods, setup.parameters$incl.de.methods[k])
-            
+
             ## Create vectors for legend (combine info across all replicates)
             if (length(which(all.plot.methods == setup.parameters$incl.de.methods[k])) == 0) {
               all.plot.methods <- c(all.plot.methods, setup.parameters$incl.de.methods[k])
               all.plot.colors <- c(all.plot.colors, setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]])
             }
-            
+
             if (tmp.k == 1) {
               if (is.na(sel.repl[j])) {
                 if (is.na(sel.nbrsamples[i])) {
@@ -1448,32 +1431,32 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
                 if (is.na(sel.nbrsamples[i])) {
                   maintext <- paste("Replicate", sel.repl[j])
                 } else {
-                  maintext <- paste("Replicate", sel.repl[j], ", ", sel.nbrsamples[i], 
+                  maintext <- paste("Replicate", sel.repl[j], ", ", sel.nbrsamples[i],
                                     "samples/condition")
                 }
               }
               plot(fpr, tpr, type = 'l', xlim = c(0, 1), ylim = c(0, 1),
                    col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]],
-                   main = maintext, 
-                   lwd = 1.5, 
+                   main = maintext,
+                   lwd = 1.5,
                    xlab = 'False positive rate',
                    ylab = 'True positive rate')
             } else {
               graphics::lines(
-                fpr, tpr, 
-                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
+                fpr, tpr,
+                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]],
                 lwd = 1.5)
             }
-          } 
+          }
           tmp.k <- tmp.k + 1
         }
       }
     }
     if (incl.legend) {
       plot(0:1, 0:1, type = 'n', axes = FALSE, xlab = '', ylab = '')
-      graphics::legend('topleft', legend = all.plot.methods, 
-                       col = all.plot.colors, lty = 1, lwd = 2, 
-                       cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+      graphics::legend('topleft', legend = all.plot.methods,
+                       col = all.plot.colors, lty = 1, lwd = 2,
+                       cex = ifelse(length(all.plot.methods) < 24, 1.5,
                                     1.3/length(all.plot.methods)*24))
     } else {
       cat("No truly differentially expressed genes found. ")
@@ -1482,23 +1465,23 @@ makeROCcurves = function(setup.parameters, sel.nbrsamples, sel.repl) {
 }
 
 # Plot false discovery curves
-# 
+#
 # Plot false discovery curves, depicting the number of false discoveries encountered as the significance threshold for differential expression is changed. The genes are ordered by the \code{score} column of the \code{result.table} data frame available in the result objects returned by \code{\link{runDiffExp}}. A well-performing differential expression method has a slowly increasing false discovery curve, meaning that as more and more genes are considered differentially expressed, only few of them are false discoveries. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparison}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
-# @param sel.nbrsamples The sample sizes (number of samples per condition) for which the false discovery curves will be constructed. 
+# @param sel.nbrsamples The sample sizes (number of samples per condition) for which the false discovery curves will be constructed.
 # @param sel.repl The replicate numbers (the instances of a given simulation setting) for which the false discovery curves will be constructed.
 # @author Charlotte Soneson
 makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl, legend.outside = TRUE) {
   nbr.cols <- 3
   nbr.rows <- ceiling((length(sel.repl) + 1)/nbr.cols)
-  
+
   ##sel.repl <- sort(sel.repl)
-  
+
   for (i in seq_len(length(sel.nbrsamples))) {
     incl.legend <- FALSE
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-                  cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2), 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
+                  cex.axis = 1.5, las = 1, cex.main = 1.75, mar = c(5, 5, 4, 2),
                   mgp = c(3.5, 1, 0))
     all.plot.colors <- NULL
     all.plot.methods <- NULL
@@ -1507,9 +1490,9 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
       plot.methods <- NULL
       tmp.k <- 1
       for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-        idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+        idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                             setup.parameters$incl.de.methods[k])
-        idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+        idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
                             sel.nbrsamples[i])
         idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl[j])
         idx <- intersect(intersect(idx1, idx2), idx3)
@@ -1526,23 +1509,23 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
             the.scores.unique <- sort(unique(the.scores), decreasing = TRUE)
             xcoord <- cumsum(as.vector(table(-the.scores.ordered)))
             ycoord <- cumsum(1 - trulyDE.ordered)[cumsum(as.vector(table(-the.scores.ordered)))]
-            
+
             plot.colors <- c(plot.colors,
                              setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]])
             plot.methods <- c(plot.methods, setup.parameters$incl.de.methods[k])
-            
+
             ## Create vectors for legend (combine info across all replicates)
             if (length(which(all.plot.methods == setup.parameters$incl.de.methods[k])) == 0) {
               all.plot.methods <- c(all.plot.methods, setup.parameters$incl.de.methods[k])
               all.plot.colors <- c(all.plot.colors, setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]])
             }
-            
+
             if (all(xcoord < setup.parameters$fdc.maxvar)) {
               tmp.fdc.maxvar <- max(xcoord)
             } else {
               tmp.fdc.maxvar <- setup.parameters$fdc.maxvar
             }
-            
+
             if (tmp.k == 1) {
               if (is.na(sel.repl[j])) {
                 if (is.na(sel.nbrsamples[i])) {
@@ -1554,17 +1537,17 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
                 if (is.na(sel.nbrsamples[i])) {
                   maintext <- paste("Replicate", sel.repl[j])
                 } else {
-                  maintext <- paste("Replicate", sel.repl[j], ", ", sel.nbrsamples[i], 
+                  maintext <- paste("Replicate", sel.repl[j], ", ", sel.nbrsamples[i],
                                     "samples/condition")
                 }
               }
-              
+
               suppressWarnings({plot(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
                                      ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
                                      type = 'l', xlim = c(0, tmp.fdc.maxvar), log = 'y', las = 1,
                                      lwd = 1.5,  #1.5
                                      ylim = c(1, tmp.fdc.maxvar),
-                                     col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
+                                     col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]],
                                      xlab = 'Number of selected genes',
                                      ylab = 'Number of false discoveries',
                                      main = maintext)})
@@ -1572,10 +1555,10 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
               suppressWarnings({
                 graphics::lines(xcoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
                                 ycoord[seq_len(min(which(xcoord >= tmp.fdc.maxvar)))],
-                                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]], 
+                                col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]],
                                 lwd = 1.5)})   #1.5
             }
-          } 
+          }
           tmp.k <- tmp.k + 1
         }
       }
@@ -1583,14 +1566,14 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
     if (incl.legend) {
       if (legend.outside) {
         plot(0:1, 0:1, type = 'n', axes = FALSE, xlab = '', ylab = '')
-        graphics::legend('topleft', legend = all.plot.methods, 
-                         col = all.plot.colors, lty = 1, lwd = 2, 
-                         cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+        graphics::legend('topleft', legend = all.plot.methods,
+                         col = all.plot.colors, lty = 1, lwd = 2,
+                         cex = ifelse(length(all.plot.methods) < 24, 1.5,
                                       1.3/length(all.plot.methods)*24))
       } else {
-        graphics::legend('bottomright', legend = all.plot.methods, 
-                         col = all.plot.colors, lty = 1, lwd = 2, 
-                         cex = ifelse(length(all.plot.methods) < 24, 1.5, 
+        graphics::legend('bottomright', legend = all.plot.methods,
+                         col = all.plot.colors, lty = 1, lwd = 2,
+                         cex = ifelse(length(all.plot.methods) < 24, 1.5,
                                       1.3/length(all.plot.methods)*24))
       }
     } else {
@@ -1600,9 +1583,9 @@ makeFalseDiscoveryCurves <- function(setup.parameters, sel.nbrsamples, sel.repl,
 }
 
 # Construct MA plots
-# 
+#
 # Construct MA plots, depicting the log-fold change (M) vs the average expression level (A) for all genes and indicating the genes that are determined to be differentially expressed. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
@@ -1611,8 +1594,8 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
+                  cex.axis = 1.5, las = 1, cex.main = 1.2,
                   cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
@@ -1641,14 +1624,14 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         maplotcols <- rep('black', length(A.value))
         maplotcols[significant] <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
         if (!is.null(significant)) {
-          plot(A.value, M.value, cex = 1, pch = 20, main = setup.parameters$incl.de.methods[k], 
-               xlab = "Average expression", 
-               ylab = "Log fold change", 
+          plot(A.value, M.value, cex = 1, pch = 20, main = setup.parameters$incl.de.methods[k],
+               xlab = "Average expression",
+               ylab = "Log fold change",
                col = maplotcols)
         } else {
-          plot(1, type = "n", xlab = "Average expression", 
+          plot(1, type = "n", xlab = "Average expression",
                ylab = "Log fold change",
-               main = setup.parameters$incl.de.methods[k], 
+               main = setup.parameters$incl.de.methods[k],
                xaxt = "n", yaxt = "n")
         }
       }
@@ -1657,9 +1640,9 @@ plotMASignificant <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 }
 
 # Plot the gene score vs the average expression level of the gene
-# 
+#
 # Plot the gene score vs the average expression level (A) for all genes. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the plots will be constructed
@@ -1668,13 +1651,13 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
+                  cex.axis = 1.5, las = 1, cex.main = 1.2,
                   cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[k])
-      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
                           sel.nbrsamples[i])
       idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
       idx <- intersect(intersect(idx1, idx2), idx3)
@@ -1688,21 +1671,21 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         }
         score <- result.table(X)$score
         linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
-        plot(A.value, score, cex = 0.75, pch = 20, main = setup.parameters$incl.de.methods[k], 
-             xlab = "Average expression", 
+        plot(A.value, score, cex = 0.75, pch = 20, main = setup.parameters$incl.de.methods[k],
+             xlab = "Average expression",
              ylab = "Score")
         loessline <- stats::loess(score ~ A.value)
         xval <- seq(min(A.value), max(A.value), length.out = 500)
-        graphics::lines(xval, stats::predict(loessline, xval), col = linecol, lwd = 5) 
+        graphics::lines(xval, stats::predict(loessline, xval), col = linecol, lwd = 5)
       }
     }
   }
 }
 
 # Plot the gene score vs an 'outlier score'
-# 
+#
 # Plot the gene score vs an outlier score, defined as the ratio between A and B, where A is the difference between the highest and the second highest normalized count, and B is the difference between the highest and the lowest normalized count. The outlier score is averaged across all samples. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
@@ -1711,12 +1694,12 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 #   nbr.cols <- 3
 #   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
 #   for (i in seq_len(length(sel.nbrsamples))) {
-#     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
+#     par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
 #         cex.axis = 1.5, las = 1, cex.main = 1.2, cex.main = 1.75, mar = c(5, 5, 4, 2))
 #     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-#       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+#       idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
 #                           setup.parameters$incl.de.methods[k])
-#       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+#       idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
 #                           sel.nbrsamples[i])
 #       idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
 #       idx <- intersect(intersect(idx1, idx2), idx3)
@@ -1729,52 +1712,52 @@ plotScoreVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 #         common.libsize <- exp(mean(log(colSums(count.matrix(X)))))
 #         pseudocounts <- sweep(count.matrix(X) + 0.5, 2, norm.factors, '/') * common.libsize
 #         ## Compute the outlier score
-#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-#                                          levels(factor(sample.annotations(X)$condition))[1]], 
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition ==
+#                                          levels(factor(sample.annotations(X)$condition))[1]],
 #                        1, sort))
-#         outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#         outlier.score.1.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] -
 #                                                                             tmp[, 1])
 #         outlier.score.1.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
 #         outlier.score.1 <- sqrt(outlier.score.1.1*outlier.score.1.2)
 #         outlier.score.1[is.na(outlier.score.1)] <- 0
-#         
-#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition == 
-#                                          levels(factor(sample.annotations(X)$condition))[2]], 
+#
+#         tmp <- t(apply(count.matrix(X)[, sample.annotations(X)$condition ==
+#                                          levels(factor(sample.annotations(X)$condition))[2]],
 #                        1, sort))
-#         outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] - 
+#         outlier.score.2.1 <- (tmp[, ncol(tmp)] - tmp[, (ncol(tmp) - 1)])/(tmp[, ncol(tmp)] -
 #                                                                           tmp[, 1])
 #         outlier.score.2.2 <- (tmp[, 2] - tmp[, 1])/(tmp[, ncol(tmp)] - tmp[, 1])
 #         outlier.score.2 <- sqrt(outlier.score.2.1*outlier.score.2.2)
 #         outlier.score.2[is.na(outlier.score.2)] <- 0
 #         outlier.score <- 0.5*(outlier.score.1 + outlier.score.2)
-#         
+#
 #         ## Count number of outliers
 #         if (length(variable.annotations(X)) != 0) {
-#           total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
-#                                                                 rownames(variable.annotations(X))), 
-#                                                           which(colnames(variable.annotations(X)) %in% 
-#                                                                   c("n.random.outliers.up.S1", 
-#                                                                     "n.random.outliers.up.S2", 
-#                                                                     "n.random.outliers.down.S1", 
-#                                                                     "n.random.outliers.down.S2", 
-#                                                                     "n.single.outliers.up.S1", 
-#                                                                     "n.single.outliers.up.S2", 
-#                                                                     "n.single.outliers.down.S1", 
+#           total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)),
+#                                                                 rownames(variable.annotations(X))),
+#                                                           which(colnames(variable.annotations(X)) %in%
+#                                                                   c("n.random.outliers.up.S1",
+#                                                                     "n.random.outliers.up.S2",
+#                                                                     "n.random.outliers.down.S1",
+#                                                                     "n.random.outliers.down.S2",
+#                                                                     "n.single.outliers.up.S1",
+#                                                                     "n.single.outliers.up.S2",
+#                                                                     "n.single.outliers.down.S1",
 #                                                                     "n.single.outliers.down.S2"))], 1, sum)
 #         } else {
 #           total.outliers <- rep(0, length(score))
 #         }
-#         
+#
 # #        boxplot(outlier.score ~ total.outliers)
 #         score <- result.table(X)$score
 #         linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
-#         plot(outlier.score, score, cex = 0.75, pch = 20, 
-#              main = setup.parameters$incl.de.methods[k], 
-#              xlab = "Outlier score", 
+#         plot(outlier.score, score, cex = 0.75, pch = 20,
+#              main = setup.parameters$incl.de.methods[k],
+#              xlab = "Outlier score",
 #              ylab = "Score")
 #         loessline <- loess(score ~ outlier.score)
 #         xval <- seq(min(outlier.score), max(outlier.score), length.out = 500)
-#         lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
+#         lines(xval, predict(loessline, xval), col = linecol, lwd = 5)
 #       }
 #     }
 #   }
@@ -1796,68 +1779,68 @@ computeSignal <- function(count.matrix, conditions, signal.measure) {
   common.libsize <- exp(mean(log(colSums(count.matrix))))
   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
   log2.pseudocounts <- log2(pseudocounts)
-  
-  ## If the second line below is uncommented, compute the "log2 pseudocounts" for 
-  ## a matrix with all zeros (the same normalization factors as above) and 
+
+  ## If the second line below is uncommented, compute the "log2 pseudocounts" for
+  ## a matrix with all zeros (the same normalization factors as above) and
   ## subtract from the actual log2 pseudocounts
   tmpmat <- matrix(0, nrow(count.matrix), ncol(count.matrix))
   ##tmpmat <- log2(sweep(tmpmat + 0.5, 2, norm.factors, "/") * common.libsize)
-  
+
   ## Compute difference between the values
   log2.pseudocounts.diff <- log2.pseudocounts - tmpmat
-  
+
   if (signal.measure == "snr") {
     ## Split into two matrices depending on condition. Average within each condition for each gene
-    signal1 <- 
-      apply(log2.pseudocounts.diff[, which(conditions == 
-                                             levels(factor(conditions))[1])], 
-            1, mean)/apply(log2.pseudocounts.diff[, which(conditions == 
-                                                            levels(factor(conditions))[1])], 
+    signal1 <-
+      apply(log2.pseudocounts.diff[, which(conditions ==
+                                             levels(factor(conditions))[1])],
+            1, mean)/apply(log2.pseudocounts.diff[, which(conditions ==
+                                                            levels(factor(conditions))[1])],
                            1, stats::sd)
-    signal2 <- 
-      apply(log2.pseudocounts.diff[, which(conditions == 
-                                             levels(factor(conditions))[2])], 
-            1, mean)/apply(log2.pseudocounts.diff[, which(conditions == 
-                                                            levels(factor(conditions))[2])], 
+    signal2 <-
+      apply(log2.pseudocounts.diff[, which(conditions ==
+                                             levels(factor(conditions))[2])],
+            1, mean)/apply(log2.pseudocounts.diff[, which(conditions ==
+                                                            levels(factor(conditions))[2])],
                            1, stats::sd)
   } else if (signal.measure == "mean") {
-    signal1 <- apply(log2.pseudocounts.diff[, which(conditions == 
-                                                      levels(factor(conditions))[1])], 
+    signal1 <- apply(log2.pseudocounts.diff[, which(conditions ==
+                                                      levels(factor(conditions))[1])],
                   1, mean)
-    signal2 <- apply(log2.pseudocounts.diff[, which(conditions == 
-                                                      levels(factor(conditions))[2])], 
+    signal2 <- apply(log2.pseudocounts.diff[, which(conditions ==
+                                                      levels(factor(conditions))[2])],
                   1, mean)
   }
-  
+
   return(list(signal1 = signal1, signal2 = signal2))
 }
 
 # Plot the gene score vs the "signal", for genes expressed in only one condition
-# 
+#
 # For genes expressed in only one condition, plot the gene score vs the average expression level in that condition. All replicates are merged in one plot. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the plots will be constructed
 # @author Charlotte Soneson
 plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   theplotcols <- c("black", "red", "green", "blue", "grey", "cyan", "forestgreen",
-                   "orange", "brown", "violet", "deeppink", "aquamarine4", 
+                   "orange", "brown", "violet", "deeppink", "aquamarine4",
                    "cadetblue3", "bisque", "darkkhaki", "darkgoldenrod3", "pink",
-                   "plum", "tomato", "yellow", "azure4", "blue4", "blueviolet", 
-                   "chartreuse", "chocolate", "cornflowerblue", "darkorange2", 
+                   "plum", "tomato", "yellow", "azure4", "blue4", "blueviolet",
+                   "chartreuse", "chocolate", "cornflowerblue", "darkorange2",
                    "darksalmon", "lemonchiffon2", "palegreen", "lightskyblue2")
-  
+
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2, 
-                  cex.axis = 1.5, las = 1, cex.main = 1.2, 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), cex.lab = 2,
+                  cex.axis = 1.5, las = 1, cex.main = 1.2,
                   cex.main = 1.75, mar = c(5, 5, 4, 2))
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[k])
-      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
                           sel.nbrsamples[i])
       tmpx <- c()
       tmpy <- c()
@@ -1869,25 +1852,25 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
           X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
           if (is.list(X)) X <- convertListTocompData(X)
           zerocounts <- findGenesAllZero(count.matrix(X), sample.annotations(X)$condition)
-          signals <- computeSignal(count.matrix(X), sample.annotations(X)$condition, 
+          signals <- computeSignal(count.matrix(X), sample.annotations(X)$condition,
                                    signal.measure = setup.parameters$signal.measure)
           tmpx <- c(tmpx, signals$signal1[zerocounts$zero2], signals$signal2[zerocounts$zero1])
-          tmpy <- c(tmpy, result.table(X)$score[zerocounts$zero2], 
+          tmpy <- c(tmpy, result.table(X)$score[zerocounts$zero2],
                     result.table(X)$score[zerocounts$zero1])
-          plotcol <- c(plotcol, rep(theplotcols[j], 
+          plotcol <- c(plotcol, rep(theplotcols[j],
                                     length(zerocounts$zero1) + length(zerocounts$zero2)))
         }
       }
       if ((length(tmpx) != 0) && (!(all(is.na(tmpy))))) {
-        plot(tmpx, tmpy, xlab = setup.parameters$signal.measure, 
-             ylab = "Score", cex = 1, pch = 20, col = plotcol, 
+        plot(tmpx, tmpy, xlab = setup.parameters$signal.measure,
+             ylab = "Score", cex = 1, pch = 20, col = plotcol,
              main = setup.parameters$incl.de.methods[k])
         ##linecol <- setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]
         ##loessline <- loess(tmpy ~ tmpx, span = 0.25)
         ##xval <- seq(min(tmpx), max(tmpx), length.out = 500)
-        ##lines(xval, predict(loessline, xval), col = linecol, lwd = 5) 
+        ##lines(xval, predict(loessline, xval), col = linecol, lwd = 5)
       } else {
-        plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", 
+        plot(1, type = "n", axes = FALSE, xlab = "", ylab = "",
              main = setup.parameters$incl.de.methods[k])
       }
     }
@@ -1900,9 +1883,9 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
 #   common.libsize <- exp(mean(log(colSums(count.matrix))))
 #   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
 #   log2.pseudocounts <- log2(pseudocounts)
-#   M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-#                    1, mean) - 
-#     apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])], 
+#   M.value <- apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])],
+#                    1, mean) -
+#     apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[1])],
 #           1, mean)
 #   return(M.value)
 # }
@@ -1913,16 +1896,16 @@ plotSignalForZeroCounts <- function(setup.parameters, sel.nbrsamples, sel.repl) 
 #   common.libsize <- exp(mean(log(colSums(count.matrix))))
 #   pseudocounts <- sweep(count.matrix + 0.5, 2, norm.factors, '/') * common.libsize
 #   log2.pseudocounts <- log2(pseudocounts)
-#   A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])], 
-#                         1, mean) + 
-#                     apply(log2.pseudocounts[, which(conditions == 
-#                                                       levels(factor(conditions))[1])], 
+#   A.value <- 0.5*(apply(log2.pseudocounts[, which(conditions == levels(factor(conditions))[2])],
+#                         1, mean) +
+#                     apply(log2.pseudocounts[, which(conditions ==
+#                                                       levels(factor(conditions))[1])],
 #                           1, mean))
 #   return(A.value)
 # }
 
 computeFDR <- function(adjpvalues, trueDElabels, signthreshold) {
-  length(intersect(which(adjpvalues < signthreshold), 
+  length(intersect(which(adjpvalues < signthreshold),
                    which(trueDElabels == 0)))/length(which(adjpvalues < signthreshold))
 }
 
@@ -1969,7 +1952,7 @@ computeMCC <- function(adjpvalues, trueDElabels, signthreshold) {
 computeTypeIerror <- function(pvalues, trueDElabels, signthreshold) {
   length(intersect(which(pvalues < signthreshold),
                    which(trueDElabels == 0)))/length(which(trueDElabels == 0))
-  
+
 }
 
 findFileIdx <- function(file.table, column, value) {
@@ -1981,9 +1964,9 @@ findFileIdx <- function(file.table, column, value) {
 }
 
 # Plot the observed FDR vs the average expression level of the gene
-# 
+#
 # Plot the observed FDR vs the average expression level (A) for all genes. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the MA plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the MA plots will be constructed
@@ -1996,10 +1979,10 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     idx1 <- findFileIdx(setup.parameters$file.info, "nbr.samples", sel.nbrsamples[i])
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
       obs.fdr.method <- NULL
-      idx2 <- intersect(idx1, findFileIdx(setup.parameters$file.info, "de.methods", 
+      idx2 <- intersect(idx1, findFileIdx(setup.parameters$file.info, "de.methods",
                                           setup.parameters$incl.de.methods[k]))
       for (j in seq_len(length(sel.repl))) {
-        idx <- intersect(idx2, findFileIdx(setup.parameters$file.info, "repl", 
+        idx <- intersect(idx2, findFileIdx(setup.parameters$file.info, "repl",
                                            sel.repl[j]))
         if (length(idx) != 0) {
           X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
@@ -2022,22 +2005,22 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
                 all.methods <- c(all.methods, setup.parameters$incl.de.methods[k])
               }
               doplot <- TRUE
-              tmp <- data.frame(status = variable.annotations(X)$differential.expression, 
+              tmp <- data.frame(status = variable.annotations(X)$differential.expression,
                                 adjp = adjp)
-              ## Split the genes by expression level 
+              ## Split the genes by expression level
               r <- range(A.value)
-              expr.bin <- cut(A.value, seq(r[1], r[2], length.out = 11), 
+              expr.bin <- cut(A.value, seq(r[1], r[2], length.out = 11),
                               include.lowest = TRUE)
-              levels(expr.bin) <- c("(0,10]", "(10,20]", "(20,30]", "(30,40]", 
-                                    "(40,50]", "(50,60]", "(60,70]", "(70,80]", 
+              levels(expr.bin) <- c("(0,10]", "(10,20]", "(20,30]", "(30,40]",
+                                    "(40,50]", "(50,60]", "(60,70]", "(70,80]",
                                     "(80,90]", "(90,100]")
               ## Split the fdr vector and compute the observed FDR
               split.tmp <- split(tmp, expr.bin)
               obs.fdr <- vapply(split.tmp, function(x, thr = setup.parameters$fdr.threshold) {
                 computeFDR(x$adjp, x$status, thr)
               }, FUN.VALUE = NA_real_)
-              obs.fdr.method <- rbind(obs.fdr.method, data.frame(bin = names(obs.fdr), 
-                                                                 fdr = obs.fdr, 
+              obs.fdr.method <- rbind(obs.fdr.method, data.frame(bin = names(obs.fdr),
+                                                                 fdr = obs.fdr,
                                                                  method = rep(setup.parameters$incl.de.methods[k], length(obs.fdr))))
             }
           }
@@ -2049,27 +2032,27 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     }
     #}
     if (doplot && is.data.frame(obs.fdr.total)) {
-      obs.fdr.total$method <- factor(obs.fdr.total$method, 
+      obs.fdr.total$method <- factor(obs.fdr.total$method,
                                      levels = setup.parameters$incl.de.methods)
-      
+
       suppressWarnings({
-        print(ggplot(obs.fdr.total, aes_string(x = "bin", y = "fdr", fill = "method")) + 
+        print(ggplot(obs.fdr.total, aes_string(x = "bin", y = "fdr", fill = "method")) +
                 geom_boxplot(outlier.size = 0) +
-                scale_fill_manual(values = unlist(setup.parameters$specified.colors), 
-                                  name = "", guide = FALSE) + 
-                facet_wrap(~ method, ncol = 3, drop = FALSE, scales = "free_x") + 
-                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 1.5) + 
-                xlab("Bin") + 
-                ylab("FDR") + 
-                theme_bw() + 
-                scale_y_continuous(limits = c(-0, 1)) + 
-                theme(strip.text.x = element_text(size = 15), 
+                scale_fill_manual(values = unlist(setup.parameters$specified.colors),
+                                  name = "", guide = FALSE) +
+                facet_wrap(~ method, ncol = 3, drop = FALSE, scales = "free_x") +
+                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 1.5) +
+                xlab("Bin") +
+                ylab("FDR") +
+                theme_bw() +
+                scale_y_continuous(limits = c(-0, 1)) +
+                theme(strip.text.x = element_text(size = 15),
                       axis.text.y = element_text(size = 15),
-                      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 15), 
+                      axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 15),
                       axis.title.x = element_text(size = 15),
                       axis.title.y = element_text(size = 15)))
       })
-      
+
     } else {
       cat ("No truly differentially expressed genes found, or no differentially expressed genes found by any method. ")
     }
@@ -2077,9 +2060,9 @@ plotFDRVsExpr <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 }
 
 # Plot distribution of gene scores as a function of the number of outliers
-# 
-# Plot the distribution of the scores assigned to the genes, grouped by the total number of outlier counts introduced for the genes. 
-# 
+#
+# Plot the distribution of the scores assigned to the genes, grouped by the total number of outlier counts introduced for the genes.
+#
 # @param setup.parameters List of parameters (internal).
 # @param sel.nbrsamples The sample sizes (number of samples per condition) for which the enrichment plots will be constructed
 # @param sel.repl The replicate numbers (instances of a given simulation setting) for which the enrichment plots will be constructed
@@ -2088,12 +2071,12 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
   nbr.cols <- 3
   nbr.rows <- ceiling(length(setup.parameters$incl.de.methods)/nbr.cols)
   for (i in seq_len(length(sel.nbrsamples))) {
-    graphics::par(mfrow = c(nbr.rows, nbr.cols), mar = c(9, 6, 4, 2), mgp = c(4, 1, 0), 
+    graphics::par(mfrow = c(nbr.rows, nbr.cols), mar = c(9, 6, 4, 2), mgp = c(4, 1, 0),
                   cex.axis = 1.5, las = 1, cex.main = 1.75, cex.lab = 2)
     for (k in seq_len(length(setup.parameters$incl.de.methods))) {
-      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods", 
+      idx1 <- findFileIdx(setup.parameters$file.info, "de.methods",
                           setup.parameters$incl.de.methods[k])
-      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples", 
+      idx2 <- findFileIdx(setup.parameters$file.info, "nbr.samples",
                           sel.nbrsamples[i])
       idx3 <- findFileIdx(setup.parameters$file.info, "repl", sel.repl)
       idx <- intersect(intersect(idx1, idx2), idx3)
@@ -2102,55 +2085,55 @@ plotScoreVsOutliers <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         if (is.list(X)) X <- convertListTocompData(X)
         score <- result.table(X)$score
         if (length(variable.annotations(X)) != 0) {
-          total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)), 
-                                                                rownames(variable.annotations(X))), 
-                                                          which(colnames(variable.annotations(X)) %in% 
-                                                                  c("n.random.outliers.up.S1", 
-                                                                    "n.random.outliers.up.S2", 
-                                                                    "n.random.outliers.down.S1", 
-                                                                    "n.random.outliers.down.S2", 
-                                                                    "n.single.outliers.up.S1", 
-                                                                    "n.single.outliers.up.S2", 
-                                                                    "n.single.outliers.down.S1", 
+          total.outliers <- apply(variable.annotations(X)[match(rownames(result.table(X)),
+                                                                rownames(variable.annotations(X))),
+                                                          which(colnames(variable.annotations(X)) %in%
+                                                                  c("n.random.outliers.up.S1",
+                                                                    "n.random.outliers.up.S2",
+                                                                    "n.random.outliers.down.S1",
+                                                                    "n.random.outliers.down.S2",
+                                                                    "n.single.outliers.up.S1",
+                                                                    "n.single.outliers.up.S2",
+                                                                    "n.single.outliers.down.S1",
                                                                     "n.single.outliers.down.S2"))], 1, sum)
         } else {
           total.outliers <- rep(0, length(score))
         }
-        
+
         ## Violin plots
-        keep <- which(total.outliers %in% 
+        keep <- which(total.outliers %in%
                         names(table(total.outliers))[which(table(total.outliers) > 3)])
         total.outliers <- total.outliers[keep]
         score <- score[keep]
-                
+
         w <- split(score, total.outliers)
         names(w)[1] <- "x"
-        
-        do.call(vioplot, c(lapply(w, stats::na.omit), 
+
+        do.call(vioplot, c(lapply(w, stats::na.omit),
                            list(horizontal = FALSE, names = names(table(total.outliers))),
                            col = setup.parameters$specified.colors[[setup.parameters$incl.de.methods[k]]]))
-        graphics::title(main = setup.parameters$incl.de.methods[k], 
-                        xlab = "Total number of outliers", 
+        graphics::title(main = setup.parameters$incl.de.methods[k],
+                        xlab = "Total number of outliers",
                         ylab = "Score")
-                
-        graphics::axis(1, at = seq_len(length(unique(total.outliers))), 
-                       labels = paste("n =", table(total.outliers)[match(levels(factor(total.outliers)), 
-                                                                         names(table(total.outliers)))]), 
+
+        graphics::axis(1, at = seq_len(length(unique(total.outliers))),
+                       labels = paste("n =", table(total.outliers)[match(levels(factor(total.outliers)),
+                                                                         names(table(total.outliers)))]),
                        tick = FALSE, line = 1, lwd = 0)
-        
+
       }
     }
   }
 }
 
 # Construct a result table with selected performance measures for later plotting
-# 
+#
 # Construct a result table containing one or several of the type I error, the fraction of significant genes, the false discovery rate (FDR), the true positive rate (TPR), Matthew's correlation coefficient (MCC), and the area under the ROC curve (AUC). This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # The result table returned from this function may contain "missing" lines, for example, there may be some differential expression methods that have not been applied to all data sets. This can be fixed by passing the result table through the \code{\link{padResultTable}} function, which will fill in all such missing lines with NA values.
-# 
+#
 # @param setup.parameters List of parameters (internal). The \code{comparisons} entry defines the performance measures that will be included in the result table.
-# @return A result table, containing the selected performance measures for each differential expression method and for each of the included data sets (the collection of data sets to include is defined by the \code{setup.parameters} list). 
+# @return A result table, containing the selected performance measures for each differential expression method and for each of the included data sets (the collection of data sets to include is defined by the \code{setup.parameters} list).
 # @author Charlotte Soneson
 createResultTable <- function(setup.parameters) {
   if ('typeIerror' %in% setup.parameters$comparisons) {tIe.vec <- rep(NA, nrow(setup.parameters$file.info))}
@@ -2166,12 +2149,12 @@ createResultTable <- function(setup.parameters) {
   if ('tpr' %in% setup.parameters$comparisons) {tpr.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('auc' %in% setup.parameters$comparisons) {auc.vec <- rep(NA, nrow(setup.parameters$file.info))}
   if ('mcc' %in% setup.parameters$comparisons) {mcc.vec <- rep(NA, nrow(setup.parameters$file.info))}
-  
+
   for (i in seq_len(nrow(setup.parameters$file.info))) {
     X <- readRDS(as.character(setup.parameters$file.info$input.files[i]))
     if (is.list(X)) X <- convertListTocompData(X)
     if ('typeIerror' %in% setup.parameters$comparisons && 'pvalue' %in% colnames(result.table(X))) {
-      tIe.vec[i] <- computeTypeIerror(result.table(X)$pvalue, 
+      tIe.vec[i] <- computeTypeIerror(result.table(X)$pvalue,
                                       variable.annotations(X)$differential.expression,
                                       setup.parameters$typeI.threshold)
     }
@@ -2179,11 +2162,11 @@ createResultTable <- function(setup.parameters) {
       if ('auc' %in% setup.parameters$comparisons) {
         the.scores <- result.table(X)$score
         idx_not_na <- which(!is.na(the.scores))
-        the.prediction <- prediction(the.scores[idx_not_na], 
+        the.prediction <- prediction(the.scores[idx_not_na],
                                      variable.annotations(X)$differential.expression[idx_not_na])
         auc.vec[i] <- unlist(performance(the.prediction, measure = 'auc')@y.values)
       }
-      
+
       if ('mcc' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
           mcc.vec[i] <- computeMCC(result.table(X)$FDR,
@@ -2197,72 +2180,72 @@ createResultTable <- function(setup.parameters) {
           }
         }
       }
-      
+
       if ('fdr' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
-          fdr.vec[i] <- computeFDR(result.table(X)$FDR, 
+          fdr.vec[i] <- computeFDR(result.table(X)$FDR,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$fdr.threshold)
         } else {
           if ('adjpvalue' %in% colnames(result.table(X))) {
-            fdr.vec[i] <- computeFDR(result.table(X)$adjpvalue, 
+            fdr.vec[i] <- computeFDR(result.table(X)$adjpvalue,
                                      variable.annotations(X)$differential.expression,
                                      setup.parameters$fdr.threshold)
           }
         }
       }
-      
+
       if ('tpr' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
-          tpr.vec[i] <- computeTPR(result.table(X)$FDR, 
+          tpr.vec[i] <- computeTPR(result.table(X)$FDR,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$tpr.threshold)
         } else {
           if ('adjpvalue' %in% colnames(result.table(X))) {
-            tpr.vec[i] <- computeTPR(result.table(X)$adjpvalue, 
+            tpr.vec[i] <- computeTPR(result.table(X)$adjpvalue,
                                      variable.annotations(X)$differential.expression,
                                      setup.parameters$tpr.threshold)
           }
         }
       }
-      
+
       if ('nbrtpfp' %in% setup.parameters$comparisons) {
         if ('FDR' %in% colnames(result.table(X))) {
-          tp.vec[i] <- computeTP(result.table(X)$FDR, 
+          tp.vec[i] <- computeTP(result.table(X)$FDR,
                                  variable.annotations(X)$differential.expression,
                                  setup.parameters$nbrtpfp.threshold)
-          tn.vec[i] <- computeTN(result.table(X)$FDR, 
+          tn.vec[i] <- computeTN(result.table(X)$FDR,
                                  variable.annotations(X)$differential.expression,
                                  setup.parameters$nbrtpfp.threshold)
-          fp.vec[i] <- computeFP(result.table(X)$FDR, 
+          fp.vec[i] <- computeFP(result.table(X)$FDR,
                                  variable.annotations(X)$differential.expression,
                                  setup.parameters$nbrtpfp.threshold)
-          fn.vec[i] <- computeFN(result.table(X)$FDR, 
+          fn.vec[i] <- computeFN(result.table(X)$FDR,
                                  variable.annotations(X)$differential.expression,
                                  setup.parameters$nbrtpfp.threshold)
         } else {
           if ('adjpvalue' %in% colnames(result.table(X))) {
-            tp.vec[i] <- computeTP(result.table(X)$adjpvalue, 
+            tp.vec[i] <- computeTP(result.table(X)$adjpvalue,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$nbrtpfp.threshold)
-            tn.vec[i] <- computeTN(result.table(X)$adjpvalue, 
+            tn.vec[i] <- computeTN(result.table(X)$adjpvalue,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$nbrtpfp.threshold)
-            fp.vec[i] <- computeFP(result.table(X)$adjpvalue, 
+            fp.vec[i] <- computeFP(result.table(X)$adjpvalue,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$nbrtpfp.threshold)
-            fn.vec[i] <- computeFN(result.table(X)$adjpvalue, 
+            fn.vec[i] <- computeFN(result.table(X)$adjpvalue,
                                    variable.annotations(X)$differential.expression,
                                    setup.parameters$nbrtpfp.threshold)
           }
         }
       }
-      
+
     }
-    
+
     if ('fracsign' %in% setup.parameters$comparisons) {
       if ('FDR' %in% colnames(result.table(X))) {
-        fsn.vec[i] <- length(which(result.table(X)$FDR < 
+        fsn.vec[i] <- length(which(result.table(X)$FDR <
                                      setup.parameters$fracsign.threshold))/nrow(result.table(X))
       } else {
         if ('adjpvalue' %in% colnames(result.table(X))) {
@@ -2271,10 +2254,10 @@ createResultTable <- function(setup.parameters) {
         }
       }
     }
-    
+
     if ('nbrsign' %in% setup.parameters$comparisons) {
       if ('FDR' %in% colnames(result.table(X))) {
-        nsn.vec[i] <- length(which(result.table(X)$FDR < 
+        nsn.vec[i] <- length(which(result.table(X)$FDR <
                                      setup.parameters$fracsign.threshold))
       } else {
         if ('adjpvalue' %in% colnames(result.table(X))) {
@@ -2298,20 +2281,20 @@ createResultTable <- function(setup.parameters) {
     temp.results <- cbind(temp.results, 'fn' = fn.vec)
     temp.results <- cbind(temp.results, 'tn' = tn.vec)
   }
-  result.table <- data.frame(cbind(setup.parameters$file.info[, c('nbr.samples', 
-                                                                  'repl', 
+  result.table <- data.frame(cbind(setup.parameters$file.info[, c('nbr.samples',
+                                                                  'repl',
                                                                   'de.methods')],
                                    temp.results))
   result.table
 }
 
 # Generates the missing lines of a result table
-# 
+#
 # Pads a result table generated by \code{\link{createResultTable}} by extending it with lines containing NA to replace "missing lines". This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @seealso \code{\link{createResultTable}}
 # @param result.table A result table generated by \code{\link{createResultTable}}.
-# @return An extended result table. This can be sent to \code{\link{plotResultTable}} to create a graphical representation in the form of a boxplot. 
+# @return An extended result table. This can be sent to \code{\link{plotResultTable}} to create a graphical representation in the form of a boxplot.
 # @author Charlotte Soneson
 padResultTable <- function(result.table) {
   unique.spc <- unique(result.table$nbr.samples)
@@ -2355,9 +2338,9 @@ padResultTable <- function(result.table) {
 }
 
 # Plot the content of a result table in a boxplot
-# 
+#
 # A function to construct a boxplot to represent a result table, obtained by \code{\link{createResultTable}} and potentially subsequently padded via \code{\link{padResultTable}}. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal).
 # @param result.table R result table
 # @param the.asp The measure that should be plotted. Possible values are \code{"auc"} (the area under the ROC curve), \code{"fdr"} (the false discovery rate), \code{"tpr"} (the true positive rate), \code{"typeIerror"}, \code{"mcc"} (Matthew's correlation coefficient), \code{"nbrtpfp"} (the number of TP, FP, TN, FN), \code{"nbrsign"} (the number of genes considered significant) and \code{"fracsign"} (the fraction of genes considered significant).
@@ -2372,7 +2355,7 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
   names(plot.colors) <- the.methods
   xmax.def <- max(the.result, na.rm = TRUE)
   xmin.def <- 0
-  
+
   if (the.asp == 'typeIerror') {
     the.xlab <- 'Type I error'
     the.threshold <- setup.parameters$typeI.threshold
@@ -2441,67 +2424,67 @@ plotResultTable <- function(setup.parameters, result.table, the.asp) {
   }
   xmax <- ifelse(is.null(the.xmax), xmax.def, the.xmax)
   xmin <- ifelse(is.null(the.xmin), xmin.def, the.xmin)
-  
+
   if (any(!is.na(the.result)) && !all(the.result == -1000)) {
     graphics::par(mar = c(5, max(nchar(the.methods)), 4, 2))
     if (any(!is.na(result.table$nbr.samples))) {
       f2.temp <- factor(paste(result.table$nbr.samples, "samples per condition"),
-                        levels = paste(sort(as.numeric(unique(result.table$nbr.samples)), 
+                        levels = paste(sort(as.numeric(unique(result.table$nbr.samples)),
                                             decreasing = FALSE), "samples per condition"))
       result.table$nbr.samples.2 <- f2.temp
-      ## The ggplot command below will throw an error: 
-      ## Error in `$<-.data.frame`(`*tmp*`, "weight", value = 1) : 
+      ## The ggplot command below will throw an error:
+      ## Error in `$<-.data.frame`(`*tmp*`, "weight", value = 1) :
       ## replacement has 1 row, data has 0
       ## if one facet is completely empty (all methods). It arises since all points of
       ## the facet are outside of the plotting range. It can be ignored.
       suppressWarnings({
-        print(ggplot(result.table, aes_string(x = "de.methods", y = the.asp, 
-                                              fill = "de.methods")) + 
-                geom_hline(yintercept = ifelse(is.na(the.threshold), xmin - 3, the.threshold), 
-                           linetype = 2) + 
-                geom_boxplot(outlier.size = 0) + 
-                scale_fill_manual(values = plot.colors, name = "", guide = FALSE) + 
-                facet_wrap(~ nbr.samples.2, ncol = 1) + 
-                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 2) + 
-                xlab("") + 
-                ylab(the.xlab) + 
-                theme_bw() + 
-                scale_y_continuous(limits = c(xmin, xmax)) + 
+        print(ggplot(result.table, aes_string(x = "de.methods", y = the.asp,
+                                              fill = "de.methods")) +
+                geom_hline(yintercept = ifelse(is.na(the.threshold), xmin - 3, the.threshold),
+                           linetype = 2) +
+                geom_boxplot(outlier.size = 0) +
+                scale_fill_manual(values = plot.colors, name = "", guide = FALSE) +
+                facet_wrap(~ nbr.samples.2, ncol = 1) +
+                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 2) +
+                xlab("") +
+                ylab(the.xlab) +
+                theme_bw() +
+                scale_y_continuous(limits = c(xmin, xmax)) +
                 coord_flip() +
-                theme(strip.text.x = element_text(size = 15), 
+                theme(strip.text.x = element_text(size = 15),
                       axis.text.y = element_text(size = 15),  #20
                       axis.text.x = element_text(size = 15),
                       axis.title.x = element_text(size = 15)))  #20
       })
     } else {
       suppressWarnings({
-        print(ggplot(result.table, aes_string(x = "de.methods", y = the.asp, 
+        print(ggplot(result.table, aes_string(x = "de.methods", y = the.asp,
                                               fill = "de.methods")) +
-                geom_hline(yintercept = ifelse(is.na(the.threshold), xmin - 3, the.threshold), 
-                           linetype = 2) + 
-                geom_boxplot(outlier.size = 0) + 
-                scale_fill_manual(values = plot.colors, name = "", guide = FALSE) + 
-                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 2) + 
-                xlab("") + 
-                ylab(the.xlab) + 
-                theme_bw() + 
-                scale_y_continuous(limits = c(xmin, xmax)) + 
+                geom_hline(yintercept = ifelse(is.na(the.threshold), xmin - 3, the.threshold),
+                           linetype = 2) +
+                geom_boxplot(outlier.size = 0) +
+                scale_fill_manual(values = plot.colors, name = "", guide = FALSE) +
+                geom_jitter(position = position_jitter(width = 0.1, height = 0), size = 2) +
+                xlab("") +
+                ylab(the.xlab) +
+                theme_bw() +
+                scale_y_continuous(limits = c(xmin, xmax)) +
                 coord_flip() +
-                theme(strip.text.x = element_text(size = 15), 
+                theme(strip.text.x = element_text(size = 15),
                       axis.text.y = element_text(size = 15),
-                      axis.text.x = element_text(size = 15), 
+                      axis.text.x = element_text(size = 15),
                       axis.title.x = element_text(size = 15)))
       })
-    }  
+    }
   } else {
     cat("No results available. No truly differentially expressed genes provided?")
   }
 }
 
 # Compute Spearman correlations among scores
-# 
+#
 # Computes pairwise Spearman correlations among scores obtained from different differential expression methods applied to the same data set. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param setup.parameters List of parameters (internal). Needs to contain at least the following entries:
 # \itemize{
 # \item \code{incl.de.methods}
@@ -2530,7 +2513,7 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
         X <- readRDS(as.character(setup.parameters$file.info$input.files[idx]))
         if (is.list(X)) X <- convertListTocompData(X)
         if (any(!is.na(sel.nbrsamples))) {
-          all.scores[[sel.nbrsamples[i]]][[setup.parameters$incl.de.methods[j]]] <- 
+          all.scores[[sel.nbrsamples[i]]][[setup.parameters$incl.de.methods[j]]] <-
             result.table(X)$score
         } else {
           all.scores[[setup.parameters$incl.de.methods[j]]] <- result.table(X)$score
@@ -2548,12 +2531,12 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     for (j in seq_len(length(curr.methods))) {
       for (k in seq_len(length(curr.methods))) {
         if (any(!is.na(sel.nbrsamples))) {
-          Spearman.correlation[j, k] <- 
+          Spearman.correlation[j, k] <-
             stats::cor(all.scores[[sel.nbrsamples[i]]][[curr.methods[j]]],
                        all.scores[[sel.nbrsamples[i]]][[curr.methods[k]]],
                        method = 'spearman', use = 'na.or.complete')
         } else {
-          Spearman.correlation[j, k] <- 
+          Spearman.correlation[j, k] <-
             stats::cor(all.scores[[curr.methods[j]]],
                        all.scores[[curr.methods[k]]],
                        method = 'spearman', use = 'na.or.complete')
@@ -2562,16 +2545,16 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
     }
     rownames(Spearman.correlation) <- colnames(Spearman.correlation) <- curr.methods
     print(Spearman.correlation)
-    
+
     if (nrow(Spearman.correlation) > 2) {
       hc <- stats::hclust(stats::as.dist(1 - Spearman.correlation), method = 'average')
       print(levelplot(Spearman.correlation[hc$order, hc$order], xlab = '', ylab = '',
                       column.values = nrow(Spearman.correlation):1,
                       at = seq(-1, 1, length = 200),
-                      scales = list(y = list(labels = curr.methods[hc$order], 
+                      scales = list(y = list(labels = curr.methods[hc$order],
                                              at = nrow(Spearman.correlation):1),
-                                    x = list(rot = 90)), 
-                      col.regions = grDevices::heat.colors(200), 
+                                    x = list(rot = 90)),
+                      col.regions = grDevices::heat.colors(200),
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)
@@ -2581,10 +2564,10 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
       print(levelplot(Spearman.correlation, xlab = '', ylab = '',
                       column.values = nrow(Spearman.correlation):1,
                       at = seq(-1, 1, length = 200),
-                      scales = list(y = list(labels = curr.methods, 
+                      scales = list(y = list(labels = curr.methods,
                                              at = nrow(Spearman.correlation):1),
-                                    x = list(rot = 90)), 
-                      col.regions = grDevices::heat.colors(200), 
+                                    x = list(rot = 90)),
+                      col.regions = grDevices::heat.colors(200),
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)
@@ -2594,11 +2577,11 @@ computeCorrelation <- function(setup.parameters, sel.nbrsamples, sel.repl) {
 }
 
 # Compute the overlap among sets of genes called differentially expressed by different methods
-# 
+#
 # Computes the overlap among sets of genes called differentially expressed by different methods applied to the same data set. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # The regular overlap analysis (i.e., with \code{plot.type = "overlap"}) computes the overlap (the number of shared genes) between the collection of genes called differentially expressed for each pair of differential expression methods. In other words, if \eqn{A} and \eqn{B} denote the collections of differentially expressed genes obtained by two methods, the overlap is defined as \deqn{O(A,B)=|A\cap B|,}where \eqn{|\cdot|} denotes the cardinality of a set. Since the expected overlap increases with the number of genes called differentially expressed, it is also possible to perform a normalized overlap analysis, which calculates instead the Sorensen index for each pair of gene collections. The Sorensen index for the two sets \eqn{A} and \eqn{B} is defined by \deqn{S(A,B)=\frac{2|A\cap B|}{|A|+|B|}.}
-# 
+#
 # @param setup.parameters List of parameters. Needs to contain at least the following entries:
 # \itemize{
 # \item \code{incl.de.methods}
@@ -2630,22 +2613,22 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
         if ('adjpvalue' %in% colnames(result.table(X))) {
           if (any(!is.na(sel.nbrsamples))) {
             sign.genes[[sel.nbrsamples[i]]][[setup.parameters$incl.de.methods[j]]] <-
-              rownames(result.table(X))[which(result.table(X)$adjpvalue < 
+              rownames(result.table(X))[which(result.table(X)$adjpvalue <
                                                 setup.parameters$overlap.threshold)]
           } else {
-            sign.genes[[setup.parameters$incl.de.methods[j]]] <- 
-              rownames(result.table(X))[which(result.table(X)$adjpvalue < 
+            sign.genes[[setup.parameters$incl.de.methods[j]]] <-
+              rownames(result.table(X))[which(result.table(X)$adjpvalue <
                                                 setup.parameters$overlap.threshold)]
           }
         } else {
           if ('FDR' %in% colnames(result.table(X))) {
             if (any(!is.na(sel.nbrsamples))) {
-              sign.genes[[sel.nbrsamples[i]]][[setup.parameters$incl.de.methods[j]]] <- 
-                rownames(result.table(X))[which(result.table(X)$FDR < 
+              sign.genes[[sel.nbrsamples[i]]][[setup.parameters$incl.de.methods[j]]] <-
+                rownames(result.table(X))[which(result.table(X)$FDR <
                                                   setup.parameters$overlap.threshold)]
             } else {
-              sign.genes[[setup.parameters$incl.de.methods[j]]] <- 
-                rownames(result.table(X))[which(result.table(X)$FDR < 
+              sign.genes[[setup.parameters$incl.de.methods[j]]] <-
+                rownames(result.table(X))[which(result.table(X)$FDR <
                                                   setup.parameters$overlap.threshold)]
             }
           }
@@ -2664,13 +2647,13 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
     for (j in seq_len(length(curr.methods))) {
       for (k in seq_len(length(curr.methods))) {
         if (any(!is.na(sel.nbrsamples))) {
-          Sorensen.index[j, k] <- 
-            computeSorensen(sign.genes[[sel.nbrsamples[i]]][[curr.methods[j]]], 
+          Sorensen.index[j, k] <-
+            computeSorensen(sign.genes[[sel.nbrsamples[i]]][[curr.methods[j]]],
                             sign.genes[[sel.nbrsamples[i]]][[curr.methods[k]]])
           Overlap[j, k] <- length(intersect(sign.genes[[sel.nbrsamples[i]]][[curr.methods[j]]],
                                             sign.genes[[sel.nbrsamples[i]]][[curr.methods[k]]]))
         } else {
-          Sorensen.index[j, k] <- computeSorensen(sign.genes[[curr.methods[j]]], 
+          Sorensen.index[j, k] <- computeSorensen(sign.genes[[curr.methods[j]]],
                                                   sign.genes[[curr.methods[k]]])
           Overlap[j, k] <- length(intersect(sign.genes[[curr.methods[j]]],
                                             sign.genes[[curr.methods[k]]]))
@@ -2686,10 +2669,10 @@ computeOverlap <- function(setup.parameters, sel.nbrsamples, sel.repl, plot.type
       hc <- stats::hclust(stats::as.dist(1 - Sorensen.noNA))
       print(levelplot(Sorensen.index[hc$order, hc$order], xlab = '', ylab = '',
                       column.values = nrow(Sorensen.index):1, at = seq(0, 1, length = 100),
-                      scales = list(y = list(labels=curr.methods[hc$order], 
+                      scales = list(y = list(labels=curr.methods[hc$order],
                                              at=nrow(Sorensen.index):1),
-                                    x = list(rot = 90)), 
-                      col.regions = grDevices::heat.colors(100), 
+                                    x = list(rot = 90)),
+                      col.regions = grDevices::heat.colors(100),
                       panel = function(...) {
                         arg <- list(...)
                         panel.levelplot(...)
@@ -2706,26 +2689,26 @@ computeSorensen <- function(x, y) {
 }
 
 # Shorten the names of comparison methods
-# 
+#
 # A function to transform the names of comparison methods from those entered in the GUI to those used within the program. This function is generally not called by the user, the main interface for comparing differential expression methods is the \code{\link{runComparisonGUI}} function.
-# 
+#
 # @param input.methods A list of comparison method identifiers, as entered in the graphical user interface.
 # @return A list of transformed comparison method identifiers, as used within the package (less human readable).
 # @author Charlotte Soneson
 shorten.method.names <- function(input.methods) {
-  transform.table <- list('AUC' = 'auc', 'TPR' = 'tpr', 'FDR' = 'fdr', 
-                          'Type I error' = 'typeIerror', 'MCC' = 'mcc', 
-                          'Number significant' = 'nbrsign', 
+  transform.table <- list('AUC' = 'auc', 'TPR' = 'tpr', 'FDR' = 'fdr',
+                          'Type I error' = 'typeIerror', 'MCC' = 'mcc',
+                          'Number significant' = 'nbrsign',
                           'Number of TP, FP, TN, FN' = 'nbrtpfp',
                           'Fraction significant' = 'fracsign', 'MA plot' = 'maplot',
                           'False discovery curves, all replicates' = 'fdcurvesall',
                           'False discovery curves, one replicate' = 'fdcurvesone',
                           'ROC, all replicates' = 'rocall', 'ROC, one replicate' = 'rocone',
-                          'Overlap, one replicate' = 'overlap', 
+                          'Overlap, one replicate' = 'overlap',
                           'Gene score vs average expression level' = 'scorevsexpr',
                           'Sorensen index, one replicate' = 'sorensen',
-                          'Spearman correlation between scores' = 'correlation', 
-                          'Score distribution vs number of outliers' = 'scorevsoutlier', 
+                          'Spearman correlation between scores' = 'correlation',
+                          'Score distribution vs number of outliers' = 'scorevsoutlier',
                           'FDR vs average expression level' = 'fdrvsexpr',
                           'Gene score vs signal for condition-specific genes' = 'scorevssignal')
   output.methods <- rep('', length(input.methods))
@@ -2736,64 +2719,64 @@ shorten.method.names <- function(input.methods) {
 }
 
 #' Check consistency of input table to \code{\link{runComparison}}
-#' 
-#' Check that the \code{dataset}, \code{nbr.samples}, \code{repl} and \code{de.methods} columns of a data frame are consistent with the information provided in the input files (given in the \code{input.files} column of the data frame). If there are inconsistencies or missing information in any of the columns, replace the given information with the information in the input files. 
-#' 
+#'
+#' Check that the \code{dataset}, \code{nbr.samples}, \code{repl} and \code{de.methods} columns of a data frame are consistent with the information provided in the input files (given in the \code{input.files} column of the data frame). If there are inconsistencies or missing information in any of the columns, replace the given information with the information in the input files.
+#'
 #' @param file.table A data frame with columns named \code{input.files} and (optionally) \code{datasets}, \code{nbr.samples}, \code{repl}, \code{de.methods}.
 #' @return Returns a consistent file table defining the result files that will be used as the basis for a method comparison.
 #' @author Charlotte Soneson
-#' @export 
+#' @export
 #' @examples
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
-#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+#'                                     samples.per.cond = 5, n.diffexp = 100,
 #'                                     output.file = file.path(tmpdir, "mydata.rds"))
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma", 
-#'            Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir, 
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+#'            Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
 #'            norm.method = "TMM")
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact", 
-#'            Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir, 
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+#'            Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
 #'            norm.method = "TMM",
 #'            trend.method = "movingave", disp.type = "tagwise")
-#' 
+#'
 #' ## A correct table
-#' file.table <- data.frame(input.files = file.path(tmpdir, 
-#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+#' file.table <- data.frame(input.files = file.path(tmpdir,
+#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
 #'                          datasets = c("mydata", "mydata"),
 #'                          nbr.samples = c(5, 5),
 #'                          repl = c(1, 1),
 #'                          stringsAsFactors = FALSE)
 #' new.table <- checkTableConsistency(file.table)
 #' new.table
-#' 
+#'
 #' ## An incorrect table
-#' file.table <- data.frame(input.files = file.path(tmpdir, 
-#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+#' file.table <- data.frame(input.files = file.path(tmpdir,
+#'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
 #'                          datasets = c("mydata", "mydata"),
 #'                          nbr.samples = c(5, 3),
 #'                          repl = c(2, 1),
 #'                          stringsAsFactors = FALSE)
 #' new.table <- checkTableConsistency(file.table)
 #' new.table
-#' 
+#'
 #' ## A table with missing information
-#' file.table <- data.frame(input.files = file.path(tmpdir, 
+#' file.table <- data.frame(input.files = file.path(tmpdir,
 #'                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
 #'                          stringsAsFactors = FALSE)
 #' new.table <- checkTableConsistency(file.table)
 #' new.table
 checkTableConsistency <- function(file.table) {
-  
+
   if (is.null(file.table$input.files)) {
     stop("Table must have a column named input.files!")
   }
-  
+
   datasets <- rep(NA, length(file.table$input.files))
   nbr.samples <- rep(NA, length(file.table$input.files))
   repl <- rep(NA, length(file.table$input.files))
   de.methods <- rep(NA, length(file.table$input.files))
   keep <- c()
-  
+
   file.table <- lapply(file.table, function(x) {
     if (is.factor(x)) {
       as.character(x)
@@ -2801,31 +2784,31 @@ checkTableConsistency <- function(file.table) {
       x
     }
   })
-  
+
   for (i in seq_len(length(file.table$input.files))) {
-    if (is.character(file.table$input.files[i]) && 
+    if (is.character(file.table$input.files[i]) &&
           str_detect(file.table$input.files[i], "\\.rds$")) {
       X <- readRDS(file.table$input.files[i])
       if (is.list(X)) X <- convertListTocompData(X)
-      
+
       if (!is.logical(check_compData_results(X))) {
         message(paste("File", file.table$input.files[i], "is not a valid result object and will be removed from the table."))
       } else {
         keep <- c(keep, i)
-        
+
         ## Check dataset (must be present in the data file)
         if (is.null(info.parameters(X)$dataset)) {
           stop(paste("'dataset' information missing in the file", file.table$input.files[i]))
         }
         if (!is.null(file.table$datasets)) {
           if (file.table$datasets[i] != info.parameters(X)$dataset) {
-            message(paste("Inconsistency between provided dataset and information in file", 
-                          file.table$input.files[i], ". Replacing the given information with 
+            message(paste("Inconsistency between provided dataset and information in file",
+                          file.table$input.files[i], ". Replacing the given information with
                       the one given in the saved file."))
-          } 
-        } 
+          }
+        }
         datasets[i] <- info.parameters(X)$dataset
-        
+
         ## Check nbr.samples
         if (is.null(info.parameters(X)$samples.per.cond)) {
           nbr.samples[i] <- NA
@@ -2834,12 +2817,12 @@ checkTableConsistency <- function(file.table) {
         }
         if (!is.null(file.table$nbr.samples)) {
           if (file.table$nbr.samples[i] != nbr.samples[i]) {
-            message(paste("Inconsistency between provided nbr.samples and information in file", 
-                          file.table$input.files[i], ". Replacing the given information with 
+            message(paste("Inconsistency between provided nbr.samples and information in file",
+                          file.table$input.files[i], ". Replacing the given information with
                       the one given in the saved file."))
           }
         }
-        
+
         ## Check repl
         if (is.null(info.parameters(X)$repl.id)) {
           repl[i] <- NA
@@ -2848,22 +2831,22 @@ checkTableConsistency <- function(file.table) {
         }
         if (!is.null(file.table$repl)) {
           if (file.table$repl[i] != repl[i]) {
-            message(paste("Inconsistency between provided repl and information in file", 
-                          file.table$input.files[i], ". Replacing the given information with 
+            message(paste("Inconsistency between provided repl and information in file",
+                          file.table$input.files[i], ". Replacing the given information with
                       the one given in the saved file."))
           }
         }
-        
+
         ## Check nbr.samples
         if (is.null(method.names(X)$full.name)) {
-          stop(paste("No (or misformatted) information about DE method in the file", 
+          stop(paste("No (or misformatted) information about DE method in the file",
                      file.table$input.files[i]))
         }
         de.methods[i] <- method.names(X)$full.name
         if (!is.null(file.table$de.methods)) {
           if (file.table$de.methods[i] != de.methods[i]) {
-            message(paste("Inconsistency between provided de.method and information in file", 
-                          file.table$input.files[i], ". Replacing the given information with 
+            message(paste("Inconsistency between provided de.method and information in file",
+                          file.table$input.files[i], ". Replacing the given information with
                       the one given in the saved file."))
           }
         }
@@ -2877,7 +2860,7 @@ checkTableConsistency <- function(file.table) {
   file.table$nbr.samples <- nbr.samples
   file.table$repl <- repl
   file.table$de.methods <- de.methods
-  
+
   file.table <- data.frame(file.table, stringsAsFactors = FALSE)
   file.table[keep, ]
 }
