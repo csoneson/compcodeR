@@ -1299,7 +1299,7 @@ test_that("runDiffExp works - phylo", {
     result.extent = "phylolm.factor",
     Rmdfunction = "phylolm.createRmd",
     output.directory = tdir, norm.method = "TMM",
-    model = "BM", measurement_error = FALSE,
+    model = "BM", measurement_error = TRUE,
     extra.design.covariates = c("test_reg", "test_fac"),
     length.normalization = "TPM",
     data.transformation = "log2"
@@ -1338,9 +1338,7 @@ test_that("runDiffExp works - phylo", {
     }
   }
 
-  ## For some reason, generateCodeHTMLs with phylolm.factor causes problems
-  ## (invalid file name?) on Windows
-  for (m in setdiff(methods, "phylolm.factor")) {
+  for (m in methods) {
     if (!(m %in% c("DESeq2.length", "DESeq2.length.factor")) || requireNamespace("DESeq2", quietly = TRUE)) {
       if (!(m %in% c("lengthNorm.limma.cor")) || requireNamespace("statmod", quietly = TRUE)) {
         if (!(m %in% c("lengthNorm.sva.limma", "lengthNorm.sva.limma.factor")) || requireNamespace("sva", quietly = TRUE)) {
