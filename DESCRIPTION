@@ -20,7 +20,8 @@ Description: This package provides extensive functionality for
     for setting up and running a user-defined differential analysis 
     workflow within the framework of the package.
 Depends:
-    R (>= 4.0)
+    R (>= 4.0),
+    sm
 Imports:
     knitr (>= 1.2),
     markdown,
@@ -64,8 +65,7 @@ Suggests:
     statmod,
     covr,
     sva,
-    tcltk,
-    sm
+    tcltk
 Enhances: rpanel, DSS
 License: GPL (>= 2)
 VignetteBuilder: knitr
