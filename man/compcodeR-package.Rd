@@ -4,14 +4,14 @@
 \name{compcodeR-package}
 \alias{compcodeR-package}
 \alias{compcodeR}
-\title{RNAseq data simulation, differential expression analysis and 
+\title{RNAseq data simulation, differential expression analysis and
 performance comparison of differential expression methods}
 \description{
-RNAseq data simulation, differential expression analysis and 
+RNAseq data simulation, differential expression analysis and
 performance comparison of differential expression methods
 }
 \details{
-This package provides extensive functionality for comparing 
+This package provides extensive functionality for comparing
 results obtained by different methods for differential expression analysis
 of RNAseq data. It also contains functions for simulating count data and
 interfaces to several packages for performing the differential expression analysis.
