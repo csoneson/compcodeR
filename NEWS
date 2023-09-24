@@ -1,3 +1,9 @@
+CHANGES IN VERSION 1.37.3
+-------------------------
+
+  o Removed support for baySeq since it has been deprecated
+  o Added runComparisonShiny function
+
 CHANGES IN VERSION 1.35.1
 -------------------------
 

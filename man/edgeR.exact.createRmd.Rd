@@ -37,12 +37,12 @@ For more information about the methods and the interpretation of the parameters,
 }
 \examples{
 tmpdir <- normalizePath(tempdir(), winslash = "/")
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
                                     output.file = file.path(tmpdir, "mydata.rds"))
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact", 
-           Rmdfunction = "edgeR.exact.createRmd", 
-           output.directory = tmpdir, norm.method = "TMM", 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+           Rmdfunction = "edgeR.exact.createRmd",
+           output.directory = tmpdir, norm.method = "TMM",
            trend.method = "movingave", disp.type = "tagwise")
 }
 \references{

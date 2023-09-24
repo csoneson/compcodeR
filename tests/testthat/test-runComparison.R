@@ -699,15 +699,15 @@ test_that("runDiffExp works", {
   expect_is(method.names(tmp), "list")
   expect_equal(method.names(tmp), list())
 
-  if (requireNamespace("baySeq", quietly = TRUE)) {
-    runDiffExp(
-      data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
-      result.extent = "baySeq",
-      Rmdfunction = "baySeq.createRmd",
-      output.directory = tdir, norm.method = "edgeR",
-      equaldisp = TRUE
-    )
-  }
+  # if (requireNamespace("baySeq", quietly = TRUE)) {
+  #   runDiffExp(
+  #     data.file = normalizePath(file.path(tdir, "B_625_625_5spc_repl1.rds"), winslash = "/"),
+  #     result.extent = "baySeq",
+  #     Rmdfunction = "baySeq.createRmd",
+  #     output.directory = tdir, norm.method = "edgeR",
+  #     equaldisp = TRUE
+  #   )
+  # }
   if (requireNamespace("DESeq2", quietly = TRUE)) {
     expect_message(
       runDiffExp(
@@ -834,11 +834,11 @@ test_that("runDiffExp works", {
     )
   }
 
-  methods <- c("baySeq", "DESeq2", "DESeq2_nona", "DSS", "EBSeq", "edgeR.exact",
+  methods <- c("DESeq2", "DESeq2_nona", "DSS", "EBSeq", "edgeR.exact",
                "edgeR.GLM", "logcpm.limma", "NBPSeq", "NOISeq",
                "sqrtcpm.limma", "TCC", "ttest", "voom.limma",
                "voom.ttest")
-  pkgs <- c("baySeq", "DESeq2", "DESeq2", "DSS", "EBSeq", "edgeR",
+  pkgs <- c("DESeq2", "DESeq2", "DSS", "EBSeq", "edgeR",
             "edgeR", "limma", "NBPSeq", "NOISeq",
             "limma", "TCC", "genefilter", "limma",
             "genefilter")

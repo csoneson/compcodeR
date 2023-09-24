@@ -110,13 +110,13 @@ In the comparison function, only results obtained for data sets with the same va
 
 For more detailed information regarding the different types of outliers, see Soneson and Delorenzi (2013).
 
-Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013). 
+Mean and dispersion parameters (if \code{relmeans} and/or \code{dispersions} is set to \code{"auto"}) are sampled from values estimated from the data sets by Pickrell et al (2010) and Cheung et al (2010). The data sets were downloaded from the ReCount web page (Frazee et al (2011)) and processed as detailed by Soneson and Delorenzi (2013).
 
 To get the actual mean value for the Negative Binomial distribution used for the simulation of counts for a given sample, take the column \code{truemeans.S1} (or \code{truemeans.S2}, if the sample is in condition S2) of the \code{variable.annotations} slot, divide by the sum of the same column and multiply with the base sequencing depth (provided in the \code{info.parameters} list) and the depth factor for the sample (given in the \code{sample.annotations} data frame). Thus, if you have a vector of mean values that you want to provide as the \code{relmeans} argument and make sure to use it 'as-is' in the simulation (for condition S1), make sure to set the \code{seqdepth} argument to the sum of the values in the \code{relmeans} vector, and to set \code{minfact} and \code{maxfact} equal to 1.
 
 When the \code{tree} argument is provided (not \code{NULL}),
 then the "phylogenetic Poisson log-Normal" model is used for the simulations,
-possibly with varying gene lengths across species 
+possibly with varying gene lengths across species
 (both \code{lengths.relmeans} and \code{lengths.dispersions} must be specified
 or set to \code{"auto"}.)
 Phylogenetic simulations use the \code{\link[phylolm]{rTrait}} function
@@ -124,7 +124,7 @@ from package \code{phylolm}.
 }
 \examples{
 ## RNA-Seq data
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
                                     samples.per.cond = 5, n.diffexp = 100)
 
 ## Inter-species RNA-Seq data
@@ -132,8 +132,8 @@ library(ape)
 tree <- read.tree(text = "(((A1:0,A2:0,A3:0):1,B1:1):1,((C1:0,C2:0):1.5,(D1:0,D2:0):1.5):0.5);")
 id.species <- factor(c("A", "A", "A", "B", "C", "C", "D", "D"))
 names(id.species) <- tree$tip.label
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 4, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 4, n.diffexp = 100,
                                     tree = tree,
                                     id.species = id.species,
                                     lengths.relmeans = "auto",

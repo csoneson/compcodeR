@@ -17,20 +17,20 @@ Check that the \code{dataset}, \code{nbr.samples}, \code{repl} and \code{de.meth
 }
 \examples{
 tmpdir <- normalizePath(tempdir(), winslash = "/")
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
                                     output.file = file.path(tmpdir, "mydata.rds"))
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma", 
-           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir, 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "voom.limma",
+           Rmdfunction = "voom.limma.createRmd", output.directory = tmpdir,
            norm.method = "TMM")
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact", 
-           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir, 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "edgeR.exact",
+           Rmdfunction = "edgeR.exact.createRmd", output.directory = tmpdir,
            norm.method = "TMM",
            trend.method = "movingave", disp.type = "tagwise")
 
 ## A correct table
-file.table <- data.frame(input.files = file.path(tmpdir, 
-                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
                          datasets = c("mydata", "mydata"),
                          nbr.samples = c(5, 5),
                          repl = c(1, 1),
@@ -39,8 +39,8 @@ new.table <- checkTableConsistency(file.table)
 new.table
 
 ## An incorrect table
-file.table <- data.frame(input.files = file.path(tmpdir, 
-                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")), 
+file.table <- data.frame(input.files = file.path(tmpdir,
+                         c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
                          datasets = c("mydata", "mydata"),
                          nbr.samples = c(5, 3),
                          repl = c(2, 1),
@@ -49,7 +49,7 @@ new.table <- checkTableConsistency(file.table)
 new.table
 
 ## A table with missing information
-file.table <- data.frame(input.files = file.path(tmpdir, 
+file.table <- data.frame(input.files = file.path(tmpdir,
                          c("mydata_voom.limma.rds", "mydata_edgeR.exact.rds")),
                          stringsAsFactors = FALSE)
 new.table <- checkTableConsistency(file.table)

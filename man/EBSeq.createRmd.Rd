@@ -28,11 +28,11 @@ For more information about the methods and the meaning of the parameters, see th
 try(
 if (require(EBSeq)) {
 tmpdir <- normalizePath(tempdir(), winslash = "/")
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
                                     output.file = file.path(tmpdir, "mydata.rds"))
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "EBSeq", 
-           Rmdfunction = "EBSeq.createRmd", 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "EBSeq",
+           Rmdfunction = "EBSeq.createRmd",
            output.directory = tmpdir, norm.method = "median")
 }
 )
