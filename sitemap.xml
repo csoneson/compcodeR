@@ -46,9 +46,6 @@
     <loc>/reference/add_replicates.html</loc>
   </url>
   <url>
-    <loc>/reference/baySeq.createRmd.html</loc>
-  </url>
-  <url>
     <loc>/reference/checkDataObject.html</loc>
   </url>
   <url>
@@ -176,6 +173,9 @@
   </url>
   <url>
     <loc>/reference/runComparisonGUI.html</loc>
+  </url>
+  <url>
+    <loc>/reference/runComparisonShiny.html</loc>
   </url>
   <url>
     <loc>/reference/runDiffExp.html</loc>

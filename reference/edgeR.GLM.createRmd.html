@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.37.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.37.3</span>
       </span>
     </div>
 
@@ -126,20 +126,20 @@
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>, </span></span>
-<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>, </span></span>
+<span class="r-in"><span><span class="va">mydata.obj</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">1000</span>,</span></span>
+<span class="r-in"><span>                                    samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>                                    output.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.GLM"</span>, </span></span>
-<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.GLM.createRmd"</span>, </span></span>
+<span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.GLM"</span>,</span></span>
+<span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.GLM.createRmd"</span>,</span></span>
 <span class="r-in"><span>           output.directory <span class="op">=</span> <span class="va">tmpdir</span>, norm.method <span class="op">=</span> <span class="st">"TMM"</span>,</span></span>
-<span class="r-in"><span>           disp.type <span class="op">=</span> <span class="st">"tagwise"</span>, disp.method <span class="op">=</span> <span class="st">"CoxReid"</span>, </span></span>
+<span class="r-in"><span>           disp.type <span class="op">=</span> <span class="st">"tagwise"</span>, disp.method <span class="op">=</span> <span class="st">"CoxReid"</span>,</span></span>
 <span class="r-in"><span>           trended <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpo7jDfz/tempcode19d56d2d8c2c.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpSLU4Rb/tempcode192e7e209ee4.Rmd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1/2                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2/2 [unnamed-chunk-1]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/Rtmpo7jDfz/tempcode19d56d2d8c2c.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/24/8k48jl6d249_n_qfxwsl6xvm0000gn/T/RtmpSLU4Rb/tempcode192e7e209ee4.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 </code></pre></div>
     </div>
