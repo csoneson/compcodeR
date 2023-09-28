@@ -57,6 +57,11 @@
 #' runComparisonShiny(input.directories = ".", output.directory = ".", recursive = FALSE)
 #' }
 #'
+#' @importFrom shiny selectInput fluidRow uiOutput numericInput htmlOutput
+#'     actionButton reactive renderUI checkboxGroupInput renderText observeEvent
+#'     stopApp withProgress incProgress shinyApp
+#' @importFrom shinydashboard dashboardPage dashboardHeader dashboardSidebar
+#'     dashboardBody box
 runComparisonShiny <- function(input.directories, output.directory, recursive,
                                out.width = NULL, upper.limits = NULL,
                                lower.limits = NULL) {
