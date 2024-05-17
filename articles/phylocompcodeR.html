@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -36,7 +34,6 @@
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.0</span>
       </span>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -48,7 +45,6 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -62,7 +58,6 @@
 <li>
   <a href="https://github.com/csoneson/compcodeR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
   </a>
 </li>
       </ul>
@@ -72,9 +67,6 @@
 <!--/.container -->
 </div>
 <!--/.navbar -->
-
-      
-
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -83,17 +75,11 @@ differential expression analysis of RNAseq data with the compcodeR
 package</h1>
                         <h4 data-toc-skip class="author">Paul Bastide
 &amp; Mélina Gallopin</h4>
-            
-            <h4 data-toc-skip class="date">2024-04-30</h4>
-      
-      <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/vignettes/phylocompcodeR.Rmd" class="external-link"><code>vignettes/phylocompcodeR.Rmd</code></a></small>
+                        <h4 data-toc-skip class="date">2024-05-17</h4>
+            <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/vignettes/phylocompcodeR.Rmd" class="external-link"><code>vignettes/phylocompcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>phylocompcodeR.Rmd</code></div>
-
     </div>
-
-    
-    
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+        <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR" class="external-link">compcodeR</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: sm</span></span>
 <span><span class="co">#&gt; Package 'sm', version 2.2-6.0: type help(sm) for summary information</span></span></code></pre></div>
@@ -460,12 +446,12 @@ vignette.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
 <span><span class="co">#&gt; [1] ape_5.8          compcodeR_1.41.0 sm_2.2-6.0      </span></span>
-<span><span class="co">#&gt; [4] BiocStyle_2.31.0</span></span>
+<span><span class="co">#&gt; [4] BiocStyle_2.32.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyselect_1.2.1     timeDate_4032.109   </span></span>
 <span><span class="co">#&gt;  [3] dplyr_1.1.4          bitops_1.0-7        </span></span>
-<span><span class="co">#&gt;  [5] fastmap_1.1.1        promises_1.3.0      </span></span>
+<span><span class="co">#&gt;  [5] fastmap_1.2.0        promises_1.3.0      </span></span>
 <span><span class="co">#&gt;  [7] digest_0.6.35        rpart_4.1.23        </span></span>
 <span><span class="co">#&gt;  [9] mime_0.12            lifecycle_1.0.4     </span></span>
 <span><span class="co">#&gt; [11] cluster_2.1.6        statmod_1.5.0       </span></span>
@@ -479,20 +465,20 @@ vignette.</p>
 <span><span class="co">#&gt; [27] desc_1.4.3           grid_4.4.0          </span></span>
 <span><span class="co">#&gt; [29] fansi_1.0.6          caTools_1.18.2      </span></span>
 <span><span class="co">#&gt; [31] stabledist_0.7-1     xtable_1.8-4        </span></span>
-<span><span class="co">#&gt; [33] colorspace_2.1-0     edgeR_4.1.31        </span></span>
+<span><span class="co">#&gt; [33] colorspace_2.1-0     edgeR_4.2.0         </span></span>
 <span><span class="co">#&gt; [35] ggplot2_3.5.1        scales_1.3.0        </span></span>
 <span><span class="co">#&gt; [37] gtools_3.9.5         MASS_7.3-60.2       </span></span>
-<span><span class="co">#&gt; [39] cli_3.6.2            rmarkdown_2.26      </span></span>
-<span><span class="co">#&gt; [41] ragg_1.3.0           generics_0.1.3      </span></span>
-<span><span class="co">#&gt; [43] cachem_1.0.8         stringr_1.5.1       </span></span>
+<span><span class="co">#&gt; [39] cli_3.6.2            rmarkdown_2.26.2    </span></span>
+<span><span class="co">#&gt; [41] ragg_1.3.2           generics_0.1.3      </span></span>
+<span><span class="co">#&gt; [43] cachem_1.1.0         stringr_1.5.1       </span></span>
 <span><span class="co">#&gt; [45] parallel_4.4.0       stable_1.1.6        </span></span>
-<span><span class="co">#&gt; [47] BiocManager_1.30.22  vctrs_0.6.5         </span></span>
+<span><span class="co">#&gt; [47] BiocManager_1.30.23  vctrs_0.6.5         </span></span>
 <span><span class="co">#&gt; [49] jsonlite_1.8.8       bookdown_0.39       </span></span>
 <span><span class="co">#&gt; [51] rmutil_1.1.10        clue_0.3-65         </span></span>
-<span><span class="co">#&gt; [53] systemfonts_1.0.6    locfit_1.5-9.9      </span></span>
-<span><span class="co">#&gt; [55] limma_3.59.10        jquerylib_0.1.4     </span></span>
+<span><span class="co">#&gt; [53] systemfonts_1.1.0    locfit_1.5-9.9      </span></span>
+<span><span class="co">#&gt; [55] limma_3.60.0         jquerylib_0.1.4     </span></span>
 <span><span class="co">#&gt; [57] spatial_7.3-17       glue_1.7.0          </span></span>
-<span><span class="co">#&gt; [59] pkgdown_2.0.9.9000   stringi_1.8.3       </span></span>
+<span><span class="co">#&gt; [59] pkgdown_2.0.9.9000   stringi_1.8.4       </span></span>
 <span><span class="co">#&gt; [61] gtable_0.3.5         later_1.3.2         </span></span>
 <span><span class="co">#&gt; [63] shinydashboard_0.7.2 munsell_0.5.1       </span></span>
 <span><span class="co">#&gt; [65] tibble_3.2.1         pillar_1.9.0        </span></span>
@@ -504,7 +490,7 @@ vignette.</p>
 <span><span class="co">#&gt; [77] png_0.1-8            modeest_2.4.0       </span></span>
 <span><span class="co">#&gt; [79] memoise_2.0.1        httpuv_1.6.15       </span></span>
 <span><span class="co">#&gt; [81] bslib_0.7.0          Rcpp_1.0.12         </span></span>
-<span><span class="co">#&gt; [83] nlme_3.1-164         xfun_0.43           </span></span>
+<span><span class="co">#&gt; [83] nlme_3.1-164         xfun_0.44           </span></span>
 <span><span class="co">#&gt; [85] fs_1.6.4             zoo_1.8-12          </span></span>
 <span><span class="co">#&gt; [87] pkgconfig_2.0.3</span></span></code></pre></div>
 </div>
@@ -538,34 +524,20 @@ Gene Expression Underlying Vision Loss in Cave Animals.”</span>
 </div>
 </div>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
         <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
     </nav>
 </div>
-
 </div>
-
-
-
       <footer><div class="copyright">
   <p></p>
 <p>Developed by Charlotte Soneson, Paul Bastide, Mélina Gallopin.</p>
 </div>
-
 <div class="pkgdown">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
-
       </footer>
 </div>
-
-  
-
-
-  
-
   </body>
 </html>

@@ -19,8 +19,6 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
-
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -36,7 +34,6 @@
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.0</span>
       </span>
     </div>
-
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -48,7 +45,6 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -62,7 +58,6 @@
 <li>
   <a href="https://github.com/csoneson/compcodeR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
   </a>
 </li>
       </ul>
@@ -72,9 +67,6 @@
 <!--/.container -->
 </div>
 <!--/.navbar -->
-
-      
-
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -82,17 +74,11 @@
 analysis of RNAseq data with the compcodeR package</h1>
                         <h4 data-toc-skip class="author">Charlotte
 Soneson</h4>
-            
-            <h4 data-toc-skip class="date">2024-04-30</h4>
-      
-      <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/vignettes/compcodeR.Rmd" class="external-link"><code>vignettes/compcodeR.Rmd</code></a></small>
+                        <h4 data-toc-skip class="date">2024-05-17</h4>
+            <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/vignettes/compcodeR.Rmd" class="external-link"><code>vignettes/compcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>compcodeR.Rmd</code></div>
-
     </div>
-
-    
-    
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+        <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR" class="external-link">compcodeR</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: sm</span></span>
 <span><span class="co">#&gt; Package 'sm', version 2.2-6.0: type help(sm) for summary information</span></span></code></pre></div>
@@ -1078,10 +1064,10 @@ i.e., that all objects are misclassified.</p>
 <span><span class="co">#&gt; [6] methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] compcodeR_1.41.0 sm_2.2-6.0       BiocStyle_2.31.0</span></span>
+<span><span class="co">#&gt; [1] compcodeR_1.41.0 sm_2.2-6.0       BiocStyle_2.32.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] gtable_0.3.5         xfun_0.43           </span></span>
+<span><span class="co">#&gt;  [1] gtable_0.3.5         xfun_0.44           </span></span>
 <span><span class="co">#&gt;  [3] bslib_0.7.0          ggplot2_3.5.1       </span></span>
 <span><span class="co">#&gt;  [5] caTools_1.18.2       lattice_0.22-6      </span></span>
 <span><span class="co">#&gt;  [7] vctrs_0.6.5          tools_4.4.0         </span></span>
@@ -1098,31 +1084,31 @@ i.e., that all objects are misclassified.</p>
 <span><span class="co">#&gt; [29] rmutil_1.1.10        yaml_2.3.8          </span></span>
 <span><span class="co">#&gt; [31] later_1.3.2          pillar_1.9.0        </span></span>
 <span><span class="co">#&gt; [33] pkgdown_2.0.9.9000   jquerylib_0.1.4     </span></span>
-<span><span class="co">#&gt; [35] MASS_7.3-60.2        cachem_1.0.8        </span></span>
-<span><span class="co">#&gt; [37] limma_3.59.10        vioplot_0.4.0       </span></span>
+<span><span class="co">#&gt; [35] MASS_7.3-60.2        cachem_1.1.0        </span></span>
+<span><span class="co">#&gt; [37] limma_3.60.0         vioplot_0.4.0       </span></span>
 <span><span class="co">#&gt; [39] rpart_4.1.23         mime_0.12           </span></span>
 <span><span class="co">#&gt; [41] fBasics_4032.96      gtools_3.9.5        </span></span>
 <span><span class="co">#&gt; [43] tidyselect_1.2.1     locfit_1.5-9.9      </span></span>
-<span><span class="co">#&gt; [45] digest_0.6.35        stringi_1.8.3       </span></span>
+<span><span class="co">#&gt; [45] digest_0.6.35        stringi_1.8.4       </span></span>
 <span><span class="co">#&gt; [47] dplyr_1.1.4          purrr_1.0.2         </span></span>
-<span><span class="co">#&gt; [49] bookdown_0.39        fastmap_1.1.1       </span></span>
+<span><span class="co">#&gt; [49] bookdown_0.39        fastmap_1.2.0       </span></span>
 <span><span class="co">#&gt; [51] grid_4.4.0           colorspace_2.1-0    </span></span>
 <span><span class="co">#&gt; [53] cli_3.6.2            magrittr_2.0.3      </span></span>
 <span><span class="co">#&gt; [55] utf8_1.2.4           stable_1.1.6        </span></span>
-<span><span class="co">#&gt; [57] edgeR_4.1.31         ROCR_1.0-11         </span></span>
+<span><span class="co">#&gt; [57] edgeR_4.2.0          ROCR_1.0-11         </span></span>
 <span><span class="co">#&gt; [59] promises_1.3.0       scales_1.3.0        </span></span>
-<span><span class="co">#&gt; [61] rmarkdown_2.26       timeDate_4032.109   </span></span>
+<span><span class="co">#&gt; [61] rmarkdown_2.26.2     timeDate_4032.109   </span></span>
 <span><span class="co">#&gt; [63] png_0.1-8            zoo_1.8-12          </span></span>
-<span><span class="co">#&gt; [65] ragg_1.3.0           timeSeries_4032.109 </span></span>
+<span><span class="co">#&gt; [65] ragg_1.3.2           timeSeries_4032.109 </span></span>
 <span><span class="co">#&gt; [67] statip_0.2.3         shiny_1.8.1.1       </span></span>
 <span><span class="co">#&gt; [69] memoise_2.0.1        evaluate_0.23       </span></span>
 <span><span class="co">#&gt; [71] knitr_1.46           stabledist_0.7-1    </span></span>
 <span><span class="co">#&gt; [73] modeest_2.4.0        markdown_1.12       </span></span>
 <span><span class="co">#&gt; [75] rlang_1.1.3          spatial_7.3-17      </span></span>
 <span><span class="co">#&gt; [77] Rcpp_1.0.12          xtable_1.8-4        </span></span>
-<span><span class="co">#&gt; [79] glue_1.7.0           BiocManager_1.30.22 </span></span>
+<span><span class="co">#&gt; [79] glue_1.7.0           BiocManager_1.30.23 </span></span>
 <span><span class="co">#&gt; [81] shinydashboard_0.7.2 jsonlite_1.8.8      </span></span>
-<span><span class="co">#&gt; [83] R6_2.5.1             systemfonts_1.0.6   </span></span>
+<span><span class="co">#&gt; [83] R6_2.5.1             systemfonts_1.1.0   </span></span>
 <span><span class="co">#&gt; [85] fs_1.6.4</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -1137,34 +1123,20 @@ Methods for Differential Expression Analysis of <span class="nocase">RNA-seq</sp
 </div>
 </div>
   </div>
-
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-
         <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
     </nav>
 </div>
-
 </div>
-
-
-
       <footer><div class="copyright">
   <p></p>
 <p>Developed by Charlotte Soneson, Paul Bastide, Mélina Gallopin.</p>
 </div>
-
 <div class="pkgdown">
   <p></p>
 <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
 </div>
-
       </footer>
 </div>
-
-  
-
-
-  
-
   </body>
 </html>
