@@ -3,6 +3,8 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
+
+
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -18,6 +20,7 @@
         <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.41.0</span>
       </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav"><li>
   <a href="../articles/compcodeR.html">Get started</a>
@@ -28,6 +31,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -37,21 +41,27 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/csoneson/compcodeR/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
+
+
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Run the performance comparison between differential expression methods.</h1>
-    <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/HEAD/R/runComparison.R" class="external-link"><code>R/runComparison.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/devel/R/runComparison.R" class="external-link"><code>R/runComparison.R</code></a></small>
     <div class="hidden name"><code>runComparison.Rd</code></div>
     </div>
+
     <div class="ref-description">
     <p>The main function for performing comparisons among differential expression methods and generating a report in HTML format. It is assumed that all differential expression results have been generated in advance (using e.g. the function <code><a href="runDiffExp.html">runDiffExp</a></code>) and that the result <code>compData</code> object for each data set and each differential expression method is saved separately in files with the extension <code>.rds</code>. Note that the function can also be called via the <code><a href="runComparisonGUI.html">runComparisonGUI</a></code> function, which lets the user set parameters and select input files using a graphical user interface.</p>
     </div>
+
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">runComparison</span><span class="op">(</span></span>
 <span>  <span class="va">file.table</span>,</span>
@@ -63,10 +73,15 @@
 <span>  knit.results <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
+
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt id="arg-file-table">file.table<a class="anchor" aria-label="anchor" href="#arg-file-table"></a></dt>
+
+
+<dl><dt id="arg-file-table">file.table<a class="anchor" aria-label="anchor" href="#arg-file-table"></a></dt>
 <dd><p>A data frame with at least a column <code>input.files</code>, potentially also columns named <code>datasets</code>, <code>nbr.samples</code>, <code>repl</code> and <code>de.methods</code>.</p></dd>
+
+
 <dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
 <dd><p>A list containing parameters for the comparison study. The following entries are supported, and used by different comparison methods:</p><ul><li><p><code>incl.nbr.samples</code> An array with sample sizes (number of samples per condition) to consider in the comparison. If set to <code>NULL</code>, all sample sizes will be included.</p></li>
 <li><p><code>incl.dataset</code> A dataset name (corresponding to the <code>dataset</code> slot of the results or data objects), indicating the dataset that will be used for the comparison. Only one dataset can be chosen.</p></li>
@@ -105,20 +120,31 @@
 <li><p><code>"scorevssignal"</code> - Visualize the gene score as a function of the 'signal strength' (see the <code>signal.measure</code> parameter above) for genes that are expressed in only one condition</p></li>
 </ul></li>
 </ul></dd>
+
+
 <dt id="arg-output-directory">output.directory<a class="anchor" aria-label="anchor" href="#arg-output-directory"></a></dt>
 <dd><p>The directory where the results should be written. The subdirectory structure will be created automatically. If the directory already exists, it will be overwritten.</p></dd>
+
+
 <dt id="arg-check-table">check.table<a class="anchor" aria-label="anchor" href="#arg-check-table"></a></dt>
 <dd><p>Logical, should the input table be checked for consistency. Default <code>TRUE</code>.</p></dd>
+
+
 <dt id="arg-out-width">out.width<a class="anchor" aria-label="anchor" href="#arg-out-width"></a></dt>
 <dd><p>The width of the figures in the final report. Will be passed on to <code>knitr</code> when the HTML is generated.</p></dd>
+
+
 <dt id="arg-save-result-table">save.result.table<a class="anchor" aria-label="anchor" href="#arg-save-result-table"></a></dt>
 <dd><p>Logical, should the intermediate result table be saved for future use ? Default to <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-knit-results">knit.results<a class="anchor" aria-label="anchor" href="#arg-knit-results"></a></dt>
 <dd><p>Logical, should the Rmd be generated and knitted ? Default to <code>TRUE</code>. If <code>FALSE</code>, no comparison report is generated, and only the intermediate result table is saved (if <code>save.result.table=TRUE</code>).</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-<p>If <code>knit.results=TRUE</code>, the function will create a comparison report, named <strong>compcodeR_report&lt;timestamp&gt;.html</strong>, in the <code>output.directory</code>. It will also create subfolders named <code>compcodeR_code</code> and <code>compcodeR_figure</code>, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
+    <p>If <code>knit.results=TRUE</code>, the function will create a comparison report, named <strong>compcodeR_report&lt;timestamp&gt;.html</strong>, in the <code>output.directory</code>. It will also create subfolders named <code>compcodeR_code</code> and <code>compcodeR_figure</code>, where the code used to perform the differential expression analysis and the figures contained in the report, respectively, will be stored. Note that if these directories already exists, they will be overwritten.
 If <code>save.result.table=TRUE</code>, the function will also create a comparison report, named <strong>compcodeR_result_table_&lt;timestamp&gt;.rds</strong> in the <code>output.directory</code>, containing the result table.</p>
     </div>
     <div id="details">
@@ -129,6 +155,7 @@ If <code>save.result.table=TRUE</code>, the function will also create a comparis
     <h2>Author</h2>
     <p>Charlotte Soneson</p>
     </div>
+
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tmpdir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/normalizePath.html" class="external-link">normalizePath</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, winslash <span class="op">=</span> <span class="st">"/"</span><span class="op">)</span></span></span>
@@ -140,10 +167,10 @@ If <code>save.result.table=TRUE</code>, the function will also create a comparis
 <span class="r-in"><span>           norm.method <span class="op">=</span> <span class="st">"TMM"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/Rtmp3EH8Nx/tempcode3f546ec02ce0.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/xz/lz5thm6s3vb1vdkk77vmkgbr0000gn/T/RtmpDwlx4a/tempcode21d046b1670c.Rmd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1/2                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2/2 [unnamed-chunk-1]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/Rtmp3EH8Nx/tempcode3f546ec02ce0.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/xz/lz5thm6s3vb1vdkk77vmkgbr0000gn/T/RtmpDwlx4a/tempcode21d046b1670c.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="fu"><a href="runDiffExp.html">runDiffExp</a></span><span class="op">(</span>data.file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>, <span class="st">"mydata.rds"</span><span class="op">)</span>, result.extent <span class="op">=</span> <span class="st">"edgeR.exact"</span>,</span></span>
 <span class="r-in"><span>           Rmdfunction <span class="op">=</span> <span class="st">"edgeR.exact.createRmd"</span>, output.directory <span class="op">=</span> <span class="va">tmpdir</span>,</span></span>
@@ -151,10 +178,10 @@ If <code>save.result.table=TRUE</code>, the function will also create a comparis
 <span class="r-in"><span>           trend.method <span class="op">=</span> <span class="st">"movingave"</span>, disp.type <span class="op">=</span> <span class="st">"tagwise"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/Rtmp3EH8Nx/tempcode3f545ee660c6.Rmd</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> processing file: /private/var/folders/xz/lz5thm6s3vb1vdkk77vmkgbr0000gn/T/RtmpDwlx4a/tempcode21d02baf3853.Rmd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1/2                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2/2 [unnamed-chunk-1]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/2f/8t5k6yr535sdw0s4glnpxrzm0000gn/T/Rtmp3EH8Nx/tempcode3f545ee660c6.md</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> output file: /private/var/folders/xz/lz5thm6s3vb1vdkk77vmkgbr0000gn/T/RtmpDwlx4a/tempcode21d02baf3853.md</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="va">file.table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>input.files <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">tmpdir</span>,</span></span>
 <span class="r-in"><span>                         <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mydata_voom.limma.rds"</span>, <span class="st">"mydata_edgeR.exact.rds"</span><span class="op">)</span><span class="op">)</span>,</span></span>
@@ -176,12 +203,22 @@ If <code>save.result.table=TRUE</code>, the function will also create a comparis
     <nav id="toc" data-toggle="toc" class="sticky-top"><h2 data-toc-skip>Contents</h2>
     </nav></div>
 </div>
+
+
       <footer><div class="copyright">
   <p></p><p>Developed by Charlotte Soneson, Paul Bastide, Mélina Gallopin.</p>
 </div>
+
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.9000.</p>
 </div>
+
       </footer></div>
+
+
+
+
+
+
   </body></html>
 
