@@ -82,7 +82,7 @@ analysis of RNAseq data with the compcodeR package</h1>
                         <h4 data-toc-skip class="author">Charlotte
 Soneson</h4>
             
-            <h4 data-toc-skip class="date">2024-11-02</h4>
+            <h4 data-toc-skip class="date">2024-12-21</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/devel/vignettes/compcodeR.Rmd" class="external-link"><code>vignettes/compcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>compcodeR.Rmd</code></div>
@@ -94,7 +94,9 @@ Soneson</h4>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/csoneson/compcodeR" class="external-link">compcodeR</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; Loading required package: sm</span></span>
-<span><span class="co">#&gt; Package 'sm', version 2.2-6.0: type help(sm) for summary information</span></span></code></pre></div>
+<span><span class="co">#&gt; Package 'sm', version 2.2-6.0: type help(sm) for summary information</span></span>
+<span><span class="co">#&gt; Error in get(paste0(generic, ".", class), envir = get_method_env()) : </span></span>
+<span><span class="co">#&gt;   object 'type_sum.accel' not found</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
@@ -216,7 +218,7 @@ true log-fold changes between the two sample groups underlying the
 simulation, and the estimated log-fold changes based on the simulated
 counts.</p>
 <div class="figure" style="text-align: center">
-<img src="compcodeR_check_figure%2Fmaplot-trueDEstatus.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status." width="324"><img src="compcodeR_check_figure%2Flogfoldchanges.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status." width="324"><p class="caption">
+<img src="compcodeR_check_figure/maplot-trueDEstatus.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status." width="324"><img src="compcodeR_check_figure/logfoldchanges.png" alt="Example figures from the summarization report generated for a simulated data set. The top panel shows an MA plot, with the genes colored by the true differential expression status. The bottom panel shows the relationship between the true log-fold changes between the two sample groups underlying the simulation, and the estimated log-fold changes based on the simulated counts. Also here, the genes are colored by the true differential expression status." width="324"><p class="caption">
 Example figures from the summarization report generated for a simulated
 data set. The top panel shows an MA plot, with the genes colored by the
 true differential expression status. The bottom panel shows the
@@ -841,7 +843,7 @@ a ROC curve which passes close to the upper left corner of the plot,
 while a bad method gives a ROC curve closer to the diagonal. Calculation
 of the ROC curves requires that the differential expression status of
 each gene is provided.</p>
-<p><img src="compcodeR_figure%2Frocone-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/rocone-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="auc">AUC<a class="anchor" aria-label="anchor" href="#auc"></a>
@@ -851,7 +853,7 @@ represents the result in boxplots, where each box summarizes the results
 for one method across all replicates of a data set. A good ranking
 method gives to a large value of the AUC. This requires that the
 differential expression status of each gene is provided.</p>
-<p><img src="compcodeR_figure%2Fauc.png" width="504" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/auc.png" width="504" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="type-i-error">Type I error<a class="anchor" aria-label="anchor" href="#type-i-error"></a>
@@ -867,7 +869,7 @@ provided (see the description of the data object above) and that the
 of the included result objects. The dashed vertical line represents the
 imposed nominal p-value threshold, and we wish that the observed type I
 error is lower than this threshold.</p>
-<p><img src="compcodeR_figure%2FtypeIerror.png" width="504" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/typeIerror.png" width="504" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="fdr">FDR<a class="anchor" aria-label="anchor" href="#fdr"></a>
@@ -883,7 +885,7 @@ is provided (see the description of the data object above) and that the
 <code>result.table</code> of the included result objects. The dashed
 vertical line represents the imposed adjusted p-value threshold (that
 is, the level at which we wish to control the false discovery rate).</p>
-<p><img src="compcodeR_figure%2Ffdr.png" width="504" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/fdr.png" width="504" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="fdr-as-a-function-of-expression-level">FDR as a function of expression level<a class="anchor" aria-label="anchor" href="#fdr-as-a-function-of-expression-level"></a>
@@ -895,7 +897,7 @@ binned into 10 bins of equal size (i.e., each containing 10% of the
 genes), and the FDR is computed for each of them. The results are shown
 by means of boxplots, summarizing the results across all replicates of a
 data set.</p>
-<p><img src="compcodeR_figure%2Ffdrvsexpr-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/fdrvsexpr-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="tpr">TPR<a class="anchor" aria-label="anchor" href="#tpr"></a>
@@ -913,7 +915,7 @@ There is often a trade-off between achieving a high TPR (which is
 desirable) and controlling the number of false positives, and hence the
 TPR plots should typically be interpreted together with the type I error
 and/or FDR plots.</p>
-<p><img src="compcodeR_figure%2Ftpr.png" width="504" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/tpr.png" width="504" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="false-discovery-curves-one-replicateall-replicates">False discovery curves (one replicate/all replicates)<a class="anchor" aria-label="anchor" href="#false-discovery-curves-one-replicateall-replicates"></a>
@@ -927,7 +929,7 @@ for a single replicate or for all replicates (each in a separate
 figure). A well-performing method is represented by a slowly rising
 false discovery curve (in other words, few false positives among the
 top-ranked genes).</p>
-<p><img src="compcodeR_figure%2Ffdcone-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/fdcone-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="fractionnumber-of-significant-genes">Fraction/number of significant genes<a class="anchor" aria-label="anchor" href="#fractionnumber-of-significant-genes"></a>
@@ -945,7 +947,7 @@ a large or small fraction of significant genes is preferable. Thus, the
 plot is merely an indication of which methods are more liberal (giving
 more significantly differentially expressed genes) and which are more
 conservative.</p>
-<p><img src="compcodeR_figure%2Ffracsign.png" width="504" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/fracsign.png" width="504" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="overlap-one-replicate">Overlap, one replicate<a class="anchor" aria-label="anchor" href="#overlap-one-replicate"></a>
@@ -982,7 +984,7 @@ The results are represented in the form of a table, and also as a
 colored heatmap, where the color represents the degree of overlap
 between the sets of differentially expressed genes found by different
 methods.</p>
-<p><img src="compcodeR_figure%2Fsorensen-1.png" width="216" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/sorensen-1.png" width="216" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="ma-plot">MA plot<a class="anchor" aria-label="anchor" href="#ma-plot"></a>
@@ -992,7 +994,7 @@ differential expression method) for one replicate of a data set,
 depicting the estimated log-fold change (on the y-axis) versus the
 estimated average expression (on the x-axis). The genes that are called
 differentially expressed are marked with color.</p>
-<p><img src="compcodeR_figure%2Fmaplot-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/maplot-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="spearman-correlation">Spearman correlation<a class="anchor" aria-label="anchor" href="#spearman-correlation"></a>
@@ -1003,7 +1005,7 @@ gene scores obtained by different differential expression methods (the
 correlations are visualized by means of a color-coded table and used to
 construct a dissimilarity measure for hierarchical clustering of the
 differential expression methods.</p>
-<p><img src="compcodeR_figure%2Fcorrelation-11.png" width="216" style="display: block; margin: auto;"><img src="compcodeR_figure%2Fcorrelation-12.png" width="216" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/correlation-11.png" width="216" style="display: block; margin: auto;"><img src="compcodeR_figure/correlation-12.png" width="216" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="score-distribution-vs-number-of-outliers">Score distribution vs number of outliers<a class="anchor" aria-label="anchor" href="#score-distribution-vs-number-of-outliers"></a>
@@ -1018,7 +1020,7 @@ score corresponds to more significant genes. In the presence of
 outliers, the score distribution plots can be used to examine whether
 the presence of an outlier count for a gene shifts the score
 distribution towards higher or lower values.</p>
-<p><img src="compcodeR_figure%2Fscorevsoutlier-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/scorevsoutlier-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="score-distribution-vs-average-expression-level">Score distribution vs average expression level<a class="anchor" aria-label="anchor" href="#score-distribution-vs-average-expression-level"></a>
@@ -1033,7 +1035,7 @@ whether highly expressed genes tend to have (e.g.) higher scores than
 lowly expressed genes, and more generally to provide a useful
 characteristic of the methods. However, it is not clear what would be
 the “optimal” behavior.</p>
-<p><img src="compcodeR_figure%2Fscorevsexpr-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/scorevsexpr-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="score-vs-signal-for-genes-expressed-in-only-one-condition">Score vs ‘signal’ for genes expressed in only one condition<a class="anchor" aria-label="anchor" href="#score-vs-signal-for-genes-expressed-in-only-one-condition"></a>
@@ -1048,7 +1050,7 @@ ratio in this condition, that is, as the average log-transformed
 normalized pseudo-count divided by the standard deviation of the
 log-transformed normalized pseudo-count. Typically, we would expect that
 the score increases with the signal strength.</p>
-<p><img src="compcodeR_figure%2Fscorevssignal-1.png" width="648" style="display: block; margin: auto;"></p>
+<p><img src="compcodeR_figure/scorevssignal-1.png" width="648" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="matthews-correlation-coefficient">Matthew’s correlation coefficient<a class="anchor" aria-label="anchor" href="#matthews-correlation-coefficient"></a>
@@ -1066,9 +1068,9 @@ i.e., that all objects are misclassified.</p>
 </h2>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R Under development (unstable) (2024-10-31 r87283)</span></span>
+<span><span class="co">#&gt; R Under development (unstable) (2024-12-20 r87452)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin20</span></span>
-<span><span class="co">#&gt; Running under: macOS Sonoma 14.7</span></span>
+<span><span class="co">#&gt; Running under: macOS Sonoma 14.7.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
 <span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib </span></span>
@@ -1093,43 +1095,41 @@ i.e., that all objects are misclassified.</p>
 <span><span class="co">#&gt;  [5] caTools_1.18.3       lattice_0.22-6      </span></span>
 <span><span class="co">#&gt;  [7] vctrs_0.6.5          tools_4.5.0         </span></span>
 <span><span class="co">#&gt;  [9] bitops_1.0-9         generics_0.1.3      </span></span>
-<span><span class="co">#&gt; [11] tibble_3.2.1         fansi_1.0.6         </span></span>
-<span><span class="co">#&gt; [13] highr_0.11           cluster_2.1.6       </span></span>
-<span><span class="co">#&gt; [15] pkgconfig_2.0.3      KernSmooth_2.23-24  </span></span>
-<span><span class="co">#&gt; [17] desc_1.4.3           lifecycle_1.0.4     </span></span>
-<span><span class="co">#&gt; [19] stringr_1.5.1        compiler_4.5.0      </span></span>
-<span><span class="co">#&gt; [21] textshaping_0.4.0    gplots_3.2.0        </span></span>
-<span><span class="co">#&gt; [23] statmod_1.5.0        munsell_0.5.1       </span></span>
-<span><span class="co">#&gt; [25] clue_0.3-65          httpuv_1.6.15       </span></span>
-<span><span class="co">#&gt; [27] htmltools_0.5.8.1    sass_0.4.9          </span></span>
-<span><span class="co">#&gt; [29] rmutil_1.1.10        yaml_2.3.10         </span></span>
-<span><span class="co">#&gt; [31] later_1.3.2          pillar_1.9.0        </span></span>
-<span><span class="co">#&gt; [33] pkgdown_2.1.1.9000   jquerylib_0.1.4     </span></span>
-<span><span class="co">#&gt; [35] MASS_7.3-61          cachem_1.1.0        </span></span>
-<span><span class="co">#&gt; [37] limma_3.63.0         vioplot_0.5.0       </span></span>
-<span><span class="co">#&gt; [39] rpart_4.1.23         mime_0.12           </span></span>
-<span><span class="co">#&gt; [41] fBasics_4041.97      gtools_3.9.5        </span></span>
-<span><span class="co">#&gt; [43] tidyselect_1.2.1     locfit_1.5-9.10     </span></span>
-<span><span class="co">#&gt; [45] digest_0.6.37        stringi_1.8.4       </span></span>
-<span><span class="co">#&gt; [47] dplyr_1.1.4          bookdown_0.41       </span></span>
-<span><span class="co">#&gt; [49] fastmap_1.2.0        grid_4.5.0          </span></span>
-<span><span class="co">#&gt; [51] colorspace_2.1-1     cli_3.6.3           </span></span>
-<span><span class="co">#&gt; [53] magrittr_2.0.3       utf8_1.2.4          </span></span>
-<span><span class="co">#&gt; [55] stable_1.1.6         edgeR_4.5.0         </span></span>
-<span><span class="co">#&gt; [57] ROCR_1.0-11          promises_1.3.0      </span></span>
-<span><span class="co">#&gt; [59] scales_1.3.0         rmarkdown_2.28      </span></span>
-<span><span class="co">#&gt; [61] timeDate_4041.110    png_0.1-8           </span></span>
-<span><span class="co">#&gt; [63] zoo_1.8-12           ragg_1.3.3          </span></span>
-<span><span class="co">#&gt; [65] timeSeries_4041.111  statip_0.2.3        </span></span>
-<span><span class="co">#&gt; [67] shiny_1.9.1          evaluate_1.0.1      </span></span>
-<span><span class="co">#&gt; [69] knitr_1.48           stabledist_0.7-2    </span></span>
-<span><span class="co">#&gt; [71] modeest_2.4.0        markdown_1.13       </span></span>
-<span><span class="co">#&gt; [73] rlang_1.1.4          Rcpp_1.0.13         </span></span>
-<span><span class="co">#&gt; [75] spatial_7.3-17       xtable_1.8-4        </span></span>
-<span><span class="co">#&gt; [77] glue_1.8.0           BiocManager_1.30.25 </span></span>
-<span><span class="co">#&gt; [79] shinydashboard_0.7.2 jsonlite_1.8.9      </span></span>
-<span><span class="co">#&gt; [81] R6_2.5.1             systemfonts_1.1.0   </span></span>
-<span><span class="co">#&gt; [83] fs_1.6.5</span></span></code></pre></div>
+<span><span class="co">#&gt; [11] tibble_3.2.1         cluster_2.1.8       </span></span>
+<span><span class="co">#&gt; [13] pkgconfig_2.0.3      KernSmooth_2.23-24  </span></span>
+<span><span class="co">#&gt; [15] desc_1.4.3           lifecycle_1.0.4     </span></span>
+<span><span class="co">#&gt; [17] compiler_4.5.0       stringr_1.5.1       </span></span>
+<span><span class="co">#&gt; [19] textshaping_0.4.1    gplots_3.2.0        </span></span>
+<span><span class="co">#&gt; [21] statmod_1.5.0        munsell_0.5.1       </span></span>
+<span><span class="co">#&gt; [23] clue_0.3-66          httpuv_1.6.15       </span></span>
+<span><span class="co">#&gt; [25] htmltools_0.5.8.1    sass_0.4.9          </span></span>
+<span><span class="co">#&gt; [27] rmutil_1.1.10        yaml_2.3.10         </span></span>
+<span><span class="co">#&gt; [29] later_1.4.1          pillar_1.10.0       </span></span>
+<span><span class="co">#&gt; [31] pkgdown_2.1.1.9000   jquerylib_0.1.4     </span></span>
+<span><span class="co">#&gt; [33] MASS_7.3-61          cachem_1.1.0        </span></span>
+<span><span class="co">#&gt; [35] limma_3.63.2         vioplot_0.5.0       </span></span>
+<span><span class="co">#&gt; [37] rpart_4.1.23         mime_0.12           </span></span>
+<span><span class="co">#&gt; [39] fBasics_4041.97      gtools_3.9.5        </span></span>
+<span><span class="co">#&gt; [41] tidyselect_1.2.1     locfit_1.5-9.10     </span></span>
+<span><span class="co">#&gt; [43] digest_0.6.37        stringi_1.8.4       </span></span>
+<span><span class="co">#&gt; [45] dplyr_1.1.4          bookdown_0.41       </span></span>
+<span><span class="co">#&gt; [47] fastmap_1.2.0        grid_4.5.0          </span></span>
+<span><span class="co">#&gt; [49] colorspace_2.1-1     cli_3.6.3           </span></span>
+<span><span class="co">#&gt; [51] magrittr_2.0.3       stable_1.1.6        </span></span>
+<span><span class="co">#&gt; [53] edgeR_4.5.1          ROCR_1.0-11         </span></span>
+<span><span class="co">#&gt; [55] promises_1.3.2       scales_1.3.0        </span></span>
+<span><span class="co">#&gt; [57] rmarkdown_2.29       timeDate_4041.110   </span></span>
+<span><span class="co">#&gt; [59] png_0.1-8            zoo_1.8-12          </span></span>
+<span><span class="co">#&gt; [61] ragg_1.3.3           timeSeries_4041.111 </span></span>
+<span><span class="co">#&gt; [63] statip_0.2.3         shiny_1.10.0        </span></span>
+<span><span class="co">#&gt; [65] evaluate_1.0.1       knitr_1.49          </span></span>
+<span><span class="co">#&gt; [67] stabledist_0.7-2     modeest_2.4.0       </span></span>
+<span><span class="co">#&gt; [69] markdown_1.13        rlang_1.1.4         </span></span>
+<span><span class="co">#&gt; [71] Rcpp_1.0.13-1        spatial_7.3-17      </span></span>
+<span><span class="co">#&gt; [73] xtable_1.8-4         glue_1.8.0          </span></span>
+<span><span class="co">#&gt; [75] BiocManager_1.30.25  shinydashboard_0.7.2</span></span>
+<span><span class="co">#&gt; [77] jsonlite_1.8.9       R6_2.5.1            </span></span>
+<span><span class="co">#&gt; [79] systemfonts_1.1.0    fs_1.6.5</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
