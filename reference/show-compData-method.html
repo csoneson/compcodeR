@@ -84,11 +84,12 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">mydata</span> <span class="op">&lt;-</span> <span class="fu"><a href="generateSyntheticData.html">generateSyntheticData</a></span><span class="op">(</span>dataset <span class="op">=</span> <span class="st">"mydata"</span>, n.vars <span class="op">=</span> <span class="fl">12500</span>, </span></span>
 <span class="r-in"><span>                                samples.per.cond <span class="op">=</span> <span class="fl">5</span>, n.diffexp <span class="op">=</span> <span class="fl">1250</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> calcNormFactors has been renamed to normLibSizes</span>
 <span class="r-in"><span><span class="va">mydata</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> An object of class compData </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Dataset name: mydata </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of samples: 10 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Number of variables: 12494 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Number of variables: 12496 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of random outliers: 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of single outliers: 0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of known truly differentially expressed genes: 1249 </span>
@@ -96,32 +97,32 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> count.matrix:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    sample1 sample2 sample3 sample4 sample5 sample6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g1      93      79     297     206     197     207</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g2     326     355     155     589     541    1157</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3     102     139     266     166     160     628</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g4    1029    2999    3160    2273    2686    7644</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g5    1086    1239    2053    1596    1424    2544</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g6     755     385     710     467     691     897</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + 12488 rows and 4 cols...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g1     193     133     647     155     554     984</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g2      12      23      13       2      23     105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g3       9       4       5       9       5       6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g4      92      26     382     303      90     679</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g5       6       0       1       2       4       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g6      64       1      74       1       4       0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + 12490 rows and 4 cols...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> sample.annotations:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         condition depth.factor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample1         1    0.8379098</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample2         1    0.8051174</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample3         1    1.3635233</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample4         1    1.2043013</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample5         1    1.3650748</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sample6         2    1.0015471</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample1         1    1.1056572</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample2         1    0.7308826</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample3         1    0.9092396</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample4         1    0.7554423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample5         1    0.7896034</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> sample6         2    1.2143119</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> + 4 rows...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> variable.annotations:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    truedispersions.S1 truedispersions.S2 truemeans.S1 truemeans.S2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g1         0.13723756         0.13723756     47.29268     71.07437</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g2         0.19264403         0.19264403    127.14634    504.64474</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3         0.08505297         0.08505297     61.96491    152.61047</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g4         0.13008023         0.13008023    937.17073   3749.02477</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g5         0.13173090         0.13173090    520.70732   1154.88783</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g6         0.08167468         0.08167468    193.96491    336.64904</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g1          0.1014581          0.1014581   140.292683   423.447594</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g2          0.3543401          0.3543401     8.463415    20.212813</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g3          0.2651239          0.2651239     2.719298     4.264236</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g4          0.3812041          0.3812041    86.463415   214.521705</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g5          0.5372781          0.5372781     1.403509     3.001202</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g6          5.1236532          5.1236532    10.780488    38.812221</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    n.random.outliers.up.S1 n.random.outliers.up.S2 n.random.outliers.down.S1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> g1                       0                       0                         0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> g2                       0                       0                         0</span>
@@ -136,21 +137,21 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> g4                         0                       0                       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> g5                         0                       0                       0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> g6                         0                       0                       0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    n.single.outliers.down.S1 n.single.outliers.down.S2   M.value   A.value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g1                         0                         0 0.6742724  7.537390</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g2                         0                         0 1.5032893  9.151369</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3                         0                         0 1.5971668  8.033871</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g4                         0                         0 2.1533868 12.143778</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g5                         0                         0 1.0334201 10.934882</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g6                         0                         0 0.6918819  9.453143</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    n.single.outliers.down.S1 n.single.outliers.down.S2    M.value  A.value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g1                         0                         0  1.6580385 8.973865</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g2                         0                         0  2.1235724 4.694314</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g3                         0                         0  0.2719910 2.919482</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g4                         0                         0  1.8926089 7.929666</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g5                         0                         0  0.9512174 1.697618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g6                         0                         0 -3.2563263 1.552444</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    truelog2foldchanges upregulation downregulation differential.expression</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g1           0.5877123            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g2           1.9887782            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g3           1.3003306            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g4           2.0001316            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g5           1.1492082            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> g6           0.7954497            1              0                       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> + 12488 rows...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g1           1.5937437            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g2           1.2559583            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g3           0.6490528            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g4           1.3109619            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g5           1.0965022            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> g6           1.8480885            1              0                       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> + 12490 rows...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 </code></pre></div>
     </div>
@@ -166,7 +167,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.9000.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
 </div>
 
       </footer></div>
