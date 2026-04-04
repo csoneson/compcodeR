@@ -80,6 +80,16 @@ jobs:
           key: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-${{ hashFiles('depends.Rds') }}
           restore-keys: ${{ runner.os }}-bioc-${{ matrix.config.bioc }}-
 
+      - name: Create Version Constraint
+        run: |
+          # 1. Create a local constraints file
+          echo "BH@1.87.0-1" > r_constraints.txt
+
+          # 2. Tell pak to use it via Environment Variable
+          # Using GITHUB_ENV ensures it persists to the next step
+          echo "PKG_CONSTRAINTS=${{ github.workspace }}/r_constraints.txt" >> $GITHUB_ENV
+        shell: bash
+
       - name: Install system dependencies (Linux)
         if: runner.os == 'Linux'
         env:
