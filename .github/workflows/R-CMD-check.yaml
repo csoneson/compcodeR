@@ -67,6 +67,12 @@ jobs:
           install.packages('remotes')
         shell: Rscript {0}
 
+      - name: Install EBSeq manually (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          BiocManager::install("EBSeq")
+        shell: Rscript {0}
+
       - name: Query dependencies
         run: |
           saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
