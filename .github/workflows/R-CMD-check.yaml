@@ -67,12 +67,6 @@ jobs:
           install.packages('remotes')
         shell: Rscript {0}
 
-      - name: Install EBSeq manually (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          BiocManager::install("EBSeq")
-        shell: Rscript {0}
-
       - name: Query dependencies
         run: |
           saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(getOption('repos'), BiocManager::repositories())), 'depends.Rds', version = 2)
@@ -92,7 +86,10 @@ jobs:
           RHUB_PLATFORM: linux-x86_64-ubuntu-gcc
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::BH@1.87.0-1
+            any::EBSeq
           pak-version: devel
 
       - name: Install system dependencies (macOS)
