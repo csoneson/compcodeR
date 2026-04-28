@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.47.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.0</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ package</h1>
                         <h4 data-toc-skip class="author">Paul Bastide
 &amp; Mélina Gallopin</h4>
             
-            <h4 data-toc-skip class="date">2026-04-04</h4>
+            <h4 data-toc-skip class="date">2026-04-28</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/devel/vignettes/phylocompcodeR.Rmd" class="external-link"><code>vignettes/phylocompcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>phylocompcodeR.Rmd</code></div>
@@ -452,7 +452,7 @@ vignette.</p>
 </h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.6.0 alpha (2026-04-03 r89785)</span></span>
+<span><span class="co">#&gt; R version 4.6.0 Patched (2026-04-27 r89967)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin23</span></span>
 <span><span class="co">#&gt; Running under: macOS Sequoia 15.7.4</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -471,19 +471,19 @@ vignette.</p>
 <span><span class="co">#&gt; [6] methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ape_5.8-1        compcodeR_1.47.0 sm_2.2-6.0      </span></span>
+<span><span class="co">#&gt; [1] ape_5.8-1        compcodeR_1.49.0 sm_2.2-6.0      </span></span>
 <span><span class="co">#&gt; [4] BiocStyle_2.39.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] tidyselect_1.2.1     timeDate_4052.112   </span></span>
 <span><span class="co">#&gt;  [3] dplyr_1.2.1          farver_2.1.2        </span></span>
-<span><span class="co">#&gt;  [5] S7_0.2.1             bitops_1.0-9        </span></span>
+<span><span class="co">#&gt;  [5] S7_0.2.2             bitops_1.0-9        </span></span>
 <span><span class="co">#&gt;  [7] fastmap_1.2.0        promises_1.5.0      </span></span>
 <span><span class="co">#&gt;  [9] digest_0.6.39        rpart_4.1.27        </span></span>
 <span><span class="co">#&gt; [11] mime_0.13            lifecycle_1.0.5     </span></span>
 <span><span class="co">#&gt; [13] cluster_2.1.8.2      statmod_1.5.1       </span></span>
 <span><span class="co">#&gt; [15] ROCR_1.0-12          magrittr_2.0.5      </span></span>
-<span><span class="co">#&gt; [17] compiler_4.6.0       rlang_1.1.7         </span></span>
+<span><span class="co">#&gt; [17] compiler_4.6.0       rlang_1.2.0         </span></span>
 <span><span class="co">#&gt; [19] sass_0.4.10          tools_4.6.0         </span></span>
 <span><span class="co">#&gt; [21] yaml_2.3.12          knitr_1.51          </span></span>
 <span><span class="co">#&gt; [23] htmlwidgets_1.6.4    statip_0.2.3        </span></span>
@@ -491,20 +491,20 @@ vignette.</p>
 <span><span class="co">#&gt; [27] timeSeries_4052.112  fBasics_4052.98     </span></span>
 <span><span class="co">#&gt; [29] desc_1.4.3           grid_4.6.0          </span></span>
 <span><span class="co">#&gt; [31] caTools_1.18.3       stabledist_0.7-2    </span></span>
-<span><span class="co">#&gt; [33] xtable_1.8-8         edgeR_4.9.4         </span></span>
-<span><span class="co">#&gt; [35] ggplot2_4.0.2        scales_1.4.0        </span></span>
+<span><span class="co">#&gt; [33] xtable_1.8-8         edgeR_4.9.9         </span></span>
+<span><span class="co">#&gt; [35] ggplot2_4.0.3        scales_1.4.0        </span></span>
 <span><span class="co">#&gt; [37] gtools_3.9.5         MASS_7.3-65         </span></span>
-<span><span class="co">#&gt; [39] cli_3.6.5            rmarkdown_2.31      </span></span>
+<span><span class="co">#&gt; [39] cli_3.6.6            rmarkdown_2.31      </span></span>
 <span><span class="co">#&gt; [41] ragg_1.5.2           generics_0.1.4      </span></span>
 <span><span class="co">#&gt; [43] otel_0.2.0           cachem_1.1.0        </span></span>
 <span><span class="co">#&gt; [45] stringr_1.6.0        parallel_4.6.0      </span></span>
 <span><span class="co">#&gt; [47] stable_1.1.7         BiocManager_1.30.27 </span></span>
-<span><span class="co">#&gt; [49] vctrs_0.7.2          jsonlite_2.0.0      </span></span>
+<span><span class="co">#&gt; [49] vctrs_0.7.3          jsonlite_2.0.0      </span></span>
 <span><span class="co">#&gt; [51] bookdown_0.46        rmutil_1.1.10       </span></span>
 <span><span class="co">#&gt; [53] clue_0.3-68          systemfonts_1.3.2   </span></span>
-<span><span class="co">#&gt; [55] locfit_1.5-9.12      limma_3.67.0        </span></span>
+<span><span class="co">#&gt; [55] locfit_1.5-9.12      limma_3.67.3        </span></span>
 <span><span class="co">#&gt; [57] jquerylib_0.1.4      spatial_7.3-18      </span></span>
-<span><span class="co">#&gt; [59] glue_1.8.0           pkgdown_2.2.0.9000  </span></span>
+<span><span class="co">#&gt; [59] glue_1.8.1           pkgdown_2.2.0.9000  </span></span>
 <span><span class="co">#&gt; [61] stringi_1.8.7        gtable_0.3.6        </span></span>
 <span><span class="co">#&gt; [63] later_1.4.8          shinydashboard_0.7.3</span></span>
 <span><span class="co">#&gt; [65] tibble_3.3.1         pillar_1.11.1       </span></span>
@@ -514,9 +514,9 @@ vignette.</p>
 <span><span class="co">#&gt; [73] shiny_1.13.0         lattice_0.22-9      </span></span>
 <span><span class="co">#&gt; [75] markdown_2.0         png_0.1-9           </span></span>
 <span><span class="co">#&gt; [77] modeest_2.4.0        httpuv_1.6.17       </span></span>
-<span><span class="co">#&gt; [79] bslib_0.10.0         Rcpp_1.1.1          </span></span>
+<span><span class="co">#&gt; [79] bslib_0.10.0         Rcpp_1.1.1-1.1      </span></span>
 <span><span class="co">#&gt; [81] nlme_3.1-169         xfun_0.57           </span></span>
-<span><span class="co">#&gt; [83] fs_2.0.1             zoo_1.8-15          </span></span>
+<span><span class="co">#&gt; [83] fs_2.1.0             zoo_1.8-15          </span></span>
 <span><span class="co">#&gt; [85] pkgconfig_2.0.3</span></span></code></pre></div>
 </div>
 <div class="section level2">
