@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">compcodeR</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.49.1</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ package</h1>
                         <h4 data-toc-skip class="author">Paul Bastide
 &amp; Mélina Gallopin</h4>
             
-            <h4 data-toc-skip class="date">2026-04-28</h4>
+            <h4 data-toc-skip class="date">2026-09-10</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/csoneson/compcodeR/blob/devel/vignettes/phylocompcodeR.Rmd" class="external-link"><code>vignettes/phylocompcodeR.Rmd</code></a></small>
       <div class="hidden name"><code>phylocompcodeR.Rmd</code></div>
@@ -99,7 +99,7 @@ package</h1>
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>The <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+<p>The <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 R package can generate RNAseq counts data and compare the relative
 performances of various popular differential analysis detection tools
 (<span class="citation">Soneson and Delorenzi (2013)</span>).</p>
@@ -108,14 +108,14 @@ performances of various popular differential analysis detection tools
 account their varying lengths, and their phylogenetic relationships, as
 encoded by an evolutionary tree.</p>
 <p>This vignette provides a tutorial on how to use the “phylogenetic”
-functionalities of <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>.
+functionalities of <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>.
 It assumes that the reader is already familiar with the <a href="compcodeR.html"><code>compcodeR</code> package vignette</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="the-phylocompdata-class">The <code>phyloCompData</code> class<a class="anchor" aria-label="anchor" href="#the-phylocompdata-class"></a>
 </h2>
 <p>The <code>phyloCompData</code> class extends the
-<code>compData</code> class of the <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+<code>compData</code> class of the <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 package to account for phylogeny and length information needed in the
 representation of OG expression data.</p>
 <p>A <code>phyloCompData</code> object contains all the slots of a <a href="compcodeR.html#the-compdata-class"><code>compData</code>
@@ -127,7 +127,7 @@ the section on <a href="#the-extended-data-object">the phylo data
 object</a>. After conducting a differential expression analysis, the
 <code>phyloCompData</code> object has the same added information than
 the <code>compData</code> object (see <a href="compcodeR.html#the-result-object">the result object</a> in the
-<em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+<em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 package vignette).</p>
 </div>
 <div class="section level2">
@@ -135,7 +135,7 @@ package vignette).</p>
 </h2>
 <p>The workflow for working with the inter-species extension is very
 similar to the <a href="compcodeR.html#a-sample-workflow">already
-existing workflow</a> of the <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+existing workflow</a> of the <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 package. In this section, we recall this workflow, stressing out the
 added functionalities.</p>
 <div class="section level3">
@@ -279,9 +279,9 @@ package</a>, through the <code>runDiffExp</code> function.</p>
 nature of the data and for the varying length of the OGs, some methods
 have been added to the pool.</p>
 <p>The code below applies three differential expression methods to the
-data set generated above: the <em><a href="https://bioconductor.org/packages/3.23/DESeq2" class="external-link">DESeq2</a></em>
+data set generated above: the <em><a href="https://bioconductor.org/packages/3.24/DESeq2" class="external-link">DESeq2</a></em>
 method adapted for varying lengths, the <code>log2(TPM)</code>
-transformation for length normalization, combined with <em><a href="https://bioconductor.org/packages/3.23/limma" class="external-link">limma</a></em>,
+transformation for length normalization, combined with <em><a href="https://bioconductor.org/packages/3.24/limma" class="external-link">limma</a></em>,
 using the <code>trend</code> empirical Bayes correction, and accounting
 for species-related correlations, and the phylogenetic regression tool
 <a href="https://CRAN.R-project.org/package=phylolm" class="external-link"><code>phylolm</code></a>
@@ -306,7 +306,7 @@ applied on the same <code>log2(TPM)</code>.</p>
 <span>           extra.design.covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>           length.normalization <span class="op">=</span> <span class="st">"TPM"</span>,</span>
 <span>           data.transformation <span class="op">=</span> <span class="st">"log2"</span><span class="op">)</span></span></code></pre></div>
-<p>As for a regular <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+<p>As for a regular <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 analysis, example calls are provided in the reference manual (see the
 help pages for the <code>runDiffExp</code> function), and a list of all
 available methods can be obtained with the <code><a href="../reference/listcreateRmd.html">listcreateRmd()</a></code>
@@ -340,7 +340,7 @@ analysis (see <a href="compcodeR.html#the-result-object">the result
 object</a>, the procedure to compare results from several differential
 expression methods is exactly the same as for a <code>compData</code>
 object, and can be found in the <a href="compcodeR.html#comparing-results-from-several-differential-expression-methods">corresponding
-section</a> section of the <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+section</a> section of the <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 vignette.</p>
 </div>
 </div>
@@ -385,7 +385,7 @@ dimensions and consistent species names.</p>
 <h2 id="providing-your-own-differential-expression-code">Providing your own differential expression code<a class="anchor" aria-label="anchor" href="#providing-your-own-differential-expression-code"></a>
 </h2>
 <p>To use your own differential expression code, you can follow the <a href="compcodeR.html#providing-your-own-differential-expression-code">base
-<code>compcodeR</code> instructions</a> in the <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+<code>compcodeR</code> instructions</a> in the <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 vignette.</p>
 </div>
 <div class="section level2">
@@ -444,7 +444,7 @@ extension <code>.rds</code>.</p>
 <h2 id="the-evaluation-metrics">The evaluation metrics<a class="anchor" aria-label="anchor" href="#the-evaluation-metrics"></a>
 </h2>
 <p>The evaluation metrics are unchanged, and described in the <a href="compcodeR.html#the-evaluation-metrics">corresponding section</a>
-section of the <em><a href="https://bioconductor.org/packages/3.23/compcodeR" class="external-link">compcodeR</a></em>
+section of the <em><a href="https://bioconductor.org/packages/3.24/compcodeR" class="external-link">compcodeR</a></em>
 vignette.</p>
 </div>
 <div class="section level2">
@@ -452,9 +452,9 @@ vignette.</p>
 </h2>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.6.0 Patched (2026-04-27 r89967)</span></span>
+<span><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
 <span><span class="co">#&gt; Platform: aarch64-apple-darwin23</span></span>
-<span><span class="co">#&gt; Running under: macOS Sequoia 15.7.4</span></span>
+<span><span class="co">#&gt; Running under: macOS Tahoe 26.6.2</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matrix products: default</span></span>
 <span><span class="co">#&gt; BLAS:   /Library/Frameworks/R.framework/Versions/4.6/Resources/lib/libRblas.0.dylib </span></span>
@@ -471,63 +471,59 @@ vignette.</p>
 <span><span class="co">#&gt; [6] methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; other attached packages:</span></span>
-<span><span class="co">#&gt; [1] ape_5.8-1        compcodeR_1.49.0 sm_2.2-6.0      </span></span>
-<span><span class="co">#&gt; [4] BiocStyle_2.39.0</span></span>
+<span><span class="co">#&gt; [1] ape_5.8-1        compcodeR_1.49.1 sm_2.2-6.0      </span></span>
+<span><span class="co">#&gt; [4] BiocStyle_2.41.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#&gt;  [1] tidyselect_1.2.1     timeDate_4052.112   </span></span>
-<span><span class="co">#&gt;  [3] dplyr_1.2.1          farver_2.1.2        </span></span>
-<span><span class="co">#&gt;  [5] S7_0.2.2             bitops_1.0-9        </span></span>
-<span><span class="co">#&gt;  [7] fastmap_1.2.0        promises_1.5.0      </span></span>
-<span><span class="co">#&gt;  [9] digest_0.6.39        rpart_4.1.27        </span></span>
-<span><span class="co">#&gt; [11] mime_0.13            lifecycle_1.0.5     </span></span>
-<span><span class="co">#&gt; [13] cluster_2.1.8.2      statmod_1.5.1       </span></span>
-<span><span class="co">#&gt; [15] ROCR_1.0-12          magrittr_2.0.5      </span></span>
-<span><span class="co">#&gt; [17] compiler_4.6.0       rlang_1.2.0         </span></span>
-<span><span class="co">#&gt; [19] sass_0.4.10          tools_4.6.0         </span></span>
-<span><span class="co">#&gt; [21] yaml_2.3.12          knitr_1.51          </span></span>
-<span><span class="co">#&gt; [23] htmlwidgets_1.6.4    statip_0.2.3        </span></span>
-<span><span class="co">#&gt; [25] RColorBrewer_1.1-3   KernSmooth_2.23-26  </span></span>
-<span><span class="co">#&gt; [27] timeSeries_4052.112  fBasics_4052.98     </span></span>
-<span><span class="co">#&gt; [29] desc_1.4.3           grid_4.6.0          </span></span>
-<span><span class="co">#&gt; [31] caTools_1.18.3       stabledist_0.7-2    </span></span>
-<span><span class="co">#&gt; [33] xtable_1.8-8         edgeR_4.9.9         </span></span>
-<span><span class="co">#&gt; [35] ggplot2_4.0.3        scales_1.4.0        </span></span>
-<span><span class="co">#&gt; [37] gtools_3.9.5         MASS_7.3-65         </span></span>
-<span><span class="co">#&gt; [39] cli_3.6.6            rmarkdown_2.31      </span></span>
-<span><span class="co">#&gt; [41] ragg_1.5.2           generics_0.1.4      </span></span>
-<span><span class="co">#&gt; [43] otel_0.2.0           cachem_1.1.0        </span></span>
-<span><span class="co">#&gt; [45] stringr_1.6.0        parallel_4.6.0      </span></span>
-<span><span class="co">#&gt; [47] stable_1.1.7         BiocManager_1.30.27 </span></span>
-<span><span class="co">#&gt; [49] vctrs_0.7.3          jsonlite_2.0.0      </span></span>
-<span><span class="co">#&gt; [51] bookdown_0.46        rmutil_1.1.10       </span></span>
-<span><span class="co">#&gt; [53] clue_0.3-68          systemfonts_1.3.2   </span></span>
-<span><span class="co">#&gt; [55] locfit_1.5-9.12      limma_3.67.3        </span></span>
-<span><span class="co">#&gt; [57] jquerylib_0.1.4      spatial_7.3-18      </span></span>
-<span><span class="co">#&gt; [59] glue_1.8.1           pkgdown_2.2.0.9000  </span></span>
-<span><span class="co">#&gt; [61] stringi_1.8.7        gtable_0.3.6        </span></span>
-<span><span class="co">#&gt; [63] later_1.4.8          shinydashboard_0.7.3</span></span>
-<span><span class="co">#&gt; [65] tibble_3.3.1         pillar_1.11.1       </span></span>
-<span><span class="co">#&gt; [67] htmltools_0.5.9      gplots_3.3.0        </span></span>
-<span><span class="co">#&gt; [69] R6_2.6.1             textshaping_1.0.5   </span></span>
-<span><span class="co">#&gt; [71] vioplot_0.5.1        evaluate_1.0.5      </span></span>
-<span><span class="co">#&gt; [73] shiny_1.13.0         lattice_0.22-9      </span></span>
-<span><span class="co">#&gt; [75] markdown_2.0         png_0.1-9           </span></span>
-<span><span class="co">#&gt; [77] modeest_2.4.0        httpuv_1.6.17       </span></span>
-<span><span class="co">#&gt; [79] bslib_0.10.0         Rcpp_1.1.1-1.1      </span></span>
-<span><span class="co">#&gt; [81] nlme_3.1-169         xfun_0.57           </span></span>
-<span><span class="co">#&gt; [83] fs_2.1.0             zoo_1.8-15          </span></span>
-<span><span class="co">#&gt; [85] pkgconfig_2.0.3</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] gtable_0.3.6         xfun_0.60           </span></span>
+<span><span class="co">#&gt;  [3] bslib_0.12.0         ggplot2_4.0.3       </span></span>
+<span><span class="co">#&gt;  [5] htmlwidgets_1.6.4    caTools_1.18.4      </span></span>
+<span><span class="co">#&gt;  [7] lattice_0.23-1       vctrs_0.7.3         </span></span>
+<span><span class="co">#&gt;  [9] tools_4.6.1          bitops_1.1-0        </span></span>
+<span><span class="co">#&gt; [11] generics_0.1.4       parallel_4.6.1      </span></span>
+<span><span class="co">#&gt; [13] tibble_3.3.1         cluster_2.1.8.3     </span></span>
+<span><span class="co">#&gt; [15] pkgconfig_2.0.3      KernSmooth_2.23-27  </span></span>
+<span><span class="co">#&gt; [17] RColorBrewer_1.1-3   S7_0.2.2            </span></span>
+<span><span class="co">#&gt; [19] desc_1.4.3           lifecycle_1.0.5     </span></span>
+<span><span class="co">#&gt; [21] compiler_4.6.1       farver_2.1.2        </span></span>
+<span><span class="co">#&gt; [23] stringr_1.6.0        textshaping_1.0.5   </span></span>
+<span><span class="co">#&gt; [25] gplots_3.3.0         statmod_1.5.2       </span></span>
+<span><span class="co">#&gt; [27] clue_0.3-68          httpuv_1.6.17       </span></span>
+<span><span class="co">#&gt; [29] htmltools_0.5.9      sass_0.4.10         </span></span>
+<span><span class="co">#&gt; [31] yaml_2.3.12          pillar_1.11.1       </span></span>
+<span><span class="co">#&gt; [33] pkgdown_2.2.1.9000   later_1.4.8         </span></span>
+<span><span class="co">#&gt; [35] jquerylib_0.1.4      MASS_7.3-66         </span></span>
+<span><span class="co">#&gt; [37] cachem_1.1.0         limma_3.99.0        </span></span>
+<span><span class="co">#&gt; [39] rpart_4.1.27         vioplot_0.5.1       </span></span>
+<span><span class="co">#&gt; [41] nlme_3.1-171         mime_0.13           </span></span>
+<span><span class="co">#&gt; [43] gtools_3.9.5         tidyselect_1.2.1    </span></span>
+<span><span class="co">#&gt; [45] locfit_1.5-9.12      digest_0.6.39       </span></span>
+<span><span class="co">#&gt; [47] stringi_1.8.9        dplyr_1.2.1         </span></span>
+<span><span class="co">#&gt; [49] bookdown_0.48        fastmap_1.2.0       </span></span>
+<span><span class="co">#&gt; [51] grid_4.6.1           cli_3.6.6           </span></span>
+<span><span class="co">#&gt; [53] magrittr_2.0.5       edgeR_4.99.4        </span></span>
+<span><span class="co">#&gt; [55] ROCR_1.0-12          scales_1.4.0        </span></span>
+<span><span class="co">#&gt; [57] promises_1.5.0       rmarkdown_2.32      </span></span>
+<span><span class="co">#&gt; [59] otel_0.2.0           png_0.1-9           </span></span>
+<span><span class="co">#&gt; [61] ragg_1.5.2           zoo_1.9-0           </span></span>
+<span><span class="co">#&gt; [63] statip_0.2.3         shiny_1.14.0        </span></span>
+<span><span class="co">#&gt; [65] evaluate_1.0.5       knitr_1.51          </span></span>
+<span><span class="co">#&gt; [67] markdown_2.0         rlang_1.3.0         </span></span>
+<span><span class="co">#&gt; [69] Rcpp_1.1.2           xtable_1.8-8        </span></span>
+<span><span class="co">#&gt; [71] glue_1.8.1           BiocManager_1.30.27 </span></span>
+<span><span class="co">#&gt; [73] shinydashboard_0.7.3 jsonlite_2.0.0      </span></span>
+<span><span class="co">#&gt; [75] R6_2.6.1             systemfonts_1.3.2   </span></span>
+<span><span class="co">#&gt; [77] fs_2.1.0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-Bastide2022" class="csl-entry">
 Bastide, Paul, Charlotte Soneson, Olivier Lespinet, and Mélina Gallopin.
 2022. <span>“Benchmark of Differential Gene Expression Analysis Methods
 for Inter-Species RNA-Seq Data Using a Phylogenetic Simulation
-Framework.”</span> <em>bioRxiv Preprint</em>. <a href="https://doi.org/10.1101/2022.01.21.476612" class="external-link">https://doi.org/10.1101/2022.01.21.476612</a>.
+Framework.”</span> <em>bioRxiv Preprint</em>, ahead of print. <a href="https://doi.org/10.1101/2022.01.21.476612" class="external-link">https://doi.org/10.1101/2022.01.21.476612</a>.
 </div>
 <div id="ref-Soneson2013" class="csl-entry">
 Soneson, Charlotte, and Mauro Delorenzi. 2013. <span>“A Comparison of
@@ -535,11 +531,10 @@ Methods for Differential Expression Analysis of <span class="nocase">RNA-seq</sp
 14: 91.
 </div>
 <div id="ref-Stern2017" class="csl-entry">
-Stern, David B., Jesse Breinholt, Carlos Pedraza-Lara, Marilú
-López-Mejía, Christopher L. Owen, Heather Bracken-Grissom, James W.
-Fetzner, and Keith A. Crandall. 2017. <span>“Phylogenetic Evidence from
-Freshwater Crayfishes That Cave Adaptation Is Not an Evolutionary
-Dead-End.”</span> <em>Evolution</em> 71 (10): 2522–32. <a href="https://doi.org/10.1111/evo.13326" class="external-link">https://doi.org/10.1111/evo.13326</a>.
+Stern, David B., Jesse Breinholt, Carlos Pedraza-Lara, et al. 2017.
+<span>“Phylogenetic Evidence from Freshwater Crayfishes That Cave
+Adaptation Is Not an Evolutionary Dead-End.”</span> <em>Evolution</em>
+71 (10): 2522–32. <a href="https://doi.org/10.1111/evo.13326" class="external-link">https://doi.org/10.1111/evo.13326</a>.
 </div>
 <div id="ref-Stern2018" class="csl-entry">
 Stern, David B., and Keith A. Crandall. 2018. <span>“The Evolution of
@@ -565,7 +560,7 @@ Gene Expression Underlying Vision Loss in Cave Animals.”</span>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.9000.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.9000.</p>
 </div>
 
       </footer>
