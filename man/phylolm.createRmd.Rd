@@ -48,7 +48,7 @@ A function to generate code that can be run to perform differential expression a
 For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
 
 
-The \code{length.matrix} field of the \code{phyloCompData} object 
+The \code{length.matrix} field of the \code{phyloCompData} object
 is used to normalize the counts, using one of the following formulas:
 * \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
 * \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
@@ -63,7 +63,7 @@ The function specified by the \code{data.transformation} is then applied
 to the normalized count matrix.
 
 The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
-and dropped from the normalization 
+and dropped from the normalization
 when the transformation is something else than \code{log2}.
 
 The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
@@ -84,8 +84,8 @@ if (require(ape) && require(phylolm)) {
 tmpdir <- normalizePath(tempdir(), winslash = "/")
 set.seed(20200317)
 tree <- rphylo(10, 0.1, 0)
-mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-                                    samples.per.cond = 5, n.diffexp = 100, 
+mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+                                    samples.per.cond = 5, n.diffexp = 100,
                                     tree = tree,
                                     id.species = 1:10,
                                     lengths.relmeans = rpois(1000, 1000),
@@ -97,8 +97,8 @@ sample.annotations(mydata.obj)$test_factor <- factor(rep(1:2, each = 5))
 sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 ## Diff Exp
-runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-           Rmdfunction = "phylolm.createRmd", 
+runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2",
+           Rmdfunction = "phylolm.createRmd",
            output.directory = tmpdir,
            norm.method = "TMM",
            extra.design.covariates = c("test_factor", "test_reg"),

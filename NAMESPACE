@@ -57,49 +57,59 @@ import(sm)
 import(stringr)
 import(vioplot)
 importFrom(grDevices,heat.colors)
-importFrom(graphics,axis)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,par)
-importFrom(graphics,title)
-importFrom(shiny,actionButton)
-importFrom(shiny,checkboxGroupInput)
-importFrom(shiny,fluidRow)
-importFrom(shiny,htmlOutput)
-importFrom(shiny,incProgress)
-importFrom(shiny,numericInput)
-importFrom(shiny,observeEvent)
-importFrom(shiny,reactive)
-importFrom(shiny,renderText)
-importFrom(shiny,renderUI)
-importFrom(shiny,selectInput)
-importFrom(shiny,shinyApp)
-importFrom(shiny,stopApp)
-importFrom(shiny,uiOutput)
-importFrom(shiny,withProgress)
-importFrom(shinydashboard,box)
-importFrom(shinydashboard,dashboardBody)
-importFrom(shinydashboard,dashboardHeader)
-importFrom(shinydashboard,dashboardPage)
-importFrom(shinydashboard,dashboardSidebar)
-importFrom(stats,as.dist)
-importFrom(stats,cor)
-importFrom(stats,hclust)
-importFrom(stats,lm)
-importFrom(stats,loess)
-importFrom(stats,median)
-importFrom(stats,na.omit)
-importFrom(stats,pf)
-importFrom(stats,predict)
-importFrom(stats,pt)
-importFrom(stats,qf)
-importFrom(stats,qt)
-importFrom(stats,rexp)
-importFrom(stats,rnbinom)
-importFrom(stats,rnorm)
-importFrom(stats,rpois)
-importFrom(stats,runif)
-importFrom(stats,sd)
-importFrom(utils,head)
-importFrom(utils,packageVersion)
+importFrom(graphics,
+  axis,
+  legend,
+  lines,
+  par,
+  title
+)
+importFrom(shiny,
+  actionButton,
+  checkboxGroupInput,
+  fluidRow,
+  htmlOutput,
+  incProgress,
+  numericInput,
+  observeEvent,
+  reactive,
+  renderText,
+  renderUI,
+  selectInput,
+  shinyApp,
+  stopApp,
+  uiOutput,
+  withProgress
+)
+importFrom(shinydashboard,
+  box,
+  dashboardBody,
+  dashboardHeader,
+  dashboardPage,
+  dashboardSidebar
+)
 importFrom(statip,mfv)
+importFrom(stats,
+  as.dist,
+  cor,
+  hclust,
+  lm,
+  loess,
+  median,
+  na.omit,
+  pf,
+  predict,
+  pt,
+  qf,
+  qt,
+  rexp,
+  rnbinom,
+  rnorm,
+  rpois,
+  runif,
+  sd
+)
+importFrom(utils,
+  head,
+  packageVersion
+)
