@@ -18,14 +18,14 @@ writeNormalization(
 
 \item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.}
 
-\item{codefile}{}
+\item{codefile}{The path to the file where the code will be written.}
 }
 \description{
 Generate a \code{.Rmd} file containing code to normalize data.
 }
 \details{
 The \code{length.matrix} field of the \code{phyloCompData}
-object is used to normalize the counts. 
+object is used to normalize the counts.
 \describe{
 \item{\code{none}:}{No length normalization.}
 \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}

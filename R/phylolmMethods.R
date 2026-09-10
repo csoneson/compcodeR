@@ -3,13 +3,13 @@
 #' @description
 #' Return the tree of a \code{phyloCompData} object.
 #' If no tree, return a star tree with unit height, and throw a warning.
-#' 
+#'
 #' @param cdata a phyloCompData object.
-#' 
+#'
 #' @return A tree of class \code{phylo}
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 getTree <- function(cdata) {
   if (is.null(phylo.tree(cdata)) || length(phylo.tree(cdata)) == 0) {
     message("There were no tree in the data object. Using a star tree of unit height in phylolm.")
@@ -30,18 +30,18 @@ getTree <- function(cdata) {
 #' @description
 #' Extract results from a phylolm object.
 #' The coefficient of interest must be named "condition".
-#' 
+#'
 #' @param phylo_lm_obj a phylolm object.
-#' 
+#'
 #' @return A list, with:
 #' \describe{
 #' \item{pvalue}{the p value of the differential expression.}
 #' \item{logFC}{the log fold change of the differential expression.}
 #' \item{score}{1 - pvalue.}
 #' }
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 extract_results_phylolm <- function(phylo_lm_obj) {
   res <- as.data.frame(summary(phylo_lm_obj)$coefficients)
   result.table <- data.frame('pvalue' = res['condition2', 'p.value'],
@@ -54,23 +54,23 @@ extract_results_phylolm <- function(phylo_lm_obj) {
 #'
 #' @description
 #' Perform the phylolm analysis for a given gene.
-#' 
+#'
 #' @param dat the data associated with a gene
 #' @param design_data design matrix
 #' @param design_formula design formula
 #' @param tree phylogenetic tree
 #' @param model the model to be used in phylolm
 #' @param measurement_error boolean
-#' 
+#'
 #' @return A list, with:
 #' \describe{
 #' \item{pvalue}{the p value of the differential expression.}
 #' \item{logFC}{the log fold change of the differential expression.}
 #' \item{score}{1 - pvalue.}
 #' }
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 phylolm_analysis <- function(dat, design_data, design_formula, tree, model, measurement_error, ...) {
   data_reg <- design_data
   data_reg$expr <- dat
@@ -79,7 +79,7 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
                                                       data = data_reg,
                                                       phy = tree,
                                                       model = model,
-                                                      measurement_error = measurement_error, 
+                                                      measurement_error = measurement_error,
                                                       ...)))
   if (inherits(res, 'try-error')) {
     if (model == 'BM' && measurement_error) {
@@ -87,7 +87,7 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
                                                           data = data_reg,
                                                           phy = tree,
                                                           model = 'lambda',
-                                                          measurement_error = FALSE, 
+                                                          measurement_error = FALSE,
                                                           ...)))
     }
   }
@@ -101,11 +101,11 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
 }
 
 #' Generate a \code{.Rmd} file containing code to perform differential expression analysis with \code{\link[phylolm]{phylolm}}.
-#' 
+#'
 #' A function to generate code that can be run to perform differential expression analysis of RNAseq data (comparing two conditions) using the phylolm package. The code is written to a \code{.Rmd} file. This function is generally not called by the user, the main interface for performing differential expression analysis is the \code{\link{runDiffExp}} function.
-#' 
-#' For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications. 
-#' 
+#'
+#' For more information about the methods and the interpretation of the parameters, see the \code{\link[phylolm]{phylolm}} package and the corresponding publications.
+#'
 #' @param data.path The path to a .rds file containing the \code{phyloCompData} object that will be used for the differential expression analysis.
 #' @param result.path The path to the file where the result object will be saved.
 #' @param codefile The path to the file where the code will be written.
@@ -116,30 +116,30 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
 #' @param length.normalization one of "none" (no correction), "TPM" or "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt". Data transformation to apply to the normalized data.
 #' @param ... Further arguments to be passed to function \code{\link[phylolm]{phylolm}}.
-#' 
-#' @details 
-#' The \code{length.matrix} field of the \code{phyloCompData} object 
+#'
+#' @details
+#' The \code{length.matrix} field of the \code{phyloCompData} object
 #' is used to normalize the counts, using one of the following formulas:
 #' * \code{length.normalization="none"} : \eqn{CPM_{gi} = \frac{N_{gi} + 0.5}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^6}
 #' * \code{length.normalization="TPM"} : \eqn{TPM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi}/L_{gi} + 1} \times 10^6}
 #' * \code{length.normalization="RPKM"} : \eqn{RPKM_{gi} = \frac{(N_{gi} + 0.5) / L_{gi}}{NF_i \times \sum_{g} N_{gi} + 1} \times 10^9}
-#' 
+#'
 #' where \eqn{N_{gi}} is the count for gene g and sample i,
 #' where \eqn{L_{gi}} is the length of gene g in sample i,
 #' and \eqn{NF_i} is the normalization for sample i,
 #' normalized using \code{calcNormFactors} of the \code{edgeR} package.
-#' 
+#'
 #' The function specified by the \code{data.transformation} is then applied
 #' to the normalized count matrix.
-#' 
+#'
 #' The "\eqn{+0.5}" and "\eqn{+1}" are taken from Law et al 2014,
-#' and dropped from the normalization 
+#' and dropped from the normalization
 #' when the transformation is something else than \code{log2}.
-#' 
+#'
 #' The "\eqn{\times 10^6}" and "\eqn{\times 10^9}" factors are omitted when
 #' the \code{asin(sqrt)} transformation is taken, as \eqn{asin} can only
 #' be applied to real numbers smaller than 1.
-#' 
+#'
 #' The \code{design} model used in the \code{\link[phylolm]{phylolm}}
 #' uses the "condition" column of the \code{sample.annotations} data frame from the \code{\link{phyloCompData}} object
 #' as well as all the covariates named in \code{extra.design.covariates}.
@@ -147,25 +147,25 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
 #' \code{sample.annotations} must have two columns named "var1" and "var2", and the design formula
 #' in the \code{\link[phylolm]{phylolm}} function will be:
 #' \code{~ condition + var1 + var2}.
-#' 
-#' @export 
+#'
+#' @export
 #' @author Charlotte Soneson, Paul Bastide, Mélina Gallopin
 #' @return The function generates a \code{.Rmd} file containing the code for performing the differential expression analysis. This file can be executed using e.g. the \code{knitr} package.
-#' @references 
+#' @references
 #' Ho, L. S. T. and Ane, C. 2014. "A linear-time algorithm for Gaussian and non-Gaussian trait evolution models". Systematic Biology 63(3):397-408.
-#' 
+#'
 #' Law, C.W., Chen, Y., Shi, W. et al. (2014) voom: precision weights unlock linear model analysis tools for RNA-seq read counts. Genome Biol 15, R29.
 #'
 #' Musser, JM, Wagner, GP. (2015): Character trees from transcriptome data: Origin and individuation of morphological characters and the so‐called “species signal”. J. Exp. Zool. (Mol. Dev. Evol.) 324B: 588– 604.
-#' 
+#'
 #' @examples
 #' try(
 #' if (require(ape) && require(phylolm)) {
 #' tmpdir <- normalizePath(tempdir(), winslash = "/")
 #' set.seed(20200317)
 #' tree <- rphylo(10, 0.1, 0)
-#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000, 
-#'                                     samples.per.cond = 5, n.diffexp = 100, 
+#' mydata.obj <- generateSyntheticData(dataset = "mydata", n.vars = 1000,
+#'                                     samples.per.cond = 5, n.diffexp = 100,
 #'                                     tree = tree,
 #'                                     id.species = 1:10,
 #'                                     lengths.relmeans = rpois(1000, 1000),
@@ -177,14 +177,14 @@ phylolm_analysis <- function(dat, design_data, design_formula, tree, model, meas
 #' sample.annotations(mydata.obj)$test_reg <- rnorm(10, 0, 1)
 #' saveRDS(mydata.obj, file.path(tmpdir, "mydata.rds"))
 #' ## Diff Exp
-#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2", 
-#'            Rmdfunction = "phylolm.createRmd", 
+#' runDiffExp(data.file = file.path(tmpdir, "mydata.rds"), result.extent = "DESeq2",
+#'            Rmdfunction = "phylolm.createRmd",
 #'            output.directory = tmpdir,
 #'            norm.method = "TMM",
 #'            extra.design.covariates = c("test_factor", "test_reg"),
 #'            length.normalization = "RPKM")
 #' })
-phylolm.createRmd <- function(data.path, result.path, codefile, 
+phylolm.createRmd <- function(data.path, result.path, codefile,
                               norm.method,
                               model = "BM", measurement_error = TRUE,
                               extra.design.covariates = NULL,
@@ -194,15 +194,15 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
   codefile <- file(codefile, open = 'w')
   writeLines("### phylolm", codefile)
   writeLines(paste("Data file: ", data.path, sep = ''), codefile)
-  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = TRUE, error = TRUE, warning = TRUE}", 
-               "require(phylolm)", 
-               "require(limma)", 
+  writeLines(c("```{r, echo = TRUE, eval = TRUE, include = TRUE, message = TRUE, error = TRUE, warning = TRUE}",
+               "require(phylolm)",
+               "require(limma)",
                "require(edgeR)",
                paste("cdata <- readRDS('", data.path, "')", sep = '')), codefile)
   if (is.list(readRDS(data.path))) {
     writeLines("cdata <- convertListTophyloCompData(cdata)", codefile)
   }
-  
+
   writeLines(c("is.valid <- check_phyloCompData(cdata)",
                "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData object.')"),
              codefile)
@@ -248,7 +248,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
   writeLines(c("", "# Save the results"),codefile)
   writeLines(c(
     "rownames(result.table) <- rownames(count.matrix(cdata))",
-    "result.table(cdata) <- result.table", 
+    "result.table(cdata) <- result.table",
     "package.version(cdata) <- paste('phylolm,', packageVersion('phylolm'))",
     "package.version(cdata) <- paste('limma,', packageVersion('limma'))",
     "analysis.date(cdata) <- date()",
@@ -264,7 +264,7 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
     "is.valid <- check_compData_results(cdata)",
     "if (!(is.valid == TRUE)) stop('Not a valid phyloCompData result object.')",
     paste("saveRDS(cdata, '", result.path, "')", sep = "")),
-    codefile)  
+    codefile)
   writeLines("print(paste('Unique data set ID:', info.parameters(cdata)$uID))", codefile)
   writeLines("sessionInfo()", codefile)
   writeLines("```", codefile)
@@ -275,19 +275,19 @@ phylolm.createRmd <- function(data.path, result.path, codefile,
 #' @param norm.method The between-sample normalization method used to compensate for varying library sizes and composition in the differential expression analysis. The normalization factors are calculated using the \code{calcNormFactors} of the \code{edgeR} package. Possible values are \code{"TMM"}, \code{"RLE"}, \code{"upperquartile"} and \code{"none"}
 #' @param length.normalization one of "none" (no correction), "TPM", "RPKM" (default). See details.
 #' @param data.transformation one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.
-#' @param codefile 
-#' 
-#' @details 
+#' @param codefile The path to the file where the code will be written.
+#'
+#' @details
 #' The \code{length.matrix} field of the \code{phyloCompData}
-#' object is used to normalize the counts. 
+#' object is used to normalize the counts.
 #' \describe{
 #' \item{\code{none}:}{No length normalization.}
 #' \item{\code{TPM}:}{The raw counts are divided by the length of their associated genes before normalization by \code{voom}.}
 #' \item{\code{RPKM}:}{The log2 length is substracted to the log2 CPM computed by \code{voom} for each gene and sample.}
 #' }
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 writeNormalization <- function(norm.method, length.normalization, data.transformation, codefile) {
   writeLines(c("", "# Normalisation"),codefile)
   length.normalization <- match.arg(length.normalization, c("RPKM", "TPM", "none"))
