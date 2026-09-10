@@ -35,7 +35,7 @@ Imports:
     MASS,
     ggplot2,
     stringr,
-    modeest,
+    statip,
     edgeR,
     limma,
     vioplot,
