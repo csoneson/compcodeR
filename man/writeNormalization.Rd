@@ -17,8 +17,6 @@ writeNormalization(
 \item{length.normalization}{one of "none" (no correction), "TPM", "RPKM" (default). See details.}
 
 \item{data.transformation}{one of "log2", "asin(sqrt)" or "sqrt." Data transformation to apply to the normalized data.}
-
-\item{codefile}{}
 }
 \description{
 Generate a \code{.Rmd} file containing code to normalize data.

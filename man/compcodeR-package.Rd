@@ -7,16 +7,20 @@
 \title{RNAseq data simulation, differential expression analysis and
 performance comparison of differential expression methods}
 \description{
-RNAseq data simulation, differential expression analysis and
-performance comparison of differential expression methods
-}
-\details{
 This package provides extensive functionality for comparing
 results obtained by different methods for differential expression analysis
 of RNAseq data. It also contains functions for simulating count data and
 interfaces to several packages for performing the differential expression analysis.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/csoneson/compcodeR}
+  \item Report bugs at \url{https://github.com/csoneson/compcodeR/issues}
+}
+
+}
 \author{
 Charlotte Soneson
 }
-\keyword{package}
+\keyword{internal}
