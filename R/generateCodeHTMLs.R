@@ -21,11 +21,11 @@ generateCodeHTMLs <- function(input.files, output.directory) {
 
   for (i in seq_len(length(input.files))) {
     temp <- as.character(input.files[i])
-    if (!(substr(basename(temp), nchar(basename(temp)) - 3, nchar(basename(temp))) == ".rds")) {
+    if (!grepl("\\.rds$", basename(temp))) {
       message(paste(temp, "is not an .rds file, no code file will be generated."))
     } else {
       ## Extract only the filename (that will be used to name the code file)
-      filename <- sub(".rds", "", basename(temp))
+      filename <- sub("\\.rds$", "", basename(temp))
       rdsobj <- readRDS(temp)
       ## If it is a list, convert to a compData object
       if (is.list(rdsobj)) {
@@ -46,11 +46,8 @@ generateCodeHTMLs <- function(input.files, output.directory) {
           close(fileConn)
 
           ## Generate HTML file
-          rmarkdown::pandoc_convert(input = codefile,
-                                    output = str_replace(codefile, pattern = ".md", replacement = ".html"))
-          # markdownToHTML(file = codefile,
-          #                output = str_replace(codefile, pattern = ".md", replacement = ".html"),
-          #                title = 'Code')
+          htmlFile <- sub("\\.md$", ".html", codefile)
+          rmarkdown::pandoc_convert(input = codefile, output = htmlFile)
 
           ## Remove the temporary markdown file
           file.remove(codefile)
